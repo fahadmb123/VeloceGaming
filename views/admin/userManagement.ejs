@@ -1,0 +1,226 @@
+<link rel="stylesheet" href="/css/admin/userManagement.css">
+
+
+
+<div class="dashboard-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <div class="logo-circle">
+                        <i class="fa-solid fa-check"></i>
+                    </div>
+                    <div class="logo-text">
+                        <span class="brand">VELOCE</span>
+                        <span class="sub-brand">GAMING</span>
+                    </div>
+                </div>
+            </div>
+
+            <nav class="sidebar-nav">
+                <ul>
+                    <li><a href="#"><span>DashBoard</span></a></li>
+                    <li class="active"><a href="#"><span>Users</span></a></li>
+                    <li><a href="#"><span>Category</span></a></li>
+                    <li><a href="#"><span>Order</span></a></li>
+                    <li><a href="#"><span>Product</span></a></li>
+                    <li><a href="#"><span>Coupon</span></a></li>
+                    <li><a href="#"><span>Report</span></a></li>
+                    <li><a href="#"><span>Banner</span></a></li>
+                </ul>
+            </nav>
+            <a href="/admin/logout" style="text-decoration: none;">
+            <div class="sidebar-footer">
+                <button class="btn-logout">Log out</button>
+            </div>
+            </a>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="main-header">
+                <h1>User Management</h1>
+            </header>
+
+            <section class="content-card">
+                <div class="table-controls">
+                    <div class="search-box">
+                        <form action="/admin/userManagement" method="GET">
+                            <input type="hidden" name="filter" value="<%= filter %>">
+                           <div class="input-group">
+                                <i class="fa-solid fa-magnifying-glass search-icon"></i>
+                                <input type="text" name="search" value="<%= search %>" placeholder="Search..." id="userSearch">
+                            </div>
+                            <button type="submit" class="search-btn">Search</button>
+                            <button type="button" class="cancel-btn" id="cancelSearchBtn" style="display: none;"
+                                onclick="cancelSearch()">Cancel</button>
+                        </form>
+
+                    </div>
+
+                    <div class="filter-box">
+                        <select onchange="window.location.href='/admin/userManagement?filter=' + this.value + '&search=<%= search %>'">
+                            <option>Filter : Status</option>
+                            <option value="all" <%= filter === 'all' ? 'selected' : '' %>>All</option>
+                            <option value="active" <%= filter === 'active' ? 'selected' : '' %>>Active</option>
+                            <option value="block" <%= filter === 'block' ? 'selected' : '' %>>Blocked</option>
+                        </select>
+                    </div>
+
+                </div>
+
+                <div class="table-container">
+                    <table class="user-table">
+                        <thead>
+                            <tr>
+                                <th>User Name</th>
+                                <th>Email</th>
+                                <th>Registered Date</th>
+                                <th>Status</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <% users.forEach( (user,index)=> { %>
+                                <tr>
+                                    <td class="user-name">
+                                        <%= user.name %>
+                                    </td>
+                                    <td class="user-email">
+                                        <%= user.email %>
+                                    </td>
+                                    <td>
+                                        <%= new Date(user.createdAt).toLocaleString("en-IN") %>
+                                    </td>
+
+                                    <% if (user.status) { %>
+                                        <td class="status-active">Active</td>
+                                    <% } else { %>
+                                        <td class="status-blocked">Blocked</td>
+                                    <% } %>
+
+                                        <td>
+                                    <% if (user.status) { %>
+                                            <button onclick="blockUser(`<%= user._id %>`)" class="btn-block">Block <i class="fa-solid fa-ban"></i></button>
+                                    <% } else { %>
+                                            <button onclick="activateUser('<%= user._id %>')" class="btn-activate">Activate <i  class="fa-solid fa-check"></i></button>
+                                     <% } %>
+                                        </td>
+                                </tr>
+                                <% }) %>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="pagination">
+                    <div class="pagination">
+
+
+                        <% if (currentPage > 1) { %>
+                            <a style="text-decoration: none;" href="/admin/userManagement?page=<%= currentPage - 1 %>
+
+                                <% if (typeof search !== 'undefined') { %>&search=<%= search %><% } %>
+                                <% if (typeof filter !== 'undefined') { %>&filter=<%= filter %><% } %>">
+
+                                <button class="page-arrow">
+                                    <i class="fa-solid fa-chevron-left"></i>
+                                </button>
+
+                            </a>
+                        <% } %>
+
+                        <%
+                            const visiblePages = 3;
+                            let start = currentPage;
+                            let end = currentPage + visiblePages - 1;
+
+                            if (end > totalPages) {
+                                end = totalPages;
+                                start = Math.max(1, totalPages - visiblePages + 1);
+                            }
+                        %>
+
+
+                        <% for(let i = start; i <= end; i++) { %>
+                            <a style="text-decoration: none;"  href="/admin/userManagement?page=<%= i %>
+
+                                <% if (typeof search !== 'undefined') { %>&search=<%= search %><% } %>
+                                <% if (typeof filter !== 'undefined') { %>&filter=<%= filter %><% } %>">
+
+                                <button class="page-num <%= currentPage === i ? 'active' : '' %>">
+                                    <%= i %>
+                                </button>
+                            </a>
+                        <% } %>
+
+
+                        <% if (end < totalPages) { %>
+                            <span>...</span>
+                        <% } %>
+
+
+                        <% if (currentPage < totalPages) { %>
+                            <a style="text-decoration: none;" href="/admin/userManagement?page=<%= currentPage + 1 %>
+
+                                <% if (typeof search !== 'undefined') { %>&search=<%= search %><% } %>
+                                <% if (typeof filter !== 'undefined') { %>&filter=<%= filter %><% } %>">
+
+                                <button class="page-arrow">
+                                    <i class="fa-solid fa-chevron-right"></i>
+                                </button>
+                            </a>
+                        <% } %>
+
+                    </div>      
+                </div>
+            </section>
+        </main>
+        <% if (typeof swalMessage !=="undefined" && swalMessage) { %>
+            <span id="swalMessage" style="display:none;">
+                <%= swalMessage %>
+            </span>
+            <% } %>
+    </div>
+
+    <script>
+        const userSearch = document.getElementById('userSearch');
+        const clearBtn = document.getElementById('clearBtn');
+        const cancelSearchBtn = document.getElementById('cancelSearchBtn');
+
+        // Show/hide cancel button based on URL query
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.has('search') && urlParams.get('search').trim() !== "") {
+            if (cancelSearchBtn) cancelSearchBtn.style.display = 'block';
+            if (userSearch) userSearch.value = urlParams.get('search');
+        }
+
+        if (userSearch) {
+            userSearch.addEventListener('input', () => {
+                if (clearBtn) clearBtn.style.display = userSearch.value ? 'block' : 'none';
+            });
+        }
+
+        function clearSearch() {
+            if (userSearch) {
+                userSearch.value = '';
+                if (clearBtn) clearBtn.style.display = 'none';
+                userSearch.focus();
+            }
+        }
+
+        function cancelSearch() {
+            window.location.href = '/admin/userManagement';
+        }
+
+        function blockUser(id) {
+            if (confirm("Are You Sure You Want To Block That User")) {
+                window.location.href = `/admin/userManagement/userStatus/${id}?status=false`;
+            }
+        }
+
+        function activateUser(id) {
+            if (confirm("Are You Sure You Want To Activate That User")) {
+                window.location.href = `/admin/userManagement/userStatus/${id}?status=true`;
+            }
+        }
+    </script>

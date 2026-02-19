@@ -1,0 +1,67 @@
+<link rel="stylesheet" href="/css/user/emailEntry.css">
+
+
+
+<header>
+    <div class="logo">
+        <div class="logo-icon">
+            <i class="fa-solid fa-check"></i>
+        </div>
+        <div class="logo-text">
+            <span class="brand">VELOCE</span>
+            <span class="sub-brand">GAMING</span>
+        </div>
+    </div>
+    <nav>
+        <a href="../home/index.html">Home</a>
+        <a href="#">Shop</a>
+        <a href="../signup/index.html">Sign Up</a>
+    </nav>
+</header>
+
+<main>
+    <div class="password-assistance-container">
+        <h1>Password assistance</h1>
+        <p>Enter the email address associated with your account.</p>
+
+        <% if (typeof message !== "undefined" && message) { %>
+            <p style="color:red;"><%= message %></p>
+        <% } %>
+        
+        <form action="/emailEntry" method="post" onclick="return formValidate()">
+            <div class="form-group">
+                <label>Email</label>
+                <input id="email" name="email" type="email" placeholder="Enter email...">
+            </div>
+
+            <button type="submit" class="btn-continue">Continue</button>
+        </form>
+    </div>
+
+    <div class="back-to-login">
+        <a href="/login">Back to Login</a>
+    </div>
+</main>
+<script>
+
+    document.addEventListener("DOMContentLoaded",()=>{
+        document.querySelector("form").addEventListener("submit",formValidate)
+    })
+
+
+    function formValidate (event){
+
+        event.preventDefault()
+
+        let email = document.getElementById("email").value
+
+        if (email == ""){
+            swal("Please Fill The Email Box");
+            return false
+        }
+
+        event.target.submit()
+        return true
+    }
+
+</script>

@@ -1,0 +1,86 @@
+<link rel="stylesheet" href="/css/user/address.css">
+
+
+
+<header>
+    <div class="header-container">
+        <div class="logo">
+            <div class="logo-icon"><i class="fa-solid fa-check"></i></div>
+            <div class="logo-text">
+                <span class="brand">VELOCE</span>
+                <span class="sub-brand">GAMING</span>
+            </div>
+        </div>
+
+        <nav>
+            <a href="/">Home</a>
+            <a href="#">Shop</a>
+        </nav>
+
+        <div class="header-icons">
+            <a href="#"><i class="fa-regular fa-heart"></i></a>
+            <a href="#"><i class="fa-solid fa-cart-shopping"></i></a>
+            <a style="text-decoration: none;" href="/profile"><div class="profile-circle-small">
+                <%= user.name.charAt(0).toUpperCase() %>
+            </div></a>
+        </div>
+    </div>
+</header>
+
+<main class="address-container">
+    <div class="address-header">
+        <h2>Saved Addresses</h2>
+        <a href="/addAddress"><button class="btn-add-address" >+ Add New Address</button></a>
+    </div>
+
+    <div class="address-table-container">
+        <table class="address-table">
+            <tbody>
+                <% user.address.slice().reverse().forEach((obj,index) => { %>
+                <tr>
+                    <td class="col-indicator">
+                        <div class="cyan-dot"></div>
+                    </td>
+                    <td class="col-details">
+                        <h3><%= obj.fullName %></h3>
+                        <p><%= obj.address %>  ,  <%= obj.state %>  ,  <%= obj.city %>  --  <%= obj.pincode %> -------- , Address Type  : <%= obj.type %></p>
+                    </td>
+                    <td class="col-action">
+                        <button class="btn-edit" onclick="editAddress(`<%= obj._id %>`)">Edit</button>
+                        <button onclick="deleteAddress(`<%= obj._id %>`)" class="btn-remove">Remove</button>
+                    </td>
+                </tr>
+                <% }) %>
+            </tbody>
+        </table>
+    </div>
+    <% if (typeof swalMessage !== "undefined" && swalMessage) { %>
+    <span id="swalMessage" style="display:none;">
+        <%= swalMessage %>
+    </span>
+    <% } %>
+    <div class="back-button-container">
+        <a href="/profile" class="btn-back">
+            <i class="fa-solid fa-chevron-left"></i> Back
+        </a>
+    </div>
+</main>
+<script>
+
+    let messageElement = document.getElementById("swalMessage");
+
+    if (messageElement && messageElement.innerText.trim() !== "") {
+    swal(messageElement.innerText);
+    }
+
+    
+    function deleteAddress(id) {
+        if (confirm("Are You Sure You Want To Delete Address")){
+            window.location.href = `/address/delete?id=${id}`
+        }
+    }
+
+    function editAddress(id) {
+        window.location.href = `/editAddress?id=${id}`
+    }
+</script>

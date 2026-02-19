@@ -1,0 +1,198 @@
+<link rel="stylesheet" href="/css/user/addAddress.css">
+
+
+
+
+<!-- Header -->
+<header>
+    <div class="header-container">
+        <div class="logo">
+            <div class="logo-icon"><i class="fa-solid fa-check"></i></div>
+            <div class="logo-text">
+                <span class="brand">VELOCE</span>
+                <span class="sub-brand">GAMING</span>
+            </div>
+        </div>
+
+        <nav>
+            <a href="/">Home</a>
+            <a href="#">Shop</a>
+        </nav>
+
+        <div class="header-icons">
+            <a href="#"><i class="fa-regular fa-heart"></i></a>
+            <a href="#"><i class="fa-solid fa-cart-shopping"></i></a>
+            <div class="profile-circle-small">
+                <%= user.name.charAt(0).toUpperCase() %>
+            </div>
+        </div>
+    </div>
+</header>
+
+<main class="add-address-container">
+    <h2 class="main-heading">Edit Address</h2>
+    <% if (typeof message !== "undefined" && message) { %>
+            <p style="color:red;"><%= message %></p>
+        <% } %>
+    <div class="form-card">
+        <div class="form-header">
+            <h3>Edit Address</h3>
+            <a onclick="window.location.replace('/address'); return false;" class="close-icon"><i class="fa-solid fa-xmark"></i></a>
+        </div>
+
+        <form class="address-form" action="/editAddress?id=<%= address._id %>" method="post" onclick="return formValidate()">
+            <div class="form-group full-width">
+                <label>Name</label>
+                <input value="<%= address.fullName %>" name="name" id="name" type="text" placeholder="Name">
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Phone (+91)</label>
+                    <input value="<%= address.phone %>" name="phone" id="phone" type="text" placeholder="Number">
+                </div>
+                <div class="form-group">
+                    <label>Pincode</label>
+                    <input value="<%= address.pincode %>" name="pincode" id="pincode" type="text" placeholder="PIN">
+                </div>
+            </div>
+
+            <div class="form-group full-width">
+                <label>Street Address</label>
+                <input value="<%= address.address %>" name="address" id="address" type="text" placeholder="Address">
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label>State</label>
+                    <input value="<%= address.state %>" name="state" id="state" type="text" placeholder="State" class="state-input">
+                </div>
+                <div class="form-group">
+                    <label>District</label>
+                    <input value="<%= address.city %>" name="city" id="city" type="text" placeholder="District">
+                </div>
+            </div>
+
+            <div class="form-group full-width">
+                <label>Address Type</label>
+                <!--<select id="type" name="type" class="address-type-select" >
+                    <option value="'<%= address.type %>'" disabled selected><%= address.type %></option>
+                    <option value="Home">Home</option>
+                    <option value="Work">Work</option>
+                </select>-->
+                <select name="type" id="type" class="address-type-select">
+                    <option value="Home"
+                        <%= address && address.addressType === "Home" ? "selected" : "" %>>
+                        Home
+                    </option>
+                    <option value="Work"
+                        <%= address && address.addressType === "Work" ? "selected" : "" %>>
+                        Work
+                    </option>
+                 </select>
+            </div>
+            
+
+            <div class="form-actions">
+                <a onclick="window.location.replace('/address'); return false;"><button type="button" class="btn-cancel" >Cancel</button></a>
+                <button type="submit" class="btn-save">Save Changes</button>
+            </div>
+        </form>
+    </div>
+    <% if (typeof swalMessage !== "undefined" && swalMessage) { %>
+    <span id="swalMessage" style="display:none;">
+        <%= swalMessage %>
+    </span>
+    <% } %>
+</main>
+<script>
+
+    let messageElement = document.getElementById("swalMessage");
+
+    if (messageElement && messageElement.innerText.trim() !== "") {
+    swal(messageElement.innerText);
+    }
+
+
+
+    document.addEventListener("DOMContentLoaded",()=>{
+        document.querySelector("form").addEventListener("submit",formValidate)
+    })
+
+
+
+    function formValidate (event){
+
+        event.preventDefault()
+
+        let name = document.getElementById("name").value.trim()
+        let phone = document.getElementById("phone").value.trim()
+        let pincode = document.getElementById("pincode").value.trim()
+        let address = document.getElementById("address").value.trim()
+        let state = document.getElementById("state").value.trim()
+        let city = document.getElementById("city").value.trim()
+        
+
+        if (!name && !phone && !pincode && !address && !state && !city){
+            swal("Please fill At Least One field");
+            return false
+        } 
+        /*
+        if (name) {
+            if (/^\s*$/.test(name)) {
+                swal("Name cannot be empty or spaces only");
+                return false;
+            }
+        }
+        if (pincode) {
+            if (/^\s*$/.test(pincode)) {
+                swal("Pincode cannot be empty or spaces only");
+                return false;
+            }
+        }
+        if (phone) {
+            if (/^\s*$/.test(phone)) {
+                swal("Phone Number cannot be empty or spaces only");
+                return false;
+            }
+            if (!/^[0-9]{10}$/.test(phone)) {
+                swal("Invalid Phone Number");
+                return false;
+            }
+        }
+        if (address) {
+            if (/^\s*$/.test(address)) {
+                swal("Address cannot be empty or spaces only");
+                return false;
+            }
+        }
+        if (state) {
+            if (/^\s*$/.test(state)) {
+                swal("state cannot be empty or spaces only");
+                return false;
+            }
+        }
+        if (city) {
+            if (/^\s*$/.test(city)) {
+                swal("city cannot be empty or spaces only");
+                return false;
+            }
+        }*/
+       if (phone) {
+            if (!/^[0-9]{10}$/.test(phone)) {
+                swal("Invalid Phone Number");
+                return false;
+            }
+        }
+
+        event.target.submit()
+        return true
+    }
+
+
+    window.addEventListener("pageshow", function (event) {
+        if (event.persisted) {
+            window.location.reload();
+        }
+    });
+</script>

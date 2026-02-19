@@ -1,0 +1,224 @@
+<link rel="stylesheet" href="/css/user/profile.css">
+
+
+<!-- Header -->
+<header>
+    <div class="header-container">
+        <div class="logo">
+            <div class="logo-icon"><i class="fa-solid fa-check"></i></div>
+            <div class="logo-text">
+                <span class="brand">VELOCE</span>
+                <span class="sub-brand">GAMING</span>
+            </div>
+        </div>
+
+        <nav>
+            <a href="/">Home</a>
+            <a href="#">Shop</a>
+        </nav>
+
+        <div class="header-icons">
+            <a href="#"><i class="fa-regular fa-heart"></i></a>
+            <a href="#"><i class="fa-solid fa-cart-shopping"></i></a>
+            <div class="profile-circle-small">
+                <%= user.name.charAt(0).toUpperCase() %>
+            </div>
+        </div>
+    </div>
+</header>
+
+<main class="profile-container">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="user-avatar-section">
+            <div class="user-avatar"> <%= user.name.charAt(0).toUpperCase() %> </div>
+            <h3><%= user.name.toUpperCase() %></h3>
+        </div>
+
+        <ul class="sidebar-menu">
+            <li class="active"><a href="#"><i class="fa-solid fa-briefcase"></i> My Profile</a></li>
+            <li><a href="#"><i class="fa-solid fa-clipboard-list"></i> My Orders</a></li>
+            <li><a href="#"><i class="fa-regular fa-heart"></i> My Wishlist</a></li>
+            <li><a href="#"><i class="fa-solid fa-ticket"></i> Coupon</a></li>
+            <li><a href="#"><i class="fa-solid fa-wallet"></i> Wallet</a></li>
+        </ul>
+
+        <a style="text-decoration: none;" href="/logout">
+            <button class="btn-logout">
+                <i class="fa-solid fa-right-from-bracket"></i> Logout
+            </button>
+        </a>
+    </aside>
+
+    <!-- Main Content -->
+    <section class="profile-content">
+        <h2>Edit Profile</h2>
+
+        <form class="edit-profile-form" action="/profile" method="post" onclick="return formValidate()">
+            <div class="form-section">
+                <div class="form-group">
+                    <label>Name</label>
+                    <input id="name" name="name" type="text" value="<%= user.name %>">
+                </div>
+                <div class="form-group">
+                    <label>Email</label>
+                    <input id="email" name="email" type="email" value="<%= user.email %>">
+                </div>
+            </div>
+
+            <div class="password-change-section">
+                <h3>Password Change</h3>
+                <div class="form-group">
+                    <label>Current Password</label>
+                    <div class="input-wrapper">
+                        <input name="currentPassword" minlength="6" type="password" id="currentPassword" placeholder="••••••••">
+                        <span class="toggle-password" onclick="togglePassword('currentPassword', this)">Show</span>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>New Password</label>
+                    <div class="input-wrapper">
+                        <input name="newPassword" minlength="6" type="password" id="newPassword" placeholder="••••••••">
+                        <span class="toggle-password" onclick="togglePassword('newPassword', this)">Show</span>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Confirm New Password</label>
+                    <div class="input-wrapper">
+                        <input name="confirmPassword" minlength="6" type="password" id="confirmPassword" placeholder="••••••••">
+                        <span class="toggle-password" onclick="togglePassword('confirmPassword', this)">Show</span>
+                    </div>
+                </div>
+                
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn-save">Save Changes</button>
+            </div>
+        </form>
+
+        <div class="referral-section">
+            <h3>REFERRAL CODE</h3>
+            <div class="referral-box">
+                <span id="referralText" class="referral-code"><%= user.refferalCode %></span>
+                <button onclick="copyCode()" class="btn-copy">Copy Code</button>
+            </div>
+        </div>
+
+        <div class="address-section">
+            <a href="/address"><button class="btn-show-address">Show Saved Address</button></a>
+        </div>
+    </section>
+    <% if (typeof swalMessage !== "undefined" && swalMessage) { %>
+    <span id="swalMessage" style="display:none;">
+        <%= swalMessage %>
+    </span>
+    <% } %>
+</main>
+
+<script>
+
+    function togglePassword(inputId, el) {
+        const input = document.getElementById(inputId);
+        if (input.type === "password") {
+            input.type = "text";
+            el.textContent = "Hide";
+        } else {
+            input.type = "password";
+            el.textContent = "Show";
+        }
+    }
+
+
+    function copyCode() {
+    const text = document.getElementById("referralText").innerText;
+
+    navigator.clipboard.writeText(text)
+        .then(() => alert("Copied!"));
+    }
+
+    let messageElement = document.getElementById("swalMessage");
+
+    if (messageElement && messageElement.innerText.trim() !== "") {
+        swal(messageElement.innerText);
+    }
+
+
+    document.addEventListener("DOMContentLoaded", () => {
+        document.querySelector("form").addEventListener("submit", formValidate)
+    })
+
+
+
+    function formValidate(event) {
+
+        event.preventDefault()
+
+        let name = document.getElementById("name").value.trim()
+        let email = document.getElementById("email").value.trim()
+        let currentPassword = document.getElementById("currentPassword").value.trim()
+        let newPassword = document.getElementById("newPassword").value.trim()
+        let confirmPassword = document.getElementById("confirmPassword").value.trim()
+
+
+
+        if (!currentPassword && (newPassword || confirmPassword)) {
+            swal("You Cannot Submit Without Current Password");
+            return false;
+        }
+
+        if (!name && !email && !currentPassword) {
+            swal("Please Enter At Least One Field");
+            return false;
+        }
+
+        if (name && /^\s*$/.test(name)) {
+            swal("Name cannot be empty or spaces only");
+            return false;
+        }
+
+        if (email && /^\s*$/.test(email)) {
+            swal("Email cannot be empty or spaces only");
+            return false;
+        }
+
+        if (currentPassword) {
+
+            if (/^\s*$/.test(currentPassword)) {
+                swal("Current Password cannot be empty or spaces only");
+                return false;
+            }
+
+            if (!newPassword || !confirmPassword) {
+                swal("Please Fill All the Fields In the Password Change");
+                return false;
+            }
+
+            if (/^\s*$/.test(newPassword)) {
+                swal("New Password cannot be empty or spaces only");
+                return false;
+            }
+
+            if (/^\s*$/.test(confirmPassword)) {
+                swal("Confirm Password cannot be empty or spaces only");
+                return false;
+            }
+
+            if (newPassword !== confirmPassword) {
+                swal("Passwords do not match");
+                return false;
+            }
+        }
+
+        event.target.submit();
+        return true;
+    }
+
+
+    window.addEventListener("pageshow", function (event) {
+        if (event.persisted) {
+            window.location.reload();
+        }
+    });
+
+</script>

@@ -1,0 +1,240 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+:root {
+    --primary-color: #FF0000;
+    --brand-red: #FF0000;
+    --brand-gray: #757F95;
+    --bg-dark: #00072D;
+    --white: #ffffff;
+    --text-dark: #000000;
+    --input-border: #999;
+    --button-bg: #727E95;
+    --icon-opacity: 0.1;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Inter', sans-serif;
+}
+
+body {
+    background-color: var(--bg-dark);
+    min-height: 100vh;
+    overflow: hidden;
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Background Icons */
+.background-icons {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    z-index: 0;
+    pointer-events: none;
+}
+
+.background-icons i {
+    position: absolute;
+    color: var(--white);
+    opacity: var(--icon-opacity);
+    font-size: 2.5rem;
+}
+
+.icon-1 {
+    top: 15%;
+    left: 5%;
+    transform: rotate(-15deg);
+}
+
+.icon-2 {
+    top: 10%;
+    right: 5%;
+    transform: rotate(10deg);
+}
+
+.icon-3 {
+    top: 40%;
+    left: 2%;
+    transform: rotate(-5deg);
+}
+
+.icon-4 {
+    top: 38%;
+    right: 2%;
+    transform: rotate(15deg);
+}
+
+.icon-5 {
+    bottom: 12%;
+    left: 6%;
+    transform: rotate(-10deg);
+}
+
+.icon-6 {
+    bottom: 10%;
+    right: 4%;
+    transform: rotate(5deg);
+}
+
+/* Login Container */
+.login-wrapper {
+    z-index: 10;
+    width: 100%;
+    max-width: 600px;
+    padding: 20px;
+}
+
+.login-card {
+    background-color: var(--white);
+    padding: 60px 80px;
+    border-radius: 4px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    text-align: center;
+}
+
+/* Logo Section */
+.logo-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 25px;
+}
+
+.logo-box {
+    margin-bottom: 8px;
+}
+
+.logo-circle {
+    width: 44px;
+    height: 44px;
+    background-color: var(--brand-red);
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: var(--white);
+    font-size: 1.2rem;
+}
+
+.logo-text {
+    display: flex;
+    flex-direction: column;
+    line-height: 1.1;
+}
+
+.brand-name {
+    color: var(--brand-red);
+    font-weight: 800;
+    font-size: 0.9rem;
+    letter-spacing: 0.5px;
+}
+
+.sub-brand {
+    color: var(--brand-gray);
+    font-weight: 600;
+    font-size: 0.7rem;
+    letter-spacing: 1px;
+}
+
+/* Heading */
+h1 {
+    font-size: 2.2rem;
+    font-weight: 800;
+    color: var(--text-dark);
+    margin-bottom: 35px;
+}
+
+/* Form Styling */
+form {
+    text-align: left;
+}
+
+.form-group {
+    margin-bottom: 25px;
+}
+
+.form-group label {
+    display: block;
+    font-weight: 700;
+    font-size: 1.1rem;
+    color: #333;
+    margin-bottom: 10px;
+}
+
+.form-group input {
+    width: 100%;
+    padding: 18px 20px;
+    border: 1px solid var(--input-border);
+    border-radius: 12px;
+    font-size: 1.1rem;
+    color: #333;
+    outline: none;
+}
+
+.password-input {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.password-input input {
+    padding-right: 50px;
+}
+
+.eye-toggle {
+    position: absolute;
+    right: 20px;
+    color: #666;
+    cursor: pointer;
+    font-size: 0.9rem;
+}
+
+/* Button */
+.btn-login {
+    width: 100%;
+    padding: 22px;
+    background-color: var(--button-bg);
+    color: var(--white);
+    border: none;
+    border-radius: 12px;
+    font-size: 1.6rem;
+    font-weight: 800;
+    cursor: pointer;
+    margin-top: 20px;
+    transition: background-color 0.3s;
+}
+
+.btn-login:hover {
+    background-color: #5a667b;
+}
+
+/* Responsiveness */
+@media (max-width: 768px) {
+    .login-card {
+        padding: 40px 30px;
+    }
+
+    h1 {
+        font-size: 1.8rem;
+    }
+
+    .btn-login {
+        font-size: 1.3rem;
+        padding: 18px;
+    }
+}
+
+@media (max-width: 480px) {
+    .login-card {
+        padding: 30px 20px;
+    }
+
+    .background-icons i {
+        font-size: 1.8rem;
+    }
+}
