@@ -39,39 +39,46 @@
             <h3>New Address</h3>
             <a onclick="window.location.replace('/address'); return false;" class="close-icon"><i class="fa-solid fa-xmark"></i></a>
             
+            
         </div>
         
 
-        <form class="address-form" action="/addAddress" method="post" onclick="return formValidate()">
-            <div class="form-group full-width">
+        <form class="address-form" action="/addAddress" method="post" id="registerForm">
+            <div id="nameDiv" class="form-group full-width">
                 <label>Name</label>
                 <input name="name" id="name" type="text" placeholder="Full Name">
+                <p style="color: red;font-size: 13px;font-weight: normal;margin-top: 2px !important;display: none;">Name Requierd At Lease 3 letters</p>
             </div>
 
-            <div class="form-row">
-                <div class="form-group">
+            <div  class="form-row">
+                <div id="phoneDiv" class="form-group">
                     <label>Phone (+91)</label>
                     <input name="phone" id="phone" type="text" placeholder="Phone Number">
+                    <p style="color: red;font-size: 13px;font-weight: normal;margin-top: 2px !important;display: none;">Phone Number Is Required</p>
                 </div>
-                <div class="form-group">
+                <div id="pincodeDiv" class="form-group">
                     <label>Pincode</label>
                     <input name="pincode" id="pincode" type="text" placeholder="Pincode">
+                    <p style="color: red;font-size: 13px;font-weight: normal;margin-top: 2px !important;display: none;">Pincode Is Required</p>
                 </div>
             </div>
 
-            <div class="form-group full-width">
+            <div id="addressDiv" class="form-group full-width">
                 <label>Street Address</label>
                 <input name="address" id="address" type="text" placeholder="Street Address Line">
+                <p style="color: red;font-size: 13px;font-weight: normal;margin-top: 2px !important;display: none;">Street Address Is Required</p>
             </div>
 
             <div class="form-row">
-                <div class="form-group">
+                <div id="stateDiv" class="form-group">
                     <label>State</label>
                     <input name="state" id="state" type="text" placeholder="State" class="state-input">
+                    <p style="color: red;font-size: 13px;font-weight: normal;margin-top: 2px !important;display: none;">State Is Required</p>
                 </div>
-                <div class="form-group">
+                <div id="cityDiv" class="form-group">
                     <label>District</label>
                     <input name="city" id="city" type="text" placeholder="District">
+                    <p style="color: red;font-size: 13px;font-weight: normal;margin-top: 2px !important;display: none;">District Is Required</p>
                 </div>
             </div>
 
@@ -106,14 +113,10 @@
 
 
 
-    document.addEventListener("DOMContentLoaded",()=>{
-        document.querySelector("form").addEventListener("submit",formValidate)
-    })
+   document.getElementById("registerForm").addEventListener("submit", function (event) {
 
 
-
-    function formValidate (event){
-
+        
         event.preventDefault()
 
         let name = document.getElementById("name").value.trim()
@@ -124,34 +127,91 @@
         let city = document.getElementById("city").value.trim()
 
 
+        const nameDiv = document.getElementById('nameDiv');
+        const phoneDiv = document.getElementById('phoneDiv');
+        const pincodeDiv = document.getElementById('pincodeDiv');
+        const addressDiv = document.getElementById('addressDiv');
+        const stateDiv = document.getElementById('stateDiv');
+        const cityDiv = document.getElementById('cityDiv');
 
-        if (name == "" || phone == "" || pincode == "" || address == "" || state == "" || city == ""  ){
-            swal("Please fill all the fields");
-            return false
-        } else if (/^\s*$/.test(name)) {
-            swal("Name cannot be empty or spaces only");
-            return false;
-        } else if (/^\s*$/.test(pincode)) {
-            swal("Pincode cannot be empty or spaces only");
-            return false;
-        } else if (/^\s*$/.test(phone)) {
-            swal("Phone Number cannot be empty or spaces only");
-            return false;
-        } else if (/^\s*$/.test(address)) {
-            swal("Address cannot be empty or spaces only");
-            return false;
-        } else if (/^\s*$/.test(state)) {
-            swal("state cannot be empty or spaces only");
-            return false;
-        } else if (/^\s*$/.test(city)) {
-            swal("city cannot be empty or spaces only");
-            return false;
-        } else if (!/^[0-9]{10}$/.test(phone)) {
-            swal("Invalid Phone Number");
-            return false;
+
+       let isValid = true
+
+        if(!name){
+            nameDiv.querySelector('input').style.border='1px solid red'
+            nameDiv.querySelector('p').style.display='block'
+            isValid = false
+        }
+        else if (name.length <= 3){
+            nameDiv.querySelector('input').style.border='1px solid red'
+            nameDiv.querySelector('p').style.display='block'
+            isValid = false
+        }
+        else{
+            nameDiv.querySelector('input').style.border='1px solid gray'
+            nameDiv.querySelector('p').style.display='none'
         }
 
-        event.target.submit()
-        return true
-    }
+        if(!phone){
+            phoneDiv.querySelector('input').style.border='1px solid red'
+            phoneDiv.querySelector('p').style.display='block'
+            isValid = false
+        }else{
+            phoneDiv.querySelector('input').style.border='1px solid gray'
+            phoneDiv.querySelector('p').style.display='none'
+        }
+
+        if(!pincode){
+            pincodeDiv.querySelector('input').style.border='1px solid red'
+            pincodeDiv.querySelector('p').style.display='block'
+            isValid = false
+        }else{
+            pincodeDiv.querySelector('input').style.border='1px solid gray'
+            pincodeDiv.querySelector('p').style.display='none'
+        }
+
+        if(!address){
+            addressDiv.querySelector('input').style.border='1px solid red'
+            addressDiv.querySelector('p').style.display='block'
+            isValid = false
+        }else{
+            addressDiv.querySelector('input').style.border='1px solid gray'
+            addressDiv.querySelector('p').style.display='none'
+        }
+
+        if(!state){
+            stateDiv.querySelector('input').style.border='1px solid red'
+            stateDiv.querySelector('p').style.display='block'
+            isValid = false
+        }else{
+            stateDiv.querySelector('input').style.border='1px solid gray'
+            stateDiv.querySelector('p').style.display='none'
+        }
+
+        if(!phone){
+            phoneDiv.querySelector('input').style.border='1px solid red'
+            phoneDiv.querySelector('p').style.display='block'
+            isValid = false
+        }
+        else if (!/^[0-9]{10}$/.test(phone)) {
+            swal("Invalid Phone Number");
+            isValid = false
+        }else{
+            phoneDiv.querySelector('input').style.border='1px solid gray'
+            phoneDiv.querySelector('p').style.display='none'
+        }
+
+        if(!city){
+            cityDiv.querySelector('input').style.border='1px solid red'
+            cityDiv.querySelector('p').style.display='block'
+            isValid = false
+        }else{
+            cityDiv.querySelector('input').style.border='1px solid gray'
+            cityDiv.querySelector('p').style.display='none'
+        }
+
+        if (isValid) {
+            event.target.submit()
+        }
+    })
 </script>

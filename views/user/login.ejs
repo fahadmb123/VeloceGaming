@@ -25,18 +25,22 @@
             <p style="color:red;"><%= message %></p>
         <% } %>
 
-        <form action="/login" method="post" onclick="return formValidate()">
-            <div class="form-group">
+        <form id="registerForm" action="/login" method="post" >
+            <div id="emailDiv" class="form-group">
                 <label>Email</label>
                 <input id="email" name="email" type="email" placeholder="Enter your email">
+                <p style="color: red;font-size: 13px;font-weight: normal;margin-top: 2px !important;display: none;">Email Requierd</p>
             </div>
 
-            <div class="form-group password-group">
+            <div id="passwordDiv" class="form-group password-group">
                 <label>Password</label>
                 <div class="input-wrapper password-input-wrapper">
                     <input minlength="6"  type="password" id="password" placeholder="Enter your password" name="password">
+                    
                     <span class="toggle-password" onclick="togglePassword('password', this)">Show</span>
+                    
                 </div>
+                <p style="color: red;font-size: 13px;font-weight: normal;margin-top: 2px !important;display: none;">Password Requierd</p>
             </div>
 
             <div class="forgot-password">
@@ -88,24 +92,46 @@
         }
     }
 
-    document.addEventListener("DOMContentLoaded",()=>{
-        document.querySelector("form").addEventListener("submit",formValidate)
+
+
+    //const form = document.getElementById("form")
+
+    document.getElementById("registerForm").addEventListener("submit", function (event) {
+
+
+        
+        event.preventDefault()
+
+        const email = document.getElementById("email").value.trim()
+        const password = document.getElementById("password").value.trim()
+
+        const emailDiv=document.getElementById('emailDiv');
+        const passwordDiv=document.getElementById('passwordDiv');
+
+
+       let isValid = true
+       if(!email){
+            emailDiv.querySelector('input').style.border='1px solid red'
+            emailDiv.querySelector('p').style.display='block'
+            isValid = false
+        }else{
+            emailDiv.querySelector('input').style.border='1px solid gray'
+            emailDiv.querySelector('p').style.display='none'
+        }
+
+        if(!password){
+            passwordDiv.querySelector('input').style.border='1px solid red'
+            passwordDiv.querySelector('p').style.display='block'
+            isValid = false
+        }else{
+            passwordDiv.querySelector('input').style.border='1px solid gray'
+            passwordDiv.querySelector('p').style.display='none'
+        }
+
+        if (isValid) {
+            event.target.submit()
+        }
     })
 
 
-    function formValidate (event){
-
-        event.preventDefault()
-
-        let email = document.getElementById("email").value
-        let password = document.getElementById("password").value
-
-        if (email == "" || password == ""){
-            swal("Please fill all the fields");
-            return false
-        }
-
-        event.target.submit()
-        return true
-    }
 </script>
