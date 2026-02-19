@@ -9,6 +9,7 @@
     --orange-color: #FFA500;
     --cyan-color: #00FFFF;
     --gray-text: #666;
+    --nav-bg: rgba(255, 255, 255, 0.8);
 }
 
 * {
@@ -21,6 +22,8 @@
 body {
     background-color: #ffffff;
     color: var(--text-color);
+    padding-bottom: 80px;
+    /* Space for mobile nav */
 }
 
 /* Header */
@@ -28,6 +31,9 @@ header {
     border-bottom: 1px solid #eee;
     padding: 1rem 0;
     background: white;
+    position: sticky;
+    top: 0;
+    z-index: 100;
 }
 
 .header-container {
@@ -96,13 +102,13 @@ nav a {
     gap: 20px;
 }
 
-.header-icons i {
-    font-size: 18px;
+.header-icons a {
+    text-decoration: none;
     color: #333;
-    cursor: pointer;
+    font-size: 18px;
 }
 
-.profile-circle-small {
+.profile-circle {
     width: 32px;
     height: 32px;
     background-color: var(--primary-color);
@@ -112,6 +118,7 @@ nav a {
     align-items: center;
     color: white;
     font-size: 14px;
+    font-weight: 600;
 }
 
 /* Add Address Page Styles */
@@ -242,14 +249,62 @@ nav a {
     font-size: 14px;
 }
 
+/* Mobile Bottom Navbar */
+.mobile-bottom-nav {
+    display: none;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    background: var(--nav-bg);
+    backdrop-filter: blur(10px);
+    border-top: 1px solid var(--border-color);
+    justify-content: space-around;
+    padding: 10px 0;
+    z-index: 1000;
+}
+
+.mobile-bottom-nav .nav-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-decoration: none;
+    color: #666;
+    gap: 4px;
+}
+
+.mobile-bottom-nav .nav-item i {
+    font-size: 20px;
+}
+
+.mobile-bottom-nav .nav-item span {
+    font-size: 10px;
+    font-weight: 500;
+}
+
+.mobile-bottom-nav .nav-item.active {
+    color: var(--primary-color);
+}
+
 /* Responsive */
 @media (max-width: 768px) {
+
+    header .header-icons,
+    header nav {
+        display: none;
+    }
+
     .header-container {
         padding: 0 1rem;
     }
 
     .add-address-container {
+        margin: 20px auto;
         padding: 0 1rem;
+    }
+
+    .form-card {
+        padding: 20px;
     }
 
     .form-row {
@@ -260,5 +315,15 @@ nav a {
     .btn-save,
     .btn-cancel {
         width: 100%;
+        padding: 15px;
+    }
+
+    .form-actions {
+        flex-direction: column;
+    }
+
+    /* Show bottom nav on mobile */
+    .mobile-bottom-nav {
+        display: flex;
     }
 }

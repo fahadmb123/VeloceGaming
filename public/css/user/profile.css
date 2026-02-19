@@ -3,12 +3,13 @@
 
 :root {
     --primary-color: #FF1E1E;
-    --text-color: #333;
-    --bg-light: #f5f5f5;
+    --text-color: #333333;
+    --bg-light: #ffffff;
+    --bg-card: #f5f5f5;
     --border-color: #e0e0e0;
     --secondary-color: #00FFFF;
-    /* Cyan for Save Changes */
-    --gray-text: #666;
+    --gray-text: #666666;
+    --nav-bg: rgba(255, 255, 255, 0.8);
 }
 
 * {
@@ -19,8 +20,10 @@
 }
 
 body {
-    background-color: #ffffff;
+    background-color: var(--bg-light);
     color: var(--text-color);
+    padding-bottom: 70px;
+    /* Space for mobile bottom nav */
 }
 
 /* Header */
@@ -29,7 +32,7 @@ header {
     padding: 1rem 0;
     position: sticky;
     top: 0;
-    background: white;
+    background: var(--bg-light);
     z-index: 100;
 }
 
@@ -74,7 +77,7 @@ header {
 
 .sub-brand {
     font-size: 10px;
-    color: black;
+    color: #000;
     font-weight: 600;
     letter-spacing: 1px;
 }
@@ -88,9 +91,14 @@ nav {
 
 nav a {
     text-decoration: none;
-    color: #333;
+    color: var(--gray-text);
     font-weight: 500;
     font-size: 14px;
+    transition: color 0.3s;
+}
+
+nav a:hover {
+    color: var(--text-color);
 }
 
 .header-icons {
@@ -101,7 +109,7 @@ nav a {
 
 .header-icons i {
     font-size: 18px;
-    color: #333;
+    color: var(--text-color);
     cursor: pointer;
 }
 
@@ -154,6 +162,7 @@ nav a {
 .user-avatar-section h3 {
     font-size: 18px;
     font-weight: 700;
+    color: var(--text-color);
 }
 
 .sidebar-menu {
@@ -171,16 +180,20 @@ nav a {
     display: flex;
     align-items: center;
     gap: 15px;
-    padding: 10px;
+    padding: 12px 15px;
     border-radius: 8px;
     transition: all 0.3s;
     font-weight: 500;
 }
 
-.sidebar-menu li.active a,
+.sidebar-menu li.active a {
+    color: var(--text-color);
+    background-color: var(--bg-card);
+}
+
 .sidebar-menu li a:hover {
     color: var(--text-color);
-    background-color: var(--bg-light);
+    background-color: #eeeeee;
 }
 
 .sidebar-menu li a i {
@@ -218,6 +231,7 @@ nav a {
     font-size: 24px;
     font-weight: 700;
     margin-bottom: 30px;
+    color: var(--text-color);
 }
 
 .edit-profile-form {
@@ -242,18 +256,23 @@ nav a {
 .form-group label {
     font-size: 14px;
     font-weight: 600;
-    color: var(--text-color);
+    color: var(--gray-text);
 }
 
 .form-group input {
     padding: 12px 16px;
-    background-color: var(--bg-light);
-    border: 1px solid transparent;
+    background-color: var(--bg-card);
+    border: 1px solid var(--border-color);
     border-radius: 8px;
     outline: none;
     font-size: 14px;
-    transition: border 0.3s;
+    transition: all 0.3s;
     width: 100%;
+    color: var(--text-color);
+}
+
+.form-group input:focus {
+    border-color: var(--primary-color);
 }
 
 .input-wrapper {
@@ -263,7 +282,6 @@ nav a {
 
 .input-wrapper input {
     padding-right: 60px;
-    /* Space for Show/Hide text */
 }
 
 .toggle-password {
@@ -282,10 +300,6 @@ nav a {
     color: var(--text-color);
 }
 
-.form-group input:focus {
-    border-color: var(--border-color);
-}
-
 .password-change-section {
     display: flex;
     flex-direction: column;
@@ -296,6 +310,7 @@ nav a {
     font-size: 16px;
     font-weight: 700;
     margin-bottom: 5px;
+    color: var(--text-color);
 }
 
 .form-actions {
@@ -307,12 +322,17 @@ nav a {
 
 .btn-cancel {
     padding: 10px 30px;
-    background: white;
+    background: transparent;
     border: 1px solid var(--border-color);
     border-radius: 8px;
     font-weight: 600;
     cursor: pointer;
+    color: var(--text-color);
     transition: background 0.3s;
+}
+
+.btn-cancel:hover {
+    background: #eeeeee;
 }
 
 .btn-save {
@@ -322,6 +342,7 @@ nav a {
     border-radius: 8px;
     font-weight: 700;
     cursor: pointer;
+    color: black;
     transition: opacity 0.3s;
 }
 
@@ -340,21 +361,24 @@ nav a {
     font-size: 18px;
     font-weight: 700;
     margin-bottom: 20px;
+    color: var(--text-color);
 }
 
 .referral-box {
-    background-color: var(--bg-light);
+    background-color: var(--bg-card);
     padding: 15px 20px;
     border-radius: 8px;
     display: flex;
     justify-content: space-between;
     align-items: center;
+    border: 1px solid var(--border-color);
 }
 
 .referral-code {
     font-weight: 700;
     letter-spacing: 1px;
     font-size: 14px;
+    color: var(--text-color);
 }
 
 .btn-copy {
@@ -385,6 +409,43 @@ nav a {
     transition: background 0.3s;
 }
 
+/* Mobile Bottom Navbar */
+.mobile-bottom-nav {
+    display: none;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    background: var(--nav-bg);
+    backdrop-filter: blur(10px);
+    border-top: 1px solid var(--border-color);
+    justify-content: space-around;
+    padding: 10px 0;
+    z-index: 1000;
+}
+
+.mobile-bottom-nav .nav-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-decoration: none;
+    color: var(--gray-text);
+    gap: 4px;
+}
+
+.mobile-bottom-nav .nav-item i {
+    font-size: 20px;
+}
+
+.mobile-bottom-nav .nav-item span {
+    font-size: 10px;
+    font-weight: 500;
+}
+
+.mobile-bottom-nav .nav-item.active {
+    color: var(--primary-color);
+}
+
 /* Responsive */
 @media (max-width: 900px) {
     .profile-container {
@@ -394,16 +455,13 @@ nav a {
 
     .sidebar {
         width: 100%;
-        display: flex;
-        flex-wrap: wrap;
-        justify-content: center;
-        gap: 20px;
     }
 
     .user-avatar-section {
         width: 100%;
     }
 
+    /* Change sidebar to row on tablet */
     .sidebar-menu {
         display: flex;
         flex-wrap: wrap;
@@ -416,6 +474,11 @@ nav a {
         margin-bottom: 0;
     }
 
+    .sidebar-menu li a {
+        padding: 8px 15px;
+        font-size: 14px;
+    }
+
     .btn-logout {
         max-width: 200px;
         margin: 0 auto;
@@ -423,12 +486,14 @@ nav a {
 }
 
 @media (max-width: 600px) {
-    .header-container {
-        padding: 0 1rem;
+
+    header nav,
+    .header-icons {
+        display: none;
     }
 
-    nav {
-        display: none;
+    .header-container {
+        padding: 0 1rem;
     }
 
     .profile-container {
@@ -449,5 +514,47 @@ nav a {
         flex-direction: column;
         gap: 15px;
         text-align: center;
+    }
+
+    /* Show bottom nav on mobile */
+    .mobile-bottom-nav {
+        display: flex;
+    }
+
+    /* Update sidebar menu for phone size like the reference */
+    .sidebar-menu {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+    }
+
+    .sidebar-menu li {
+        width: 100%;
+    }
+
+    .sidebar-menu li a {
+        background-color: var(--bg-card);
+        justify-content: center;
+        flex-direction: column;
+        height: 80px;
+        gap: 8px;
+        text-align: center;
+        border: 1px solid var(--border-color);
+    }
+
+    .sidebar-menu li.active a {
+        background-color: #ffffff;
+        border-color: var(--primary-color);
+        color: var(--primary-color);
+    }
+
+    .sidebar-menu li a i {
+        font-size: 20px;
+    }
+
+    .sidebar-menu li:last-child {
+        grid-column: span 2;
+        width: 50%;
+        margin: 0 auto;
     }
 }

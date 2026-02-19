@@ -23,7 +23,7 @@ const loadUserManagement = async (req,res) => {
         req.session.swalMessage = null
 
         let page = parseInt(req.query.page) || 1
-        let limit = 1
+        let limit = 10
         let skip = (page - 1) * limit
 
         let filter = {}

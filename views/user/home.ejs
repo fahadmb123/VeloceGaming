@@ -24,8 +24,11 @@
         </nav>
 
         <div class="search-bar">
-            <input type="text" placeholder="What are you looking for?">
-            <i class="fa-solid fa-magnifying-glass"></i>
+            <input type="text" id="desktopSearchInput" placeholder="What are you looking for?">
+            <div class="search-icons">
+                <i class="fa-solid fa-circle-xmark clear-search" id="clearDesktopSearchBtn"></i>
+                <i class="fa-solid fa-magnifying-glass"></i>
+            </div>
         </div>
 
         <div class="header-icons">
@@ -43,6 +46,18 @@
 </header>
 
 <main>
+
+    <!-- Mobile Search Bar -->
+        <div class="mobile-search">
+            <div class="search-wrapper">
+                <input type="text" id="shopSearchInput" placeholder="What are you looking for?">
+                <div class="search-icons">
+                    <i class="fa-solid fa-circle-xmark clear-search" id="clearSearchBtn"></i>
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                </div>
+            </div>
+        </div>
+    
     <!-- Category Section -->
     <section class="section categories">
         <div class="section-header">
@@ -249,6 +264,30 @@
     </span>
     <% } %>
 
+
+     <div class="mobile-bottom-nav">
+        <a href="index.html" class="nav-item active">
+            <i class="fa-solid fa-house"></i>
+            <span>Home</span>
+        </a>
+        <a href="#" class="nav-item">
+            <i class="fa-solid fa-bag-shopping"></i>
+            <span>Shop</span>
+        </a>
+        <a href="#" class="nav-item">
+            <i class="fa-solid fa-cart-shopping"></i>
+            <span>Cart</span>
+        </a>
+        <a href="#" class="nav-item">
+            <i class="fa-solid fa-heart"></i>
+            <span>Wishlist</span>
+        </a>
+        <a href="/profile" class="nav-item">
+            <i class="fa-solid fa-user"></i>
+            <span>Profile</span>
+        </a>
+    </div>
+
 </footer>
 <script>
     let messageElement = document.getElementById("swalMessage");
@@ -256,6 +295,32 @@
     if (messageElement && messageElement.innerText.trim() !== "") {
     swal(messageElement.innerText);
     }
+
+    
+        function setupSearchBar(inputId, clearBtnId) {
+            const input = document.getElementById(inputId);
+            const clearBtn = document.getElementById(clearBtnId);
+
+            if (!input || !clearBtn) return;
+
+            input.addEventListener('input', () => {
+                if (input.value.length > 0) {
+                    clearBtn.classList.add('active');
+                } else {
+                    clearBtn.classList.remove('active');
+                }
+            });
+
+            clearBtn.addEventListener('click', () => {
+                input.value = '';
+                clearBtn.classList.remove('active');
+                input.focus();
+            });
+        }
+
+        setupSearchBar('shopSearchInput', 'clearSearchBtn');
+        setupSearchBar('desktopSearchInput', 'clearDesktopSearchBtn');
+    
 
 
 </script>

@@ -121,202 +121,27 @@
     <% } %>
 </main>
 
-<script>
+<div class="mobile-bottom-nav">
+        <a href="/" class="nav-item">
+            <i class="fa-solid fa-house"></i>
+            <span>Home</span>
+        </a>
+        <a href="#" class="nav-item">
+            <i class="fa-solid fa-bag-shopping"></i>
+            <span>Shop</span>
+        </a>
+        <a href="#" class="nav-item">
+            <i class="fa-solid fa-cart-shopping"></i>
+            <span>Cart</span>
+        </a>
+        <a href="#" class="nav-item">
+            <i class="fa-solid fa-heart"></i>
+            <span>Wishlist</span>
+        </a>
+        <a href="/profile" class="nav-item active">
+            <i class="fa-solid fa-user"></i>
+            <span>Profile</span>
+        </a>
+    </div>
 
-    function togglePassword(inputId, el) {
-        const input = document.getElementById(inputId);
-        if (input.type === "password") {
-            input.type = "text";
-            el.textContent = "Hide";
-        } else {
-            input.type = "password";
-            el.textContent = "Show";
-        }
-    }
-
-
-    function copyCode() {
-    const text = document.getElementById("referralText").innerText;
-
-    navigator.clipboard.writeText(text)
-        .then(() => alert("Copied!"));
-    }
-
-    let messageElement = document.getElementById("swalMessage");
-
-    if (messageElement && messageElement.innerText.trim() !== "") {
-        swal(messageElement.innerText);
-    }
-
-
-
-/*
-
-    document.addEventListener("DOMContentLoaded", () => {
-        document.querySelector("form").addEventListener("submit", formValidate)
-    })
-
-
-
-    function formValidate(event) {
-
-        event.preventDefault()
-
-        let name = document.getElementById("name").value.trim()
-        let email = document.getElementById("email").value.trim()
-        let currentPassword = document.getElementById("currentPassword").value.trim()
-        let newPassword = document.getElementById("newPassword").value.trim()
-        let confirmPassword = document.getElementById("confirmPassword").value.trim()
-
-
-
-        if (!currentPassword && (newPassword || confirmPassword)) {
-            swal("You Cannot Submit Without Current Password");
-            return false;
-        }
-
-        if (!name && !email && !currentPassword) {
-            swal("Please Enter At Least One Field");
-            return false;
-        }
-
-        if (name && /^\s*$/.test(name)) {
-            swal("Name cannot be empty or spaces only");
-            return false;
-        }
-
-        if (email && /^\s*$/.test(email)) {
-            swal("Email cannot be empty or spaces only");
-            return false;
-        }
-
-        if (currentPassword) {
-
-            if (/^\s*$/.test(currentPassword)) {
-                swal("Current Password cannot be empty or spaces only");
-                return false;
-            }
-
-            if (!newPassword || !confirmPassword) {
-                swal("Please Fill All the Fields In the Password Change");
-                return false;
-            }
-
-            if (/^\s*$/.test(newPassword)) {
-                swal("New Password cannot be empty or spaces only");
-                return false;
-            }
-
-            if (/^\s*$/.test(confirmPassword)) {
-                swal("Confirm Password cannot be empty or spaces only");
-                return false;
-            }
-
-            if (newPassword !== confirmPassword) {
-                swal("Passwords do not match");
-                return false;
-            }
-        }
-
-        event.target.submit();
-        return true;
-    }
-
-*/  
-    
-
-
-    document.getElementById("registerForm").addEventListener("submit", function (event) {
-
-
-        
-        event.preventDefault()
-
-        let name = document.getElementById("name").value.trim()
-        let email = document.getElementById("email").value.trim()
-        let currentPassword = document.getElementById("currentPassword").value.trim()
-        let newPassword = document.getElementById("newPassword").value.trim()
-        let confirmPassword = document.getElementById("confirmPassword").value.trim()
-
-        const nameDiv = document.getElementById('nameDiv');
-        const newPasswordDiv = document.getElementById('newPasswordDiv');
-        const emailDiv = document.getElementById('emailDiv');
-        const currentPasswordDiv = document.getElementById('currentPasswordDiv');
-        const confirmPasswordDiv = document.getElementById('confirmPasswordDiv');
-
-
-       let isValid = true
-       if(!email){
-            emailDiv.querySelector('input').style.border='1px solid red'
-            emailDiv.querySelector('p').style.display='block'
-            isValid = false
-        }else{
-            emailDiv.querySelector('input').style.border='1px solid gray'
-            emailDiv.querySelector('p').style.display='none'
-        }
-
-        
-
-        if(!name ){
-            nameDiv.querySelector('input').style.border='1px solid red'
-            nameDiv.querySelector('p').style.display='block'
-            isValid = false
-        }
-        else if (name.length <= 3){
-            nameDiv.querySelector('input').style.border='1px solid red'
-            nameDiv.querySelector('p').style.display='block'
-            isValid = false
-        }
-        else{
-            nameDiv.querySelector('input').style.border='1px solid gray'
-            nameDiv.querySelector('p').style.display='none'
-        }
-        
-
-        if (currentPassword) {
-            if(!newPassword){
-                newPasswordDiv.querySelector('input').style.border='1px solid red'
-                newPasswordDiv.querySelector('p').style.display='block'
-                isValid = false
-            }else{
-                newPasswordDiv.querySelector('input').style.border='1px solid gray'
-                newPasswordDiv.querySelector('p').style.display='none'
-            }
-            
-            if(!currentPassword){
-                currentPasswordDiv.querySelector('input').style.border='1px solid red'
-                currentPasswordDiv.querySelector('p').style.display='block'
-                isValid = false
-            }else{
-                currentPasswordDiv.querySelector('input').style.border='1px solid gray'
-                currentPasswordDiv.querySelector('p').style.display='none'
-            }
-
-            if(!confirmPassword){
-                confirmPasswordDiv.querySelector('input').style.border='1px solid red'
-                confirmPasswordDiv.querySelector('p').style.display='block'
-                isValid = false
-            }else{
-                confirmPasswordDiv.querySelector('input').style.border='1px solid gray'
-                confirmPasswordDiv.querySelector('p').style.display='none'
-           }
-
-           if (newPassword !== confirmPassword){
-            swal("New And Confirm Password Is Not Match")
-            isValid = false
-           }
-        }
-        
-
-        if (isValid) {
-            event.target.submit()
-        }
-    })
-
-    window.addEventListener("pageshow", function (event) {
-        if (event.persisted) {
-            window.location.reload();
-        }
-    });
-
-</script>
+<script src="/js/user/profile.js"></script>
