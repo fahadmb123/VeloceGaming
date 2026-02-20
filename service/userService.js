@@ -26,16 +26,9 @@ const generateOtp = async () => {
 }
 
 
-const sendOtp = async (email,name) => {
+const sendOtp = async (req,email,name) => {
     try {
         const g_otp = await generateOtp()
-        
-
-        await otpModel.findOneAndUpdate(
-            {email: email},
-            {otp : g_otp,createdAt: Date.now()},
-            {upsert:true}
-        )
 
         const html = `
             Hello ${name},<br><br>
@@ -54,7 +47,12 @@ const sendOtp = async (email,name) => {
 
         sendMail(email,"OTP VARIFICATION FROM VELOCE GAMING",html)
 
+        req.session.otp = g_otp
+        console.log(g_otp)
         let expiryTime = Date.now() + 2 * 60 * 1000
+
+        req.session.otpExpiry = expiryTime
+        
         return {expiryTime}
     } catch (err) {
         console.log(err)
@@ -74,7 +72,7 @@ const signup = async (req) => {
             return {message}
         }
 
-        let {expiryTime} = await sendOtp(email,name)
+        let {expiryTime} = await sendOtp(req,email,name)
 
         req.session.otpKey = "register"
         req.session.userEmail = email.trim()
@@ -98,14 +96,18 @@ const otpVarification = async (req) => {
         password = req.session.userPassword
 
 
-        const otpExist = await otpModel.findOne({email})
+        const originalOtp = req.session.otp
+        const otpExpiry = req.session.otpExpiry
+        const currentTime = Date.now()
+        
 
-        if (!otpExist) {
-            const message = "OTP not found or expired"
+       if (otpExpiry < currentTime){
+            const message = "OTP Expired"
             return { message };
-        }
+       }
 
-        if (otpExist.otp == otp && req.session.otpKey == "register"){
+
+        if (originalOtp == otp && req.session.otpKey == "register"){
             const hashPassword = await bcrypt.hash(password,salt)
             const newUser = new userModel ({
                 name:name,
@@ -117,11 +119,11 @@ const otpVarification = async (req) => {
             const swalMessage = "Account Registered Successfully"
             return {swalMessage}
         }
-        else if (otpExist.otp == otp && req.session.otpKey == "reset-password"){
+        else if (originalOtp == otp && req.session.otpKey == "reset-password"){
             const resetPassword = true
             return {resetPassword}
         } 
-        else if (otpExist.otp == otp && req.session.otpKey  == "profile-update") {
+        else if (originalOtp == otp && req.session.otpKey  == "profile-update") {
             const user = req.session.user
             const newEmail = req.session.userEmail
             await userModel.updateOne(
@@ -253,7 +255,7 @@ const emailEntry = async (req) => {
         req.session.otpKey = "reset-password"
         req.session.userEmail = email
 
-        let {expiryTime} = await sendOtp(email,user.name)
+        let {expiryTime} = await sendOtp(req,email,user.name)
         return {expiryTime}
 
     } catch (err) {
@@ -344,7 +346,7 @@ const profile = async (req) => {
                 return {swalMessage}
             }
 
-            let {expiryTime} = await sendOtp(email,user.name)
+            let {expiryTime} = await sendOtp(req,email,user.name)
             req.session.otpKey = "profile-update"
             //req.session.newEmail = email
             req.session.userEmail = email

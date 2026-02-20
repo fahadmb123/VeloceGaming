@@ -198,9 +198,10 @@ const resendOtp = async (req,res) => {
     try {
         const email = req.session.userEmail
         const name = req.session.userName
-        let {expiryTime} = await userService.sendOtp(email,name)
+        let {expiryTime} = await userService.sendOtp(req,email,name)
         //globel.CexpiryTime = Date.now() + 2 * 60 * 1000
         global.CexpiryTime = expiryTime
+        
         //req.session.CexpiryTime = CexpiryTime
         return res.redirect("/otp")
     } catch (err) {
@@ -345,18 +346,6 @@ const editAddress = async (req,res) => {
 
 const uploadProfile = async (req,res) => {
     try {
-        /*const result = await cloudinary.uploader.upload(req.file.path,{folder:"profile_image"})
-
-        await userModel.updateOne(
-            {_id:req.session.user._id},
-            {
-                profileImage : result.secure_url,
-                profileImageId : result.public_id
-            }
-        )
-
-        req.session.user = await userModel.findOne({_id:req.session.user._id})
-*/
         const {result} = await userService.uploadProfile(req)
 
         res.json({
