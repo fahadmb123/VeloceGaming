@@ -20,9 +20,16 @@
         <div class="header-icons">
             <a href="#"><i class="fa-regular fa-heart"></i></a>
             <a href="#"><i class="fa-solid fa-cart-shopping"></i></a>
-            <a style="text-decoration: none;" href="/profile"><div class="profile-circle-small">
-                <%= user.name.charAt(0).toUpperCase() %>
-            </div></a>
+            <a style="text-decoration: none;" href="/profile">
+                <div class="profile-circle">
+                <% if (user.profileImage){ %>
+                        <img src="<%= user.profileImage %>" 
+                           style="width:100%; height:100%; object-fit:cover; border-radius:50%;">
+                    <% }  else { %>
+                    <%= user.name.charAt(0).toUpperCase() %> 
+                    <% } %> 
+            </div>
+        </a>
         </div>
     </div>
 </header>

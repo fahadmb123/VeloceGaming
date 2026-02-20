@@ -117,3 +117,108 @@ function togglePassword(inputId, el) {
             window.location.reload();
         }
     });
+
+
+        const modal = document.getElementById('uploadModal');
+        const openBtn = document.getElementById('openUploadModal');
+        const closeBtn = document.getElementById('closeUploadModal');
+        const cancelBtn = document.getElementById('cancelUpload');
+        const confirmBtn = document.getElementById('confirmUpload');
+        const fileInput = document.getElementById('fileInput');
+        const previewImg = document.getElementById('imagePreview');
+        const previewContainer = document.getElementById('previewContainer');
+        const dropZone = document.getElementById('dropZone');
+        const avatarDisplay = document.getElementById('profileAvatarDisplay');
+
+        function openModal() {
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeModal() {
+            modal.classList.remove('active');
+            document.body.style.overflow = '';
+            // Reset modal state
+            fileInput.value = '';
+            previewContainer.classList.remove('active');
+            dropZone.style.display = 'flex';
+            confirmBtn.disabled = true;
+        }
+
+        openBtn.addEventListener('click', openModal);
+        closeBtn.addEventListener('click', closeModal);
+        cancelBtn.addEventListener('click', closeModal);
+        document.getElementById('modalOverlay').addEventListener('click', closeModal);
+
+        function handleFile(file) {
+            if (file && file.type.startsWith('image/')) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    previewImg.src = e.target.result;
+                    previewContainer.classList.add('active');
+                    dropZone.style.display = 'none';
+                    confirmBtn.disabled = false;
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        fileInput.addEventListener('change', (e) => handleFile(e.target.files[0]));
+
+        dropZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropZone.classList.add('dragover');
+        });
+
+        dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
+
+        dropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropZone.classList.remove('dragover');
+            handleFile(e.dataTransfer.files[0]);
+        });
+
+        confirmBtn.addEventListener('click', async () => {
+            
+            /*avatarDisplay.innerHTML = `<img src="${previewImg.src}" style="width:100%; height:100%; object-fit:cover; border-radius:50%;">`;
+            closeModal();*/
+
+            const file = fileInput.files[0]
+
+            const formData = new FormData()
+
+            formData.append("profileImage",file)
+
+
+            const response = await fetch("/profile-upload",{
+                method: "post",
+                body : formData
+            })
+            const data = await response.json()
+
+
+            if (data.success){
+                avatarDisplay.innerHTML = `<img src="${data.imageUrl}" style="width:100%; height:100%; object-fit:cover; border-radius:50%;">`;
+                closeModal();
+            }
+        })
+
+
+
+       const removeBtn = document.getElementById('removeProfilePhoto');
+        if (removeBtn) {
+            removeBtn.addEventListener('click', async () => {
+                if (confirm('Are you sure you want to remove your profile photo?')) {
+                    const response = await fetch("/profile-remove",{
+                        method : "post"
+                    })
+
+                    const data = await response.json()
+
+                    if (data.success){
+                        console.log(data.message)
+                        window.location.reload();
+                    }
+                }
+            });
+        }

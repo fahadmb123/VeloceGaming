@@ -1,6 +1,6 @@
 const userModel = require("../model/userModel")
 const userService = require("../service/userService")
-
+const cloudinary = require("../helpers/cloudinary.js")
 
 
 
@@ -343,6 +343,49 @@ const editAddress = async (req,res) => {
 }
 
 
+const uploadProfile = async (req,res) => {
+    try {
+        /*const result = await cloudinary.uploader.upload(req.file.path,{folder:"profile_image"})
+
+        await userModel.updateOne(
+            {_id:req.session.user._id},
+            {
+                profileImage : result.secure_url,
+                profileImageId : result.public_id
+            }
+        )
+
+        req.session.user = await userModel.findOne({_id:req.session.user._id})
+*/
+        const {result} = await userService.uploadProfile(req)
+
+        res.json({
+            success : true,
+            imageUrl : result.secure_url
+        })
+
+    } catch (err) {
+        console.log(err)
+        res.status(500).json({
+            success:false,
+            message:"Server Error"
+        })
+    }
+}
+
+
+const removeProfile = async (req,res) => {
+    try {
+        await userService.removeProfile(req)
+
+        res.json({
+            success : true,
+            message: "Profile Removed"
+        })
+    } catch (err) {
+        console.log(err)
+    }
+}
 
 
 
@@ -389,5 +432,7 @@ module.exports = {
     deleteAddress,
     loadEditAddress,
     editAddress,
-    logout
+    logout,
+    uploadProfile,
+    removeProfile
 }

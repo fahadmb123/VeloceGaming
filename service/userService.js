@@ -5,6 +5,7 @@ const {sendMail} = require("../helpers/mailer")
 const salt = 10
 const {OAuth2Client} = require("google-auth-library")
 const axios = require("axios")
+const cloudinary = require("../helpers/cloudinary.js")
 const client = new OAuth2Client(
     process.env.GOOGLE_CLIENT_ID,
     process.env.GOOGLE_CLIENT_SECRET,
@@ -519,6 +520,51 @@ const editAddress = async (req) => {
 }
 
 
+const uploadProfile = async (req) => {
+    try {
+        const result = await cloudinary.uploader.upload(req.file.path,{folder:"profile_image"})
+        
+        await userModel.updateOne(
+            {_id:req.session.user._id},
+            {
+                profileImage : result.secure_url,
+                profileImageId : result.public_id
+            }
+        )
+        
+        req.session.user = await userModel.findOne({_id:req.session.user._id})
+
+        return {result}
+
+    } catch (err) {
+        console.log(err)
+    }
+}
+
+
+const removeProfile = async (req) => {
+    try {
+        const user = await userModel.findOne({_id:req.session.user._id})
+
+        await cloudinary.uploader.destroy(user.profileImageId)
+
+        await userModel.updateOne (
+            {_id:req.session.user._id},
+            {
+                profileImage : null,
+                profileImageId : null
+            }
+        )
+
+        req.session.user = await userModel.findOne({_id:req.session.user._id})
+
+        return 
+    } catch (err) {
+        console.log(err)
+    }
+}
+
+
 
 
 
@@ -537,5 +583,7 @@ module.exports = {
     profile,
     addAddress,
     deleteAddress,
-    editAddress
+    editAddress,
+    uploadProfile,
+    removeProfile
 }

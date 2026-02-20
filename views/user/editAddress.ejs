@@ -22,8 +22,13 @@
         <div class="header-icons">
             <a href="#"><i class="fa-regular fa-heart"></i></a>
             <a href="#"><i class="fa-solid fa-cart-shopping"></i></a>
-            <div class="profile-circle-small">
-                <%= user.name.charAt(0).toUpperCase() %>
+            <div class="profile-circle">
+                <% if (user.profileImage){ %>
+                        <img src="<%= user.profileImage %>" 
+                           style="width:100%; height:100%; object-fit:cover; border-radius:50%;">
+                    <% }  else { %>
+                    <%= user.name.charAt(0).toUpperCase() %> 
+                    <% } %> 
             </div>
         </div>
     </div>
@@ -86,7 +91,7 @@
                     <option value="'<%= address.type %>'" disabled selected><%= address.type %></option>
                     <option value="Home">Home</option>
                     <option value="Work">Work</option>
-                </select>-->
+                </select> -->
                 <select name="type" id="type" class="address-type-select">
                     <option value="Home"
                         <%= address && address.addressType === "Home" ? "selected" : "" %>>

@@ -33,6 +33,12 @@ const userSchema = mongoose.Schema({
     status: {
         type: Boolean,
         default: true
+    },
+    profileImage : {
+        type : String
+    },
+    profileImageId : {
+        type : String
     }
 
 },{ timestamps: true })

@@ -2,6 +2,7 @@ const express = require("express")
 const router = express.Router()
 const userController = require("../controller/userController")
 const {isLogged,isLoggedOut} = require("../middleware/userAuth")
+const upload = require("../middleware/multer")
 
 
 
@@ -42,6 +43,7 @@ router.get("/logout",isLogged,userController.logout)
 
 
 
+
 router.post("/signup",userController.signup)
 
 router.post("/otp",userController.otpVarification)
@@ -58,9 +60,9 @@ router.post("/addAddress",userController.addAddress)
 
 router.post("/editAddress",userController.editAddress)
 
+router.post("/profile-upload",upload.single("profileImage"),userController.uploadProfile)
 
-
-
+router.post("/profile-remove",userController.removeProfile)
 
 
 

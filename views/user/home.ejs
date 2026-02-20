@@ -36,7 +36,16 @@
             <a href="#"><i class="fa-solid fa-cart-shopping"></i></a>
             <div class="user-menu">
                 <% if (user) { %>
-                    <a style="text-decoration: none;" href="/profile"><div class="profile-circle"><%= user.name.charAt(0).toUpperCase() %></div></a>
+                    <a style="text-decoration: none;" href="/profile">
+                        <div class="profile-circle">
+                        <% if (user.profileImage){ %>
+                        <img src="<%= user.profileImage %>" 
+                           style="width:100%; height:100%; object-fit:cover; border-radius:50%;">
+                    <% }  else { %>
+                    <%= user.name.charAt(0).toUpperCase() %> 
+                    <% } %> 
+                    </div>
+                </a>
                 <% } else { %>
                     <div style="display: none;" class="profile-circle"></div>
                 <% } %>

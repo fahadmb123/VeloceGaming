@@ -19,11 +19,19 @@
     font-family: 'Inter', sans-serif;
 }
 
+html,
+body {
+    overflow-x: hidden;
+    width: 100%;
+    position: relative;
+}
+
 body {
     background-color: #ffffff;
     color: var(--text-color);
     padding-bottom: 70px;
     /* Space for mobile nav */
+    margin: 0;
 }
 
 /* Header */
@@ -103,9 +111,10 @@ nav a {
     border-radius: 8px;
     display: flex;
     align-items: center;
-    width: 320px;
+    width: 380px;
     position: relative;
-    border: 1px solid #eee;
+    border: 1px solid #f0f0f0;
+    margin-right: 40px;
 }
 
 .search-bar input {
@@ -139,6 +148,7 @@ nav a {
 
 .header-icons {
     display: flex;
+    align-items: center;
     gap: 20px;
 }
 
@@ -203,6 +213,7 @@ nav a {
     margin: 20px auto 0;
     padding: 0 1rem;
     width: 100%;
+    box-sizing: border-box;
 }
 
 .search-wrapper {
@@ -381,6 +392,7 @@ nav a {
     position: relative;
     width: 100%;
     overflow: hidden;
+    box-sizing: border-box;
 }
 
 .hero-bg {
@@ -702,6 +714,7 @@ footer {
         text-align: center;
         margin: 0 auto;
         max-width: 100%;
+        padding: 0 1rem;
     }
 
     .btn-shop-now {
@@ -756,6 +769,7 @@ footer {
 
     .mobile-search {
         display: block;
+        padding: 0 15px;
     }
 }
 
