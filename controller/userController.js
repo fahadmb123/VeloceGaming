@@ -70,13 +70,14 @@ const loadSignup = async (req,res) => {
 
 const loadHome = async (req,res) => {
     try {
-
-
-
         //const {swalMessage} = req.query
         const swalMessage = req.session.swalMessage
         req.session.swalMessage = null
-        res.render("user/home",{swalMessage})
+
+        
+        res.render("user/home",{
+            swalMessage
+        })
     } catch (error) {
         console.log(error)
     }

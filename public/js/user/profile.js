@@ -129,6 +129,7 @@ function togglePassword(inputId, el) {
         const previewContainer = document.getElementById('previewContainer');
         const dropZone = document.getElementById('dropZone');
         const avatarDisplay = document.getElementById('profileAvatarDisplay');
+        let cropper;
 
         function openModal() {
             modal.classList.add('active');
@@ -143,6 +144,11 @@ function togglePassword(inputId, el) {
             previewContainer.classList.remove('active');
             dropZone.style.display = 'flex';
             confirmBtn.disabled = true;
+
+            if (cropper) {
+                cropper.destroy()
+                cropper = null
+            }
         }
 
         openBtn.addEventListener('click', openModal);
@@ -152,13 +158,37 @@ function togglePassword(inputId, el) {
 
         function handleFile(file) {
             if (file && file.type.startsWith('image/')) {
+
+                if (file.size > 2* 1024 * 1024) {
+                    alert ("Image Must Lest Than 2MB")
+                    return
+                }
+
+
                 const reader = new FileReader();
                 reader.onload = (e) => {
                     previewImg.src = e.target.result;
                     previewContainer.classList.add('active');
                     dropZone.style.display = 'none';
                     confirmBtn.disabled = false;
+
+                    if (cropper) {
+                        cropper.destroy();
+                    }
+
+                    cropper = new Cropper(previewImg, {
+                    aspectRatio: 1,
+                    viewMode: 1,
+                    dragMode: "move",        // move image instead of crop box
+                    cropBoxResizable: false, 
+                    cropBoxMovable: false,
+                    zoomable: true,
+                    scalable: false,
+                    responsive: true
+                    });
                 };
+
+
                 reader.readAsDataURL(file);
             }
         }
@@ -182,12 +212,22 @@ function togglePassword(inputId, el) {
             
             /*avatarDisplay.innerHTML = `<img src="${previewImg.src}" style="width:100%; height:100%; object-fit:cover; border-radius:50%;">`;
             closeModal();*/
+            if (!cropper ) return 
 
-            const file = fileInput.files[0]
+            const canvas = cropper.getCroppedCanvas({
+                width : 300,
+                height : 300
+            })
+
+            const blob = await new Promise(resolve => 
+                canvas.toBlob(resolve,"image/jpeg")
+            )
+
+            //const file = fileInput.files[0]
 
             const formData = new FormData()
 
-            formData.append("profileImage",file)
+            formData.append("profileImage",blob)
 
 
             const response = await fetch("/profile-upload",{
@@ -216,9 +256,23 @@ function togglePassword(inputId, el) {
                     const data = await response.json()
 
                     if (data.success){
-                        console.log(data.message)
+                        //console.log(data.message)
+                        showToast(data.message)
                         window.location.reload();
                     }
                 }
             });
         }
+
+        function showToast(message, type = "success") {
+    const toast = document.getElementById("toast");
+    const toastMessage = document.getElementById("toast-message");
+
+    toastMessage.textContent = message;
+
+    toast.className = "toast show " + type;
+
+    setTimeout(() => {
+        toast.classList.remove("show");
+    }, 3000);
+}

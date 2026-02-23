@@ -1,6 +1,6 @@
 const adminService = require("../service/adminService")
 const userModel = require("../model/userModel")
-
+const categoryModel = require("../model/categoryModel")
 
 
 
@@ -68,6 +68,55 @@ const loadUserManagement = async (req,res) => {
 }
 
 
+const loadCategoryManagement = async (req,res) => {
+        /*const categories = await categoryModel.find()
+
+        res.render("admin/categoryManagement",{
+            categories
+        })*/
+       try {
+
+        let page = parseInt(req.query.page) || 1
+        let limit = 10
+        let skip = (page - 1) * limit
+
+        let filter = {}
+
+        let search = req.query.search || ""
+        let inputSearch = search.trim()
+        let statusFilter = req.query.filter || "all"
+
+        if (inputSearch) {
+            filter.name = { $regex: inputSearch, $options: "i" }  
+        }
+
+        if (statusFilter === "active") {
+            filter.isDeleted = false
+        } else if (statusFilter === "inactive") {
+            filter.isDeleted = true
+        }
+
+        const categories = await categoryModel.find(filter)
+            .sort({_id:-1})
+            .skip(skip)
+            .limit(limit)
+
+        const totalCategory = await categoryModel.countDocuments(filter)
+        const totalPages = Math.ceil(totalCategory / limit)
+
+        return res.render("admin/categoryManagement", {
+            categories,
+            totalPages,
+            currentPage: page,
+            search:inputSearch,
+            filter: statusFilter
+        })
+
+    } catch (err) {
+        console.log(err)
+    }
+}
+ 
 
 
 
@@ -112,6 +161,80 @@ const logout = async (req,res) => {
 }
 
 
+const addCategory = async (req,res) => {
+    try {
+        const {message,failMessage} = await adminService.addCategory(req)
+
+        if (failMessage) {
+            return res.json({
+                success : false,
+                message : failMessage
+            })
+        }else {
+            return res.json({
+                success :true,
+                message : message
+            })
+        }
+        
+    } catch (err) {
+        console.log(err)
+    }
+}
+
+
+const editCategory = async (req,res) => {
+    try {
+
+        const {message,failMessage} = await adminService.editCategory(req)
+
+        if (failMessage) {
+            return res.json({
+                success : false,
+                message : failMessage
+            })
+        }
+        return res.json({
+            success : true,
+            message : message
+        })
+    } catch (err) {
+        console.log(err)
+    }
+}
+
+
+const categoryStatus = async (req,res) => {
+    try {
+        const id = req.params.id
+        const status = req.query.status
+
+        const category = await categoryModel.findOne({_id:id})
+        if (!category) {
+            return res.status(404).json({
+                success : false,
+                message : "Category Not Found"
+            })
+        }
+        await categoryModel.updateOne(
+            {_id:id},
+            {$set : {
+                isDeleted : status
+            }}
+        )
+        
+        return res.json({
+            success : true,
+            message : "Updated Successfully"
+        }) 
+    } catch (err) {
+        res.status(500).json({
+            success : false,
+            message : err.message
+        })
+    }
+}
+
 
 
 
@@ -123,5 +246,9 @@ module.exports = {
     login,
     loadUserManagement,
     userStatus,
-    logout
+    logout,
+    loadCategoryManagement,
+    addCategory,
+    editCategory,
+    categoryStatus
 }

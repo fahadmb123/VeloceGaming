@@ -818,3 +818,41 @@ nav a:hover {
         margin: 0 auto;
     }
 }
+
+.cropper-view-box,
+.cropper-face {
+    border-radius: 50%;
+}
+
+.toast {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    background: #1e1e1e;
+    color: white;
+    padding: 14px 20px;
+    border-radius: 8px;
+    font-size: 14px;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+    opacity: 0;
+    transform: translateY(20px);
+    transition: all 0.3s ease;
+    z-index: 9999;
+    min-width: 200px;
+}
+
+/* Show state */
+.toast.show {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* Success */
+.toast.success {
+    border-left: 4px solid #22c55e;
+}
+
+/* Error */
+.toast.error {
+    border-left: 4px solid #ef4444;
+}

@@ -1,6 +1,5 @@
 const userModel = require("../model/userModel")
 const bcrypt = require("bcrypt")
-const otpModel = require("../model/otp")
 const {sendMail} = require("../helpers/mailer")
 const salt = 10
 const {OAuth2Client} = require("google-auth-library")
