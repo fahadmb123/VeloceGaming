@@ -23,7 +23,7 @@
                 <li><a href="/admin/userManagement"><span>Users</span></a></li>
                 <li class="active"><a href="#"><span>Category</span></a></li>
                 <li><a href="#"><span>Order</span></a></li>
-                <li><a href="#"><span>Product</span></a></li>
+                <li><a href="/admin/productManagement"><span>Product</span></a></li>
                 <li><a href="#"><span>Coupon</span></a></li>
                 <li><a href="#"><span>Report</span></a></li>
                 <li><a href="#"><span>Banner</span></a></li>
@@ -398,7 +398,7 @@
 
         e.preventDefault();
 
-        let isValid = true; // reset every submit
+        let isValid = true; 
 
         const name = document.getElementById("catName").value.trim().toLowerCase()
         const offer = document.getElementById("catOffer").value.trim();

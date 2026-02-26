@@ -1,6 +1,7 @@
 const adminModel = require("../model/adminModel")
 const userModel = require("../model/userModel")
 const categoryModel = require("../model/categoryModel.js")
+const {productModel,variantModel} = require("../model/productModel.js")
 const bcrypt = require("bcrypt")
 const cloudinary = require("../helpers/cloudinary.js")
 const fs = require("fs");
@@ -159,6 +160,252 @@ const editCategory = async (req) => {
 };
 
 
+const addProduct = async (req) => {
+    try {
+
+        const {
+            name,
+            category,
+            offer,
+            homepage,
+            details
+        } = req.body
+        const variants = JSON.parse(req.body.variants)
+        const highlights = JSON.parse(req.body.highlights)
+        const services = JSON.parse(req.body.services)
+
+
+        let isExist = await productModel.findOne({name})
+
+        if (isExist) {
+            return {failMessage : "The Same Name Product Already Exist"}
+        }
+
+        
+
+        let productCategory = await categoryModel.findOne({_id:category})
+
+        if (!productCategory){
+            return {failMessage:"Selected Category Is Not Found"}
+        }
+
+        let slug = await generateSlug(name)
+
+        const newProduct = new productModel ({
+            name,
+            slug,
+            details,
+            offer,
+            highlights,
+            services,
+            homepage,
+            categoryId : productCategory._id
+        })
+        await newProduct.save()
+
+
+        let product = await productModel.findOne({name})
+
+
+        variants.forEach ((obj) => {
+            obj.images = []
+            obj.imagesId = []
+            obj.productId = product._id
+        })
+
+
+        for (let file of req.files) {
+
+            const field = file.fieldname
+
+            let index = field.split("_")[1]
+
+            const result = await cloudinary.uploader.upload(file.path,{folder:"product-variant-images"})
+
+            variants[index].images.push(result.secure_url)
+            variants[index].imagesId.push(result.public_id)
+
+        }
+        
+
+
+        for (let  i=0 ; i<variants.length ; i++){
+            let obj = variants[i]
+            let toAddVariant = {
+                productId : obj.productId,
+                price : obj.price,
+                stock : obj.stock,
+                images : obj.images,
+                imagesId : obj.imagesId,
+                status : obj.status,
+                attributes : [
+                    {key : "ram" , value : obj.ram},
+                    {key : "rom" , value : obj.rom},
+                    {key : "color" , value : obj.color}
+                ]
+            }
+            const newVariant = new variantModel(toAddVariant)
+
+            await newVariant.save()
+        }
+
+        let count = await variantModel.countDocuments({productId:product._id})
+        await productModel.updateOne(
+            {_id:product._id},
+            {
+                $set : {
+                    variantCount : count
+                }
+            }
+        )
+
+        //const newVariant = new variantModel ({variants})
+
+        //await newVariant.save()
+
+        return {message:"Product Added Successfully"}
+    } catch (err) {
+        console.log(err)
+    }
+}
+
+
+const editProduct = async (req) => {
+    try {
+
+        const productId = req.params.id
+        const {
+            name,
+            category,
+            offer,
+            homepage,
+            details,
+        } = req.body
+
+        const variants = JSON.parse(req.body.variants)
+        const highlights = JSON.parse(req.body.highlights)
+        const services = JSON.parse(req.body.services)
+
+        
+        let isExist = await productModel.findOne({_id:productId})
+
+        if (!isExist) {
+            return {failMessage : "The Product Doesn't Exist"}
+        }
+
+        let nameExist = await productModel.findOne({name})
+
+        if (nameExist && nameExist.name != isExist.name) {
+            return {failMessage: "The Name With The Product Already Exist"}
+        }
+
+        let productCategory = await categoryModel.findOne({_id:category})
+
+        if (!productCategory){
+            return {failMessage:"Selected Category Is Not Found"}
+        }
+
+        let slug = await generateSlug(name)
+
+        await productModel.updateOne(
+            {_id:productId},
+            {
+                $set : {
+                    name,
+                    slug,
+                    details,
+                    offer,
+                    highlights,
+                    services,
+                    homepage,
+                    categoryId : productCategory._id
+                }
+            }
+        )
+
+        let oldVariants = await variantModel.find({ productId });
+
+        for (let variant of oldVariants) {
+            if (variant.imagesId && variant.imagesId.length > 0) {
+                for (let publicId of variant.imagesId) {
+                    await cloudinary.uploader.destroy(publicId);
+                }
+            }
+        }
+
+        await variantModel.deleteMany({productId})
+
+
+        for (let i = 0; i < variants.length; i++) {
+            let variant = variants[i];
+
+            let finalImages = [];
+            let finalImagesId = [];
+
+         
+
+            if (variant.existingImages && variant.existingImages.length > 0) {
+                for (let img of variant.existingImages) {
+                    finalImages.push(img.url);
+                    finalImagesId.push(img.public_id);
+                }
+            }
+
+
+  
+            if (req.files && req.files.length > 0) {
+                for (let file of req.files) {
+                    const field = file.fieldname;
+                    let index = field.split("_")[1];
+
+
+                    if (parseInt(index) === i) {
+                        const result = await cloudinary.uploader.upload(file.path, {
+                            folder: "product-variant-images",
+                        });
+
+                        finalImages.push(result.secure_url);
+                        finalImagesId.push(result.public_id);
+
+        
+                        fs.unlinkSync(file.path);
+                    }
+                }
+            }
+
+            await variantModel.create({
+                productId,
+                price: variant.price,
+                stock: variant.stock,
+                images: finalImages,
+                imagesId: finalImagesId,
+                status: variant.status,
+                attributes: [
+                    { key: "ram", value: variant.ram },
+                    { key: "rom", value: variant.rom },
+                    { key: "color", value: variant.color },
+                ],
+            });
+        }
+
+        let count = await variantModel.countDocuments({productId:productId})
+        await productModel.updateOne(
+            {_id:productId},
+            {
+                $set : {
+                    variantCount : count
+                }
+            }
+        )
+
+
+        
+        return {success : true,message: "Updated"}
+
+    } catch (err) {
+        console.log(err)
+    }
+}
 
 
 
@@ -166,5 +413,7 @@ module.exports = {
     login,
     userStatus,
     addCategory,
-    editCategory
+    editCategory,
+    addProduct,
+    editProduct
 }

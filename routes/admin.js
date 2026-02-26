@@ -16,10 +16,17 @@ router.get("/logout",adminController.logout)
 
 router.get("/categoryManagement",isLogged,adminController.loadCategoryManagement)
 
+router.get("/productmanagement",isLogged,adminController.loadProductManagement)
+
+router.get("/productManagement/:id",isLogged,adminController.productManagement)
+
 
 
 
 router.patch("/categoryManagement/categoryStatus/:id",isLogged,adminController.categoryStatus)
+
+router.patch("/productManagement/productStatus/:id",isLogged,adminController.productStatus)
+
 
 
 
@@ -28,6 +35,11 @@ router.post("/login",adminController.login)
 router.post("/addCategory",upload.single("categoryImage"),adminController.addCategory)
 
 router.post("/editCategory/:id",upload.single("categoryImage"),adminController.editCategory)
+
+router.post("/productManagement/add",upload.any(),adminController.addProduct)
+
+router.post("/productManagement/edit/:id",upload.any(),adminController.editProduct)
+
 
 
 module.exports = router

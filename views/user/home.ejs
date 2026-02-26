@@ -74,34 +74,24 @@
             <h2>Browse By Category</h2>
         </div>
 
-        <div class="category-grid">
-            <div class="category-card">
-                <div class="cat-content">
-                    <div class="cat-image-wrapper">
-                        <!-- USER: Replace src with your phone category image -->
-                        <img src="/images/category-phone.webp" alt="Phone Category" class="category-img">
+        <div class="category-carousel-container">
+                <button class="carousel-nav-btn prev-btn" id="prevBtn"><i class="fa-solid fa-chevron-left"></i></button>
+                <div class="category-grid" id="categoryCarousel">
+                    <% categories.forEach((category,index)=>{ %>
+                        <% if (!category.isDeleted) { %>
+                    <div class="category-card">
+                        <div class="cat-content">
+                            <div class="cat-image-wrapper">
+                                <img src="<%= category.image %>" alt="Phone Category" class="category-img">
+                            </div>
+                            <h3><%= category.name %></h3>
+                        </div>
                     </div>
-                    <h3>PHONE</h3>
+                    <% }}) %>
                 </div>
+                <button class="carousel-nav-btn next-btn" id="nextBtn"><i
+                        class="fa-solid fa-chevron-right"></i></button>
             </div>
-            <div class="category-card">
-                <div class="cat-content">
-                    <div class="cat-image-wrapper">
-                        <!-- USER: Replace src with your console category image -->
-                        <img src="/images/category-console.jpg" alt="Console Category" class="category-img">
-                    </div>
-                    <h3>CONSOLE</h3>
-                </div>
-            </div>
-        </div>
-
-        <div class="pagination-dots">
-            <span class="dot">&lt;</span>
-            <span class="dot active">1</span>
-            <span class="dot">2</span>
-            <span class="dot">3</span>
-            <span class="dot">&gt;</span>
-        </div>
     </section>
 
     <!-- Hero Section -->
@@ -329,7 +319,99 @@
 
         setupSearchBar('shopSearchInput', 'clearSearchBtn');
         setupSearchBar('desktopSearchInput', 'clearDesktopSearchBtn');
-    
 
+
+        // Category Carousel Logic
+        const carousel = document.getElementById('categoryCarousel');
+        const dots = document.querySelectorAll('#paginationDots .dot');
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
+
+        function updateActiveDot() {
+            const scrollLeft = carousel.scrollLeft;
+            const itemWidth = carousel.querySelector('.category-card').offsetWidth + 30; // item + gap
+            const index = Math.round(scrollLeft / itemWidth);
+
+            // Adjust index to map to dots (since we have 3 dots for 6 items in 2col or 1col)
+            // On desktop: 0-1 -> dot0, 2-3 -> dot1, 4-5 -> dot2
+            // On mobile: 0-1 -> dot0, 2-3 -> dot1, 4-5 -> dot2 (approx)
+            let dotIndex = Math.min(Math.floor(index / 2), dots.length - 1);
+            if (window.innerWidth <= 768) {
+                dotIndex = Math.min(Math.floor(index / 2), dots.length - 1);
+            }
+
+            dots.forEach((dot, i) => {
+                dot.classList.toggle('active', i === dotIndex);
+            });
+        }
+
+        carousel.addEventListener('scroll', updateActiveDot);
+
+        dots.forEach((dot, i) => {
+            dot.addEventListener('click', () => {
+                const itemWidth = carousel.querySelector('.category-card').offsetWidth + 30;
+                carousel.scrollTo({
+                    left: i * itemWidth * 2,
+                    behavior: 'smooth'
+                });
+            });
+        });
+
+        prevBtn.addEventListener('click', () => {
+            const itemWidth = carousel.querySelector('.category-card').offsetWidth + 30;
+            carousel.scrollBy({
+                left: -itemWidth * 2,
+                behavior: 'smooth'
+            });
+        });
+
+        nextBtn.addEventListener('click', () => {
+            const itemWidth = carousel.querySelector('.category-card').offsetWidth + 30;
+            carousel.scrollBy({
+                left: itemWidth * 2,
+                behavior: 'smooth'
+            });
+            resetAutoScroll();
+        });
+
+        prevBtn.addEventListener('click', resetAutoScroll);
+
+        // Auto-Scroll Logic
+        const autoScrollDelay = 3000; // 3 seconds
+        let autoScrollInterval;
+
+        function autoScroll() {
+            const itemWidth = carousel.querySelector('.category-card').offsetWidth + 30;
+            const maxScrollLeft = carousel.scrollWidth - carousel.clientWidth;
+
+            if (carousel.scrollLeft >= maxScrollLeft - 5) {
+                // Reached the end, loop back to start
+                carousel.scrollTo({ left: 0, behavior: 'smooth' });
+            } else {
+                carousel.scrollBy({ left: itemWidth * 2, behavior: 'smooth' });
+            }
+        }
+
+        function startAutoScroll() {
+            stopAutoScroll();
+            autoScrollInterval = setInterval(autoScroll, autoScrollDelay);
+        }
+
+        function stopAutoScroll() {
+            clearInterval(autoScrollInterval);
+        }
+
+        function resetAutoScroll() {
+            stopAutoScroll();
+            startAutoScroll();
+        }
+
+        // Pause on hover, resume on leave
+        const container = document.querySelector('.category-carousel-container');
+        container.addEventListener('mouseenter', stopAutoScroll);
+        container.addEventListener('mouseleave', startAutoScroll);
+
+        // Start auto-scroll on page load
+        startAutoScroll();
 
 </script>

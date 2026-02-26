@@ -8,14 +8,19 @@ const productSchema = mongoose.Schema({
         ref : "category",
         required : true
     },
+    slug : {
+        type : String,
+        required : true,
+        lowercase : true
+    },
     name : {
         type : String,
         required : true,
-        trim : true
+        trim : true,
+        unique : true
     },
     details : {
-        type : String,
-        required : true
+        type : String
     },
     offer : {
         type : Number,
@@ -26,17 +31,32 @@ const productSchema = mongoose.Schema({
             type : String
         }
     ],
-    service : [
+    services : [
         {
             type : String
         }
     ],
-    isActive : {
+    isDeleted : {
         type : Boolean,
-        default : true
+        default : false
+    },
+    homepage : {
+        type : Boolean,
+        default : false
+    },
+    rating : {
+        type : Number,
+        default : 0
+    },
+    numReviews : {
+        type : Number,
+        default : 0
+    },
+    variantCount : {
+        type : Number
     }
 
-},{timestamps})
+},{timestamps:true})
 
 
 
@@ -55,7 +75,12 @@ const variantSchema = mongoose.Schema({
         required : true,
         default : 0
     },
-    image : [
+    images : [
+        {
+            type : String
+        }
+    ],
+    imagesId : [
         {
             type : String
         }
@@ -63,25 +88,49 @@ const variantSchema = mongoose.Schema({
     attributes : [
         {
             key : {
-                type : String,
-                required : true
+                type : String
             },
             value : {
-                type : String,
-                required : true
+                type : String
             }
         }
     ],
-    isActive : {
+    status : {
         type : Boolean,
         default : true
     }
 },{timestamps : true})
 
 
+const reviewSchema = mongoose.Schema ({
+    productId : {
+        type : mongoose.Schema.Types.ObjectId,
+        ref : "product",
+        required : true
+    },
+    name: {
+            type: String,
+            required: true
+    },
+    rating: {
+        type: Number,
+        required: true,
+        min: 1,
+        max: 5
+    },
+    description: {
+        type: String,
+        required: true
+    },
+    createdAt: {
+        type: Date,
+        default: Date.now
+    }
+})
+
 
 const productModel = mongoose.model("product",productSchema)
 const variantModel = mongoose.model("variant",variantSchema)
+const reviewModel = mongoose.model("review",reviewSchema)
 
-
-module.exports = {productModel,variantModel}
+module.exports = {productModel,variantModel,reviewModel}

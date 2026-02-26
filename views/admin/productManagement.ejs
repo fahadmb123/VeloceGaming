@@ -1,0 +1,981 @@
+<link rel="stylesheet" href="/css/admin/productManagement.css">
+</head>
+
+<body>
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <div class="logo-circle">
+                        <i class="fa-solid fa-check"></i>
+                    </div>
+                    <div class="logo-text">
+                        <span class="brand">VELOCE</span>
+                        <span class="sub-brand">GAMING</span>
+                    </div>
+                </div>
+            </div>
+
+            <nav class="sidebar-nav">
+                <ul>
+                    <li><a href="#"><span>DashBoard</span></a></li>
+                    <li><a href="/admin/userManagement"><span>Users</span></a></li>
+                    <li><a href="/admin/categoryManagement"><span>Category</span></a></li>
+                    <li><a href="#"><span>Order</span></a></li>
+                    <li class="active"><a href="#"><span>Product</span></a></li>
+                    <li><a href="#"><span>Coupon</span></a></li>
+                    <li><a href="#"><span>Report</span></a></li>
+                    <li><a href="#"><span>Banner</span></a></li>
+                </ul>
+            </nav>
+
+            <div class="sidebar-footer">
+                <button class="btn-logout">Log out</button>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="main-header">
+                <h1>Product Management</h1>
+            </header>
+
+            <section class="content-card">
+                <div class="table-controls">
+                    <div class="search-box">
+                        <form action="/admin/productManagement" method="GET" id="searchForm">
+                            <input type="hidden" name="fitler" value="<%= filter %>">
+                            <div class="search-content">
+                                <div class="search-wrapper">
+                                    <i class="fa-solid fa-magnifying-glass search-icon"></i>
+                                    <input value="<%= search %>" type="text" name="search" id="searchInput" placeholder="Search..."
+                                        autocomplete="off">
+                                    <button type="button" id="clearSearch" class="clear-btn">&times;</button>
+                                </div>
+                                <button type="submit" class="search-btn">Search</button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <div class="filter-box">
+                        <button class="add-btn" onclick="openProductModal('add')"><i class="fa-solid fa-plus"></i> Add
+                            Product</button>
+                        <select class="filter-select" onchange="window.location.href='/admin/productManagement?filter=' + this.value + '&search=<%= search %>'">
+                            <option>Filter : Status</option>
+                            <option value="all" <%= filter === 'all' ? 'selected' : '' %>>All</option>
+                            <option value="active" <%= filter === 'active' ? 'selected' : '' %>>Active</option>
+                            <option value="inactive" <%= filter === 'inactive' ? 'selected' : '' %>>Inactive</option>
+                        </select>
+                    </div>
+                </div>
+
+
+
+
+                <div class="table-container">
+                    <table class="product-table">
+                        <thead>
+                            <tr>
+                                <th>Status</th>
+                                <th>Category</th>
+                                <th>Product Name</th>
+
+                                <th>Offer</th>
+                                <th>Variants</th>
+                                <th class="text-right">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <% products.forEach((product,index) => { %>
+                            <tr data-id="<%= product._id %>">
+                                <td><span class="status-active">
+                                    <% if (!product.isDeleted) { %>
+                                        Active
+                                    <% } else { %>
+                                        Inactive
+                                    <% } %>
+                                </span></td>
+                                <td class="category-name"><%= product.categoryId.name %></td>
+                                <td class="product-name"><%= product.name %></td>
+
+                                <td class="offer-value"><%= product.offer %>%</td>
+                                <td class= "stock-value" ><%= product.variantCount %></td>
+                                <td class="text-right">
+                                    <div class="actions-column">
+                                        <button class="icon-btn edit-btn"
+                                            onclick="openProductModal('edit', '<%= product._id %>')">
+                                            <i class="fa-regular fa-pen-to-square"></i>
+                                        </button>
+                                        <% if (!product.isDeleted) { %>
+                                        <button class="btn-block" onclick="deleteProduct('<%= product._id %>',true)">
+                                            Delete <i class="fa-regular fa-trash-can"></i>
+                                        </button>
+                                        <% } else { %>
+                                            <button class="btn-block-active" onclick="deleteProduct('<%= product._id %>',false)">
+                                            Restore
+                                            </button>
+                                        <% } %>
+                                    </div>
+                                </td>
+                            </tr>
+                            <% }) %>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="pagination">
+                    <div class="pagination">
+
+
+                        <% if (currentPage > 1) { %>
+                            <a style="text-decoration: none;" href="/admin/productManagement?page=<%= currentPage - 1 %>
+
+                                <% if (typeof search !== 'undefined') { %>&search=<%= search %><% } %>
+                                <% if (typeof filter !== 'undefined') { %>&filter=<%= filter %><% } %>">
+
+                                <button class="page-arrow">
+                                    <i class="fa-solid fa-chevron-left"></i>
+                                </button>
+
+                            </a>
+                        <% } %>
+
+                        <%
+                            const visiblePages = 3;
+                            let start = currentPage;
+                            let end = currentPage + visiblePages - 1;
+
+                            if (end > totalPages) {
+                                end = totalPages;
+                                start = Math.max(1, totalPages - visiblePages + 1);
+                            }
+                        %>
+
+
+                        <% for(let i = start; i <= end; i++) { %>
+                            <a style="text-decoration: none;"  href="/admin/productManagement?page=<%= i %>
+
+                                <% if (typeof search !== 'undefined') { %>&search=<%= search %><% } %>
+                                <% if (typeof filter !== 'undefined') { %>&filter=<%= filter %><% } %>">
+
+                                <button class="page-num <%= currentPage === i ? 'active' : '' %>">
+                                    <%= i %>
+                                </button>
+                            </a>
+                        <% } %>
+
+
+                        <% if (end < totalPages) { %>
+                            <span>...</span>
+                        <% } %>
+
+
+                        <% if (currentPage < totalPages) { %>
+                            <a style="text-decoration: none;" href="/admin/productManagement?page=<%= currentPage + 1 %>
+
+                                <% if (typeof search !== 'undefined') { %>&search=<%= search %><% } %>
+                                <% if (typeof filter !== 'undefined') { %>&filter=<%= filter %><% } %>">
+
+                                <button class="page-arrow">
+                                    <i class="fa-solid fa-chevron-right"></i>
+                                </button>
+                            </a>
+                        <% } %>
+
+                    </div>  
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Product Modal -->
+    <div id="productModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="productModalTitle">Add Product</h2>
+                <button type="button" class="modal-close-btn" onclick="closeProductModal()">&times;</button>
+            </div>
+            <form id="productForm">
+                <div id="nameDiv" class="form-group">
+                    <label>Product Name</label>
+                    <input type="text" id="prodName" placeholder="Enter product name">
+                    <p style="color: red;font-size: 13px;font-weight: normal;margin-top: 2px !important;display: none;">Name Requierd At Least 3 letters</p>
+                </div>
+
+                <div class="form-row-3">
+                    <div id="categoryDiv" class="form-group">
+                        <label>Category</label>
+                        <div class="custom-select">
+                            <select id="prodCategory">
+                                <option value="">Select Category</option>
+                                <% categories.forEach((category,index)=>{ %>
+                                <option value="<%= category._id %>"><%= category.name %></option>
+                                <% }) %>
+                            </select>
+                            <i class="fa-solid fa-chevron-down select-arrow"></i>
+                        </div>
+                         <p style="color: red;font-size: 13px;font-weight: normal;margin-top: 2px !important;display: none;">Please Select Valid Category</p>
+                    </div>
+                    <div id="offerDiv" class="form-group">
+                        <label>Offer (%)</label>
+                        <input type="text" id="prodOffer" placeholder="00">
+                        <p style="color: red;font-size: 13px;font-weight: normal;margin-top: 2px !important;display: none;">Incorrect Offer</p>
+                    </div>
+                    <div class="form-group">
+                        <label>Show on Homepage</label>
+                        <div class="custom-select">
+                            <select id="prodHomepage">
+                                <option value=false>No</option>
+                                <option  value=true>Yes</option>
+                            </select>
+                            <i class="fa-solid fa-chevron-down select-arrow"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="variants-section">
+                    <div class="variants-header">
+                        <label>Product Variants</label>
+                        <button type="button" class="btn-add-variant" id="addVariantBtn">+ Add Variant</button>
+                    </div>
+
+                    <div id="variantsContainer">
+                        <div class="variant-card">
+                            <div class="form-row-3">
+                                <div class="form-group">
+                                    <label>Color</label>
+                                    <input type="text" placeholder="Color" class="variant-input">
+                                </div>
+                                <div class="form-group">
+                                    <label>RAM</label>
+                                    <input type="text" placeholder="RAM" class="variant-input">
+                                </div>
+                                <div class="form-group">
+                                    <label>ROM</label>
+                                    <input type="text" placeholder="ROM" class="variant-input">
+                                </div>
+                            </div>
+                            <div class="form-row-3">
+                                <div class="form-group price-group">
+                                    <label>Price</label>
+                                    <input type="text" placeholder="0.00" class="variant-input">
+                                    <p style="color: red;font-size: 13px;font-weight: normal;margin-top: 2px !important;display: none;">Price Is Required</p>
+                                </div>
+                                <div class="form-group stock-group">
+                                    <label>Stock</label>
+                                    <input type="text" placeholder="00" class="variant-input">
+                                    <p style="color: red;font-size: 13px;font-weight: normal;margin-top: 2px !important;display: none;">Stock is Required</p>
+                                </div>
+                                <div class="form-group">
+                                    <label>Status</label>
+                                    <div class="custom-select">
+                                        <select class="variant-status">
+                                            <option value="true">Active</option>
+                                            <option value="false">Inactive</option>
+                                        </select>
+                                        <i class="fa-solid fa-chevron-down select-arrow"></i>
+                                    </div>
+                                </div>
+                                
+                            </div>
+                            <label for=""> --> The First Image Will Be The Main Image </label>
+                            <div class="photo-gallery">
+                                <!-- Dynamic photos will appear here -->
+                                <div class="photo-add-box" onclick="this.querySelector('input').click()">
+                                    <i class="fa-solid fa-plus"></i>
+                                    <span>Add Photo</span>
+                                    <input type="file" accept="image/*" hidden onchange="handleNewPhoto(this)">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="highlightDiv" class="form-group">
+                    <label>Highlights (One Per Line)</label>
+                    <textarea id="prodHighlights" placeholder="Enter product Highlights" rows="2"></textarea>
+                    <p style="color: red;font-size: 13px;font-weight: normal;margin-top: 2px !important;display: none;">Highlights Required Minimum 10 Letters</p>
+                </div>
+
+                <div id="serviceDiv" class="form-group">
+                    <label>Services (One Per Line)</label>
+                    <textarea id="prodServices" placeholder="Enter Services" rows="2"></textarea>
+                    <p style="color: red;font-size: 13px;font-weight: normal;margin-top: 2px !important;display: none;">Services Required Minimum 10 Letters</p>
+                </div>
+
+                <div id="descriptionDiv" class="form-group">
+                    <label>Description</label>
+                    <textarea id="prodDescription" placeholder="Enter Description" rows="3"></textarea>
+                    <p style="color: red;font-size: 13px;font-weight: normal;margin-top: 2px !important;display: none;">Description Required Minimum 10 Letters</p>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="submit" class="btn-save-product">Save Product</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Crop Modal -->
+    <div id="cropModal" class="crop-modal">
+        <div class="crop-modal-content">
+            <div class="crop-modal-header">
+                <h3>Crop Image</h3>
+                <button type="button" class="modal-close-btn" onclick="closeCropModal()">&times;</button>
+            </div>
+            <div class="crop-container">
+                <img id="cropImage" alt="Crop preview">
+            </div>
+            <div class="crop-modal-footer">
+                <button type="button" class="btn-crop-cancel" onclick="closeCropModal()">Cancel</button>
+                <button type="button" class="btn-crop-confirm" onclick="confirmCrop()">Crop & Save</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.2/cropper.min.js"></script>
+<script>
+const searchInput = document.getElementById('searchInput');
+const clearSearch = document.getElementById('clearSearch');
+const productModal = document.getElementById('productModal');
+const productModalTitle = document.getElementById('productModalTitle');
+const productForm = document.getElementById('productForm');
+const cropModal = document.getElementById('cropModal');
+const cropImage = document.getElementById('cropImage');
+let cropper = null;
+let currentPhotoBox = null;
+
+
+let currentEditId = null;
+
+
+if (searchInput) {
+    if (searchInput.value) clearSearch.style.display = 'block';
+
+    searchInput.addEventListener('input', () => {
+        clearSearch.style.display = searchInput.value ? 'block' : 'none';
+    });
+}
+
+if (clearSearch) {
+    clearSearch.addEventListener('click', () => {
+        searchInput.value = '';
+        clearSearch.style.display = 'none';
+        window.location.href = '/admin/productManagement';
+    });
+}
+
+
+async function openProductModal(mode, id = null) {
+    productModal.style.display = 'flex';
+    const addVariantBtn = document.getElementById('addVariantBtn');
+
+    if (mode === 'edit') {
+        productModalTitle.innerText = 'Edit Product';
+        addVariantBtn.style.display = 'none';
+        currentEditId = id;
+
+        const res = await fetch(`/admin/productManagement/${id}`);
+        const data = await res.json();
+
+        const product = data.product
+        const variants = data.variants
+
+        
+        document.getElementById('prodName').value = product.name;
+        document.getElementById('prodCategory').value = product.categoryId._id;
+        document.getElementById('prodOffer').value = product.offer || "";
+        document.getElementById('prodHomepage').value = product.homepage;
+
+        document.getElementById('prodHighlights').value =
+            product.highlights.join("\n");
+
+        document.getElementById('prodServices').value =
+            product.services.join("\n");
+
+        document.getElementById('prodDescription').value =
+            product.details;
+
+        loadVariants(variants);
+
+
+    } else {
+        
+        currentEditId = null;
+
+        productModalTitle.innerText = 'Add Product';
+        addVariantBtn.style.display = 'inline-flex';
+        productForm.reset();
+
+        const container = document.getElementById('variantsContainer');
+        const firstCard = container.querySelector('.variant-card');
+        container.innerHTML = '';
+        container.appendChild(firstCard);
+
+        resetAllPhotos();
+    }
+}
+
+
+
+
+// for load the variants in the edit section 
+
+function loadVariants(variants) {
+
+    const container = document.getElementById('variantsContainer');
+    container.innerHTML = "";
+
+    variants.forEach((variant, index) => {
+
+        const newCard = document.createElement('div');
+        newCard.className = 'variant-card';
+
+        newCard.innerHTML = `
+            <div class="form-row-3">
+                <div class="form-group">
+                    <label>Color</label>
+                    <input type="text" placeholder="Color" value="${variant.color || ''}">
+                </div>
+                <div class="form-group">
+                    <label>RAM</label>
+                    <input type="text" placeholder="RAM" value="${variant.ram || ''}">
+                </div>
+                <div class="form-group">
+                    <label>ROM</label>
+                    <input type="text" placeholder="ROM" value="${variant.rom || ''}">
+                </div>
+            </div>
+
+            <div class="form-row-3">
+                <div class="form-group price-group">
+                    <label>Price</label>
+                    <input type="text" placeholder="0.00" value="${variant.price}">
+                    <p style="color: red;font-size: 13px;font-weight: normal;margin-top: 2px !important;display: none;">Price Is Required</p>
+                </div>
+                <div class="form-group stock-group">
+                    <label>Stock</label>
+                   <input type="text" placeholder="00" value="${variant.stock}">
+                   <p style="color: red;font-size: 13px;font-weight: normal;margin-top: 2px !important;display: none;">Stock is Required</p>
+                </div>
+                <div class="form-group">
+                    <label>Status</label>
+                    <div class = "custom-select">
+                        <select class="variant-status">
+                            <option value="true" ${variant.status ? "selected" : ""}>Active</option>
+                            <option value="false" ${!variant.status ? "selected" : ""}>Inactive</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <label for=""> --> The First Image Will Be The Main Image </label>
+            <div class="photo-gallery"></div>
+        `;
+
+        const gallery = newCard.querySelector('.photo-gallery');
+
+        /*variant.images.forEach(img => {
+            const box = document.createElement('div');
+            box.className = 'photo-upload-box has-image';
+            box.innerHTML = `
+                <img src="${img.url}" data-public-id="${img.public_id}" class="photo-preview">
+            `;
+            gallery.appendChild(box);
+        });*/
+
+
+        variant.images.forEach(img => {
+            const box = document.createElement('div');
+            box.className = 'photo-upload-box has-image';
+
+            box.innerHTML = `
+                <span class="photo-required-badge" style="display:none;">Required</span>
+                <img src="${img.url}" 
+                    data-public-id="${img.public_id}" 
+                    class="photo-preview"
+                    onclick="handleEditPhoto(this.parentElement)">
+             
+                <button type="button" 
+                    class="photo-delete-btn" 
+                    onclick="removePhoto(this)">
+                    <i class="fa-solid fa-trash"></i>
+                </button>
+            `;
+
+            gallery.appendChild(box);
+        });
+
+        
+        const addBox = document.createElement('div');
+        addBox.className = 'photo-add-box';
+        addBox.innerHTML = `
+            <i class="fa-solid fa-plus"></i>
+            <span>Add Photo</span>
+           <input type="file" accept="image/*" hidden>
+           `;
+
+        addBox.onclick = function () {
+            this.querySelector('input').click();
+        };
+
+        addBox.querySelector('input').onchange = function () {
+            handleNewPhoto(this);
+        };
+
+        gallery.appendChild(addBox);
+
+        container.appendChild(newCard);
+        });
+}
+
+
+
+
+
+
+function closeProductModal() {
+    productModal.style.display = 'none';
+    window.location.reload()
+}
+
+window.onclick = function (event) {
+    if (event.target === productModal) closeProductModal();
+    if (event.target === cropModal) closeCropModal();
+};
+
+
+
+let isEditing = false;
+let currentEditingBox = null;
+
+function handleNewPhoto(input) {
+    if (input.files && input.files[0]) {
+        const gallery = input.closest('.photo-gallery');
+        const photoCount = gallery.querySelectorAll('.photo-upload-box').length;
+
+        if (photoCount >= 6) {
+            alert('Maximum 6 photos allowed.');
+            input.value = '';
+            return;
+        }
+
+        isEditing = false;
+        currentPhotoBox = input.closest('.photo-add-box');
+
+        const reader = new FileReader();
+        reader.onload = function (e) {
+            openCropModal(e.target.result);
+        }
+        reader.readAsDataURL(input.files[0]);
+        input.value = '';
+    }
+}
+
+function handleEditPhoto(box) {
+    isEditing = true;
+    currentEditingBox = box;
+    const preview = box.querySelector('.photo-preview');
+    openCropModal(preview.src);
+}
+
+function openCropModal(imageSrc) {
+    cropModal.style.display = 'flex';
+    cropImage.src = imageSrc;
+    cropImage.onload = function () {
+        if (cropper) cropper.destroy();
+        cropper = new Cropper(cropImage, {
+            aspectRatio: 1,
+            viewMode: 1,
+            dragMode: "move",
+            cropBoxResizable: false,
+            cropBoxMovable: false,
+            zoomable: true,
+            scalable: false,
+            responsive: true
+        });
+    };
+}
+
+function closeCropModal() {
+    cropModal.style.display = 'none';
+    if (cropper) {
+        cropper.destroy();
+        cropper = null;
+    }
+    isEditing = false;
+    currentEditingBox = null;
+    //window.location.reload()
+}
+
+function confirmCrop() {
+    if (!cropper) return;
+
+    const canvas = cropper.getCroppedCanvas({
+        width: 600,
+        height: 600,
+        imageSmoothingEnabled: true,
+        imageSmoothingQuality: 'high',
+    });
+
+    const croppedDataUrl = canvas.toDataURL('image/png');
+
+    if (isEditing && currentEditingBox) {
+        const preview = currentEditingBox.querySelector('.photo-preview');
+        preview.src = croppedDataUrl;
+    } else {
+        const gallery = currentPhotoBox.closest('.photo-gallery');
+        const addBox = currentPhotoBox;
+
+        const newBox = document.createElement('div');
+        newBox.className = 'photo-upload-box has-image';
+        newBox.innerHTML = `
+            <span class="photo-required-badge" style="display:none;">Required</span>
+            <img src="${croppedDataUrl}" class="photo-preview" onclick="handleEditPhoto(this.parentElement)">
+            <button type="button" class="photo-delete-btn" onclick="removePhoto(this)">
+                <i class="fa-solid fa-trash"></i>
+            </button>
+        `;
+
+        gallery.insertBefore(newBox, addBox);
+        updateGalleryControls(gallery);
+    }
+
+    closeCropModal();
+}
+
+function removePhoto(btn) {
+    const box = btn.closest('.photo-upload-box');
+    const gallery = box.closest('.photo-gallery');
+    box.remove();
+    updateGalleryControls(gallery);
+}
+
+function updateGalleryControls(gallery) {
+    const boxes = gallery.querySelectorAll('.photo-upload-box');
+    const addBox = gallery.querySelector('.photo-add-box');
+    addBox.style.display = boxes.length >= 6 ? 'none' : 'flex';
+}
+
+function resetAllPhotos() {
+    document.querySelectorAll('.photo-gallery').forEach(gallery => {
+        gallery.querySelectorAll('.photo-upload-box').forEach(box => box.remove());
+        const addBox = gallery.querySelector('.photo-add-box');
+        if (addBox) addBox.style.display = 'flex';
+    });
+}
+
+// Add Variant
+document.getElementById('addVariantBtn').addEventListener('click', function () {
+    const container = document.getElementById('variantsContainer');
+    const firstCard = container.querySelector('.variant-card');
+    const newCard = firstCard.cloneNode(true);
+
+    newCard.querySelectorAll('input[type="text"]').forEach(inp => inp.value = '');
+    newCard.querySelectorAll('select').forEach(sel => sel.selectedIndex = 0);
+
+    const gallery = newCard.querySelector('.photo-gallery');
+    gallery.querySelectorAll('.photo-upload-box').forEach(box => box.remove());
+    gallery.querySelector('.photo-add-box').style.display = 'flex';
+
+    const closeBtn = document.createElement('button');
+    closeBtn.type = 'button';
+    closeBtn.className = 'variant-close-btn';
+    closeBtn.innerHTML = '&times;';
+    closeBtn.onclick = function () {
+        newCard.remove();
+    };
+    newCard.style.position = 'relative';
+    newCard.insertBefore(closeBtn, newCard.firstChild);
+
+    container.appendChild(newCard);
+});
+
+
+
+
+productForm.onsubmit = async function (e) {
+    e.preventDefault();
+
+    let isValid = true;
+
+    const formData = new FormData();
+
+    let name = document.getElementById("prodName").value.trim();
+    let category = document.getElementById("prodCategory").value
+    let offer = document.getElementById("prodOffer").value
+    let highlight = document.getElementById("prodHighlights").value.trim()
+    let service = document.getElementById("prodServices").value.trim()
+    let details = document.getElementById("prodDescription").value.trim()
+
+
+    const nameDiv = document.getElementById("nameDiv");
+    const offerDiv = document.getElementById("offerDiv");
+    const categoryDiv = document.getElementById("categoryDiv");
+    const highlightDiv = document.getElementById("highlightDiv");
+    const serviceDiv = document.getElementById("serviceDiv");
+    const detailsDiv = document.getElementById("descriptionDiv");
+
+
+    if (!name || name.length < 3) {
+            nameDiv.querySelector('input').style.border = '1px solid red';
+            nameDiv.querySelector('p').style.display = 'block';
+            isValid = false;
+        } else {
+            nameDiv.querySelector('input').style.border = '1px solid gray';
+            nameDiv.querySelector('p').style.display = 'none';
+            formData.append("name", name )
+        }
+
+
+    if (category === "") {
+        categoryDiv.querySelector('select').style.border = '1px solid red';
+        categoryDiv.querySelector('p').style.display = 'block';
+        isValid = false;
+    } else {
+        categoryDiv.querySelector('select').style.border = '1px solid gray';
+        categoryDiv.querySelector('p').style.display = 'none';
+        formData.append("category", category);
+    }
+
+    
+    if (offer) {
+        if (isNaN(offer) || offer > 100) {
+            offerDiv.querySelector('input').style.border = '1px solid red';
+            offerDiv.querySelector('p').style.display = 'block';
+            isValid = false;
+        } else {
+            offerDiv.querySelector('input').style.border = '1px solid gray';
+            offerDiv.querySelector('p').style.display = 'none';
+            formData.append("offer", offer);
+        }
+    }
+
+
+    if (!highlight || highlight.length < 10) {
+        highlightDiv.querySelector('textarea').style.border = '1px solid red';
+        highlightDiv.querySelector('p').style.display = 'block';
+        isValid = false;
+    } else {
+        highlightDiv.querySelector('textarea').style.border = '1px solid gray';
+        highlightDiv.querySelector('p').style.display = 'none';
+        formData.append("highlights",
+            JSON.stringify(
+                highlight.split("\n").filter(h => h.trim() !== "")
+            )
+        );
+    }
+
+
+    if (!service || service.length < 10) {
+        serviceDiv.querySelector('textarea').style.border = '1px solid red';
+        serviceDiv.querySelector('p').style.display = 'block';
+        isValid = false;
+    } else {
+        serviceDiv.querySelector('textarea').style.border = '1px solid gray';
+        serviceDiv.querySelector('p').style.display = 'none';
+        formData.append("services",
+            JSON.stringify(
+                service.split("\n").filter(s => s.trim() !== "")
+            )
+        );
+    }
+
+
+    if (!details || details.length < 10) {
+        detailsDiv.querySelector('textarea').style.border = '1px solid red';
+        detailsDiv.querySelector('p').style.display = 'block';
+        isValid = false;
+    } else {
+        detailsDiv.querySelector('textarea').style.border = '1px solid gray';
+        detailsDiv.querySelector('p').style.display = 'none';
+        formData.append("details", details);
+    }
+    
+    
+
+
+    
+
+    const variantCards = document.querySelectorAll('.variant-card');
+    let variants = [];
+    let allVariantsValid = true;
+
+
+    for (let i = 0; i < variantCards.length; i++) {
+
+        const card = variantCards[i];
+        const photoPreviews = card.querySelectorAll('.photo-preview');
+
+        let variantValid = true;
+
+        const priceDiv = card.querySelector('.price-group');
+        const stockDiv = card.querySelector('.stock-group');
+
+
+        let color = card.querySelector('input[placeholder="Color"]').value
+        let ram = card.querySelector('input[placeholder="RAM"]').value
+        let rom = card.querySelector('input[placeholder="ROM"]').value
+        let price = card.querySelector('input[placeholder="0.00"]').value
+        let stock = card.querySelector('input[placeholder="00"]').value
+        let status =  card.querySelector('.variant-status').value
+
+        console.log(card.querySelector('input[placeholder="Color"]').value)
+
+        if (photoPreviews.length < 3) {
+            alert(`Variant ${i + 1} must have at least 3 photos.`);
+            return;
+        }
+
+        if (!price || isNaN(price)) {
+            priceDiv.querySelector('input').style.border = '1px solid red';
+            priceDiv.querySelector('p').style.display = 'block';
+            variantValid = false;
+        } else {
+            priceDiv.querySelector('input').style.border = '1px solid gray';
+            priceDiv.querySelector('p').style.display = 'none';
+        }
+
+
+        if (!stock || isNaN(stock)) {
+            stockDiv.querySelector('input').style.border = '1px solid red';
+            stockDiv.querySelector('p').style.display = 'block';
+            variantValid = false;
+        } else {
+            stockDiv.querySelector('input').style.border = '1px solid gray';
+            stockDiv.querySelector('p').style.display = 'none';
+        }
+
+        
+        let existingImages = [];
+
+        photoPreviews.forEach((img, imgIndex) => {
+
+            if (img.src.startsWith("http")) {
+                
+                existingImages.push({
+                    url : img.src,
+                    public_id : img.dataset.publicId
+                });
+            } else {
+                
+                const file = dataURLtoFile(img.src, `variant-${i}-${imgIndex}.png`);
+                formData.append(`variantImages_${i}`, file);
+            }
+});
+
+        const variantObj = {
+            color: color,
+            ram: ram,
+            rom: rom,
+            price: price,
+            stock: stock,
+            status: status,
+            existingImages
+        };
+
+
+        variants.push(variantObj);
+
+        if (!variantValid) {
+            allVariantsValid = false
+            continue
+        }
+    }
+
+
+    if (!allVariantsValid) return
+    if (!isValid) return
+    
+
+    formData.append("homepage", document.getElementById("prodHomepage").value);
+    formData.append("variants", JSON.stringify(variants));
+
+    try {
+
+        let url = "/admin/productManagement/add";
+        let method = "POST";
+
+        
+        if (currentEditId) {
+            url = `/admin/productManagement/edit/${currentEditId}`;
+            method = "POST";
+            formData.append("productId", currentEditId);
+        }
+
+        const response = await fetch(url, {
+            method: method,
+            body: formData
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+            showToast(result.message,"success")
+            closeProductModal();
+            setTimeout(()=>{location.reload();},1500)
+        } else {
+            showToast(result.message,"error");
+        }
+
+    } catch (error) {
+        console.log(error);
+        alert("Server error");
+    }
+};
+
+
+function dataURLtoFile(dataurl, filename) {
+    const arr = dataurl.split(',');
+    const mime = arr[0].match(/:(.*?);/)[1];
+    const bstr = atob(arr[1]);
+    let n = bstr.length;
+    const u8arr = new Uint8Array(n);
+
+    while (n--) {
+        u8arr[n] = bstr.charCodeAt(n);
+    }
+
+    return new File([u8arr], filename, { type: mime });
+}
+
+async function deleteProduct(id,status) {
+    if (confirm("Are you sure ?")) {
+        
+        const response = await fetch (`/admin/productManagement/productStatus/${id}?status=${status}`,{
+                method: "PATCH"
+            })
+            const data = await response.json()
+
+            if (data.success){
+                showToast(data.message,"success")
+
+                setTimeout(()=>{location.reload()},500)
+            }else {
+                showToast(data.message,"error")
+            }
+    }
+}
+
+
+
+function showToast(message, type = "success") {
+
+    const toast = document.createElement("div");
+    toast.classList.add("toast", `toast-${type}`);
+    toast.innerText = message;
+
+    document.body.appendChild(toast);
+
+    // trigger animation
+    setTimeout(() => {
+        toast.classList.add("show");
+    }, 10);
+
+    // remove after 3 seconds
+    setTimeout(() => {
+        toast.classList.remove("show");
+        setTimeout(() => toast.remove(), 300);
+    }, 3000);
+}
+</script>

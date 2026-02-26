@@ -1,7 +1,7 @@
 const adminService = require("../service/adminService")
 const userModel = require("../model/userModel")
 const categoryModel = require("../model/categoryModel")
-
+const {productModel, variantModel} = require ("../model/productModel.js")
 
 
 
@@ -116,7 +116,93 @@ const loadCategoryManagement = async (req,res) => {
         console.log(err)
     }
 }
- 
+
+
+const loadProductManagement = async (req,res) => {
+    try {
+
+        let page = parseInt(req.query.page) || 1
+        let limit = 10
+        let skip = (page - 1) * limit
+
+        let filter = {}
+
+        let search = req.query.search || ""
+        let inputSearch = search.trim()
+        let statusFilter = req.query.filter || "all"
+
+        if (inputSearch) {
+            filter.name = { $regex: inputSearch, $options: "i" }  
+        }
+
+        if (statusFilter === "active") {
+            filter.isDeleted = false
+        } else if (statusFilter === "inactive") {
+            filter.isDeleted = true
+        }
+
+        const products = await productModel.find(filter)
+            .sort({_id:-1})
+            .skip(skip)
+            .limit(limit).populate("categoryId")
+
+        const totalProduct = await productModel.countDocuments(filter)
+        const totalPages = Math.ceil(totalProduct / limit)
+
+        const categories = await categoryModel.find()
+
+        return res.render("admin/productManagement", {
+            products,
+            totalPages,
+            currentPage: page,
+            search:inputSearch,
+            filter: statusFilter,
+            categories
+        })
+
+    } catch (err) {
+        console.log(err)
+    }
+}
+
+
+const productManagement = async (req,res) => {
+    try {
+
+        const product = await productModel.findOne({_id:req.params.id}).populate("categoryId")
+        const variants = await variantModel.find({ productId: product._id });
+
+        const formattedVariants = variants.map(v => {
+            const images = v.images.map((url, index) => ({
+                url: url,
+                public_id: v.imagesId[index]
+            }));
+
+            return {
+                _id: v._id,
+                productId: v.productId,
+                price: v.price,
+                stock: v.stock,
+                status: v.status,
+                color: v.attributes.find(a => a.key === "color")?.value || "",
+                ram: v.attributes.find(a => a.key === "ram")?.value || "",
+                rom: v.attributes.find(a => a.key === "rom")?.value || "",
+                images
+            };
+        });
+
+    return res.json({
+        success: true,
+        product,
+        variants: formattedVariants
+    });
+        
+    } catch (err) {
+        console.log(err)
+    }
+}
+
+
 
 
 
@@ -236,6 +322,84 @@ const categoryStatus = async (req,res) => {
 }
 
 
+const addProduct = async (req,res) => {
+    try {
+        const {failMessage,message} = await adminService.addProduct(req)
+
+        if (failMessage) {
+            return res.status(409).json({
+                success : false,
+                message : failMessage
+            })
+        }
+
+        return res.json({
+            success : true,
+            message : message
+        })
+
+        return 
+    } catch (err) {
+        console.log(err)
+    }
+}
+
+
+const editProduct = async (req,res) => {
+    try {
+
+        const {failMessage,message} = await adminService.editProduct(req)
+
+        if (failMessage) {
+            return res.json({
+                success : false,
+                message : failMessage
+            })
+        }
+
+        return res.json({
+            success : true,
+            message : message
+        })
+    } catch (err) {
+        console.log(err)
+    }
+}
+
+
+const productStatus = async (req,res) => {
+    try {
+        const id = req.params.id
+        const status = req.query.status
+
+        const product = await productModel.findOne({_id:id})
+        if (!product) {
+            return res.status(404).json({
+                success : false,
+                message : "Product Not Found"
+            })
+        }
+console.log("Hello")
+
+
+        await productModel.updateOne(
+            {_id:id},
+            {
+                $set : {
+                    isDeleted : status
+                }
+            }
+        )
+
+        return res.json({
+            success : true,
+            message : "Updated"
+        })
+    }  catch (err) {
+        console.log(err)
+    }
+}
+
 
 
 
@@ -250,5 +414,10 @@ module.exports = {
     loadCategoryManagement,
     addCategory,
     editCategory,
-    categoryStatus
+    categoryStatus,
+    loadProductManagement,
+    addProduct,
+    productManagement,
+    editProduct,
+    productStatus
 }

@@ -1,7 +1,7 @@
 const userModel = require("../model/userModel")
 const userService = require("../service/userService")
 const cloudinary = require("../helpers/cloudinary.js")
-
+const categoryModel = require("../model/categoryModel.js")
 
 
 
@@ -74,9 +74,11 @@ const loadHome = async (req,res) => {
         const swalMessage = req.session.swalMessage
         req.session.swalMessage = null
 
-        
+        const categories = await categoryModel.find()
+
         res.render("user/home",{
-            swalMessage
+            swalMessage,
+            categories
         })
     } catch (error) {
         console.log(error)
