@@ -210,7 +210,9 @@
                             <select id="prodCategory">
                                 <option value="">Select Category</option>
                                 <% categories.forEach((category,index)=>{ %>
+                                    <% if (!category.isDeleted) { %>
                                 <option value="<%= category._id %>"><%= category.name %></option>
+                                     <% } %>
                                 <% }) %>
                             </select>
                             <i class="fa-solid fa-chevron-down select-arrow"></i>
@@ -243,9 +245,13 @@
                     <div id="variantsContainer">
                         <div class="variant-card">
                             <div class="form-row-3">
-                                <div class="form-group">
+                                <div class="form-group color-group">
                                     <label>Color</label>
-                                    <input type="text" placeholder="Color" class="variant-input">
+                                    <div style="display:flex; gap:10px;">
+                                        <input type="text" placeholder="Color Name" class="variant-color-name">
+                                        <input type="color" class="variant-color-hex">
+                                    </div>
+                                    <p style="color: red;font-size: 13px;font-weight: normal;margin-top: 2px !important;display: none;">Color Is Required</p>
                                 </div>
                                 <div class="form-group">
                                     <label>RAM</label>
@@ -258,7 +264,7 @@
                             </div>
                             <div class="form-row-3">
                                 <div class="form-group price-group">
-                                    <label>Price</label>
+                                    <label>Original Price</label>
                                     <input type="text" placeholder="0.00" class="variant-input">
                                     <p style="color: red;font-size: 13px;font-weight: normal;margin-top: 2px !important;display: none;">Price Is Required</p>
                                 </div>
@@ -305,7 +311,7 @@
                 </div>
 
                 <div id="descriptionDiv" class="form-group">
-                    <label>Description</label>
+                    <label>Description (One Per Line)</label>
                     <textarea id="prodDescription" placeholder="Enter Description" rows="3"></textarea>
                     <p style="color: red;font-size: 13px;font-weight: normal;margin-top: 2px !important;display: none;">Description Required Minimum 10 Letters</p>
                 </div>
@@ -395,7 +401,7 @@ async function openProductModal(mode, id = null) {
             product.services.join("\n");
 
         document.getElementById('prodDescription').value =
-            product.details;
+            product.details.join("\n");
 
         loadVariants(variants);
 
@@ -431,12 +437,25 @@ function loadVariants(variants) {
 
         const newCard = document.createElement('div');
         newCard.className = 'variant-card';
+        newCard.setAttribute("data-variant-id", variant._id);
+
+        
+        
+
+
+        
 
         newCard.innerHTML = `
+            <button type="button" class="variant-close-btn">&times;</button>
+
             <div class="form-row-3">
-                <div class="form-group">
-                    <label>Color</label>
-                    <input type="text" placeholder="Color" value="${variant.color || ''}">
+                <div class="color-group">
+                    <div class="form-group color-group">
+                        <label>Color</label>
+                        <input type="text" class="variant-color-name" value="${variant.colorName}">
+                        <input type="color" class="variant-color-hex" value="${variant.colorHex}">
+                    </div>
+                    <p style="color: red;font-size: 13px;font-weight: normal;margin-top: 2px !important;display: none;">Color Is Required</p>
                 </div>
                 <div class="form-group">
                     <label>RAM</label>
@@ -450,7 +469,7 @@ function loadVariants(variants) {
 
             <div class="form-row-3">
                 <div class="form-group price-group">
-                    <label>Price</label>
+                    <label>Original Price</label>
                     <input type="text" placeholder="0.00" value="${variant.price}">
                     <p style="color: red;font-size: 13px;font-weight: normal;margin-top: 2px !important;display: none;">Price Is Required</p>
                 </div>
@@ -473,6 +492,43 @@ function loadVariants(variants) {
             <div class="photo-gallery"></div>
         `;
 
+        const closeBtn = newCard.querySelector('.variant-close-btn');
+        closeBtn.onclick = async function () {
+
+        const variantId = newCard.getAttribute("data-variant-id");
+
+    
+    if (currentEditId && variantId) {
+
+        if (!confirm("Delete this variant?")) return;
+
+        try {
+            const response = await fetch(
+                `/admin/productManagement/deleteVariant/${variantId}`,
+                { method: "DELETE" }
+            );
+
+            const result = await response.json();
+
+            if (result.success) {
+                newCard.remove();
+                updateVariantCloseButtons();
+                showToast("Variant deleted", "success");
+            } else {
+                showToast(result.message, "error");
+            }
+
+        } catch (err) {
+            console.log(err);
+            showToast("Server error", "error");
+        }
+
+    } else {
+        
+        newCard.remove();
+        updateVariantCloseButtons();
+    }
+   };
         const gallery = newCard.querySelector('.photo-gallery');
 
         /*variant.images.forEach(img => {
@@ -527,9 +583,25 @@ function loadVariants(variants) {
 
         container.appendChild(newCard);
         });
+        updateVariantCloseButtons(); // ✅ ADD THIS LINE HERE
 }
 
 
+function updateVariantCloseButtons() {
+    const variantCards = document.querySelectorAll('.variant-card');
+
+    variantCards.forEach(card => {
+        const closeBtn = card.querySelector('.variant-close-btn');
+
+        if (!closeBtn) return;
+
+        if (variantCards.length <= 1) {
+            closeBtn.style.display = "none";
+        } else {
+            closeBtn.style.display = "block";
+        }
+    });
+}
 
 
 
@@ -740,7 +812,7 @@ productForm.onsubmit = async function (e) {
 
     
     if (offer) {
-        if (isNaN(offer) || offer > 100) {
+        if (isNaN(offer) || offer > 100 || offer < 0) {
             offerDiv.querySelector('input').style.border = '1px solid red';
             offerDiv.querySelector('p').style.display = 'block';
             isValid = false;
@@ -789,7 +861,11 @@ productForm.onsubmit = async function (e) {
     } else {
         detailsDiv.querySelector('textarea').style.border = '1px solid gray';
         detailsDiv.querySelector('p').style.display = 'none';
-        formData.append("details", details);
+        formData.append("details",
+            JSON.stringify(
+                details.split("\n").filter(s => s.trim() !== "")
+            )
+        );
     }
     
     
@@ -811,23 +887,34 @@ productForm.onsubmit = async function (e) {
 
         const priceDiv = card.querySelector('.price-group');
         const stockDiv = card.querySelector('.stock-group');
+        const colorDiv = card.querySelector('.color-group')
 
-
-        let color = card.querySelector('input[placeholder="Color"]').value
+        let colorName = card.querySelector('.variant-color-name').value;
+        let colorHex = card.querySelector('.variant-color-hex').value;
+        
         let ram = card.querySelector('input[placeholder="RAM"]').value
         let rom = card.querySelector('input[placeholder="ROM"]').value
         let price = card.querySelector('input[placeholder="0.00"]').value
         let stock = card.querySelector('input[placeholder="00"]').value
         let status =  card.querySelector('.variant-status').value
 
-        console.log(card.querySelector('input[placeholder="Color"]').value)
+        
 
         if (photoPreviews.length < 3) {
             alert(`Variant ${i + 1} must have at least 3 photos.`);
             return;
         }
 
-        if (!price || isNaN(price)) {
+        if (!colorName.trim()) {
+            colorDiv.querySelector('input').style.border = '1px solid red';
+            colorDiv.querySelector('p').style.display = 'block';
+            variantValid = false
+        }else {
+            colorDiv.querySelector('input').style.border = '1px solid gray';
+            colorDiv.querySelector('p').style.display = 'none';
+        }
+        
+        if (!price || isNaN(price) || price < 0) {
             priceDiv.querySelector('input').style.border = '1px solid red';
             priceDiv.querySelector('p').style.display = 'block';
             variantValid = false;
@@ -837,7 +924,7 @@ productForm.onsubmit = async function (e) {
         }
 
 
-        if (!stock || isNaN(stock)) {
+        if (!stock || isNaN(stock) || stock < 0) {
             stockDiv.querySelector('input').style.border = '1px solid red';
             stockDiv.querySelector('p').style.display = 'block';
             variantValid = false;
@@ -862,7 +949,12 @@ productForm.onsubmit = async function (e) {
                 const file = dataURLtoFile(img.src, `variant-${i}-${imgIndex}.png`);
                 formData.append(`variantImages_${i}`, file);
             }
-});
+        });
+
+        let color = JSON.stringify({
+            name : colorName,
+            hex:colorHex
+        })
 
         const variantObj = {
             color: color,

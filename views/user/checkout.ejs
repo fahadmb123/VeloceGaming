@@ -1,0 +1,173 @@
+<link rel="stylesheet" href="/css/user/checkout.css">
+
+<!-- Header -->
+<header>
+    <div class="header-container">
+        <div class="logo">
+            <div class="logo-icon"><i class="fa-solid fa-check"></i></div>
+            <div class="logo-text">
+                <span class="brand">VELOCE</span>
+                <span class="sub-brand">GAMING</span>
+            </div>
+        </div>
+
+        <nav>
+            <a href="../home/index.html">Home</a>
+            <a href="../shop/index.html">Shop</a>
+        </nav>
+
+        <div class="search-bar">
+            <input type="text" placeholder="What are you looking for?">
+            <i class="fa-solid fa-magnifying-glass"></i>
+        </div>
+
+        <div class="header-icons">
+            <a href="../wishlist/index.html"><i class="fa-regular fa-heart"></i></a>
+            <a href="../cart/index.html"><i class="fa-solid fa-cart-shopping"></i></a>
+            <div class="user-menu">
+                <div class="profile-circle">
+                    <i class="fa-solid fa-user"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<main class="checkout-main">
+    <h1 class="page-title">Checkout</h1>
+
+    <div class="checkout-layout">
+        <div class="checkout-content">
+            <!-- Delivery Address -->
+            <section class="checkout-section">
+                <h2 class="section-title">Delivery Address</h2>
+                <div class="address-list">
+                    <label class="address-card selected">
+                        <input type="radio" name="address" checked>
+                        <div class="radio-custom"></div>
+                        <div class="address-details">
+                            <h3>John Martin 1</h3>
+                            <p>123 Tech Street, Mumbai, Maharashtra - 400001</p>
+                        </div>
+                    </label>
+
+                    <label class="address-card">
+                        <input type="radio" name="address">
+                        <div class="radio-custom"></div>
+                        <div class="address-details">
+                            <h3>John Martin 2</h3>
+                            <p>456 Gaming Avenue, Bangalore, Karnataka - 560001</p>
+                        </div>
+                    </label>
+                </div>
+                <button class="btn-add-address">+ Add New Address</button>
+            </section>
+
+            <!-- Payment Method -->
+            <section class="checkout-section">
+                <h2 class="section-title">Payment Method</h2>
+                <div class="payment-methods">
+                    <label class="payment-option">
+                        <input type="radio" name="payment" checked>
+                        <div class="radio-custom"></div>
+                        <span>Wallet</span>
+                    </label>
+                    <label class="payment-option">
+                        <input type="radio" name="payment">
+                        <div class="radio-custom"></div>
+                        <span>Razorpay</span>
+                    </label>
+                    <label class="payment-option">
+                        <input type="radio" name="payment">
+                        <div class="radio-custom"></div>
+                        <span>Cash on Delivery</span>
+                    </label>
+                </div>
+            </section>
+
+            <!-- Cart Items -->
+            <section class="checkout-section">
+                <h2 class="section-title">Cart Items</h2>
+                <div class="checkout-items">
+                    <div class="checkout-item">
+                        <div class="item-image">
+                            <img src="../../../image/product-1.png" alt="CPU Cooler">
+                        </div>
+                        <div class="item-info">
+                            <h3>GIGABYTE GME 360 AIO Liquid CPU Cooler</h3>
+                            <p>Qty: 1</p>
+                        </div>
+                        <div class="item-price">₹ 8,399</div>
+                    </div>
+
+                    <div class="checkout-item">
+                        <div class="item-image">
+                            <img src="../../../image/product-3.jpeg" alt="Computer Case">
+                        </div>
+                        <div class="item-info">
+                            <h3>Ant Esports Crystal Mini-Tower Computer Case</h3>
+                            <p>Qty: 2</p>
+                        </div>
+                        <div class="item-price">₹ 14,018</div>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- Order Summary -->
+        <aside class="order-summary">
+            <h2 class="summary-title">Order Summary</h2>
+            <div class="summary-details">
+                <div class="summary-row">
+                    <span>Subtotal</span>
+                    <span>₹ 22,417</span>
+                </div>
+                <div class="summary-row">
+                    <span>Shipping</span>
+                    <span class="free">Free</span>
+                </div>
+                <div class="summary-row">
+                    <span>Tax</span>
+                    <span>₹ 0</span>
+                </div>
+
+                <div class="coupon-section">
+                    <p>Coupon Code</p>
+                    <div class="coupon-input">
+                        <input type="text" placeholder="Enter coupon code">
+                        <button class="btn-apply">Apply</button>
+                    </div>
+                </div>
+
+                <div class="total-row">
+                    <span class="total-amount">₹ 22,417</span>
+                </div>
+            </div>
+            <button class="btn-place-order">Place Order</button>
+        </aside>
+    </div>
+</main>
+
+<!-- Mobile Bottom Navbar -->
+<div class="mobile-bottom-nav">
+    <a href="../home/index.html" class="nav-item">
+        <i class="fa-solid fa-house"></i>
+        <span>Home</span>
+    </a>
+    <a href="../shop/index.html" class="nav-item">
+        <i class="fa-solid fa-bag-shopping"></i>
+        <span>Shop</span>
+    </a>
+    <a href="../cart/index.html" class="nav-item">
+        <i class="fa-solid fa-cart-shopping"></i>
+        <span>Cart</span>
+    </a>
+    <a href="../wishlist/index.html" class="nav-item">
+        <i class="fa-solid fa-heart"></i>
+        <span>Wishlist</span>
+    </a>
+    <a href="../profile/index.html" class="nav-item">
+        <i class="fa-solid fa-user"></i>
+        <span>Profile</span>
+    </a>
+</div>

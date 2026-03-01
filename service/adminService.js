@@ -168,11 +168,12 @@ const addProduct = async (req) => {
             category,
             offer,
             homepage,
-            details
+            //details
         } = req.body
         const variants = JSON.parse(req.body.variants)
         const highlights = JSON.parse(req.body.highlights)
         const services = JSON.parse(req.body.services)
+        const details = JSON.parse(req.body.details)
 
 
         let isExist = await productModel.findOne({name})
@@ -231,6 +232,13 @@ const addProduct = async (req) => {
 
         for (let  i=0 ; i<variants.length ; i++){
             let obj = variants[i]
+            //let offeredPrice = obj.price * (1 - offer / 100)
+            let offeredPrice
+            if (!offer) {
+                offeredPrice = obj.price
+            } else {
+                offeredPrice = obj.price * (1 - offer / 100)
+            }
             let toAddVariant = {
                 productId : obj.productId,
                 price : obj.price,
@@ -238,6 +246,7 @@ const addProduct = async (req) => {
                 images : obj.images,
                 imagesId : obj.imagesId,
                 status : obj.status,
+                offeredPrice : offeredPrice,
                 attributes : [
                     {key : "ram" , value : obj.ram},
                     {key : "rom" , value : obj.rom},
@@ -249,7 +258,7 @@ const addProduct = async (req) => {
             await newVariant.save()
         }
 
-        let count = await variantModel.countDocuments({productId:product._id})
+        /*let count = await variantModel.countDocuments({productId:product._id})
         await productModel.updateOne(
             {_id:product._id},
             {
@@ -257,7 +266,7 @@ const addProduct = async (req) => {
                     variantCount : count
                 }
             }
-        )
+        )*/
 
         //const newVariant = new variantModel ({variants})
 
@@ -279,12 +288,13 @@ const editProduct = async (req) => {
             category,
             offer,
             homepage,
-            details,
+            //details,
         } = req.body
 
         const variants = JSON.parse(req.body.variants)
         const highlights = JSON.parse(req.body.highlights)
         const services = JSON.parse(req.body.services)
+        const details = JSON.parse(req.body.details)
 
         
         let isExist = await productModel.findOne({_id:productId})
@@ -372,7 +382,12 @@ const editProduct = async (req) => {
                     }
                 }
             }
-
+            let offeredPrice
+            if (!offer) {
+                offeredPrice = variant.price
+            } else {
+                offeredPrice = variant.price * (1 - offer / 100)
+            }
             await variantModel.create({
                 productId,
                 price: variant.price,
@@ -380,6 +395,7 @@ const editProduct = async (req) => {
                 images: finalImages,
                 imagesId: finalImagesId,
                 status: variant.status,
+                offeredPrice : offeredPrice,
                 attributes: [
                     { key: "ram", value: variant.ram },
                     { key: "rom", value: variant.rom },
@@ -388,7 +404,7 @@ const editProduct = async (req) => {
             });
         }
 
-        let count = await variantModel.countDocuments({productId:productId})
+        /*let count = await variantModel.countDocuments({productId:productId})
         await productModel.updateOne(
             {_id:productId},
             {
@@ -397,7 +413,7 @@ const editProduct = async (req) => {
                 }
             }
         )
-
+*/
 
         
         return {success : true,message: "Updated"}

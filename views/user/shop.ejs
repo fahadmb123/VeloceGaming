@@ -1,0 +1,534 @@
+<link rel="stylesheet" href="/css/user/shop.css">
+
+
+
+<!-- Header -->
+<header>
+    <div class="header-container">
+        <div class="logo">
+            <div class="logo-icon"><i class="fa-solid fa-check"></i></div>
+            <div class="logo-text">
+                <span class="brand">VELOCE</span>
+                <span class="sub-brand">GAMING</span>
+            </div>
+        </div>
+
+        <nav>
+            <a href="/">Home</a>
+            <a href="/shop" class="active">Shop</a>
+            <% if (user) { %>
+                <a style="display: none;" href="/login">Log In</a>
+            <% } else { %>
+                <a href="/login">Log In</a>
+            <% } %>  
+        </nav>
+
+        <div class="search-bar">
+            <input type="text" id="desktopSearchInput" placeholder="Search for products, brands and more...">
+            <div class="search-icons">
+                <i class="fa-solid fa-circle-xmark clear-search" id="clearDesktopSearchBtn"></i>
+                <i id="searchBtn" class="fa-solid fa-magnifying-glass"></i>
+            </div>
+        </div>
+
+        <div class="header-icons"> 
+            <% if (user) { %>
+                <a href="/wishlist"><i class="fa-regular fa-heart"></i></a>
+                <a href="/cart"><i class="fa-solid fa-cart-shopping"></i></a>
+            <% } %>
+            <div class="user-menu">
+                <% if (user) { %>
+                    <a style="text-decoration: none;" href="/profile">
+                        <div class="profile-circle">
+                        <% if (user.profileImage){ %>
+                        <img src="<%= user.profileImage %>" 
+                           style="width:100%; height:100%; object-fit:cover; border-radius:50%;">
+                    <% }  else { %>
+                    <%= user.name.charAt(0).toUpperCase() %> 
+                    <% } %> 
+                    </div>
+                </a>
+                <% } else { %>
+                    <div style="display: none;" class="profile-circle"></div>
+                <% } %>
+            </div>
+        </div>
+    </div>
+</header>
+
+<main class="shop-container">
+    <!-- Mobile Search Bar -->
+    <div class="mobile-search">
+        <div class="search-wrapper">
+            <input type="text" id="shopSearchInput" placeholder="Search for products, brands and more...">
+            <div class="search-icons">
+                <i class="fa-solid fa-circle-xmark clear-search" id="clearSearchBtn"></i>
+                <i class="fa-solid fa-magnifying-glass"></i>
+            </div>
+        </div>
+    </div>
+
+    <!-- Mobile Filter Toggle Button -->
+    <div class="mobile-filter-toggle">
+        <button id="toggleFilterBtn">
+            <div class="btn-content">
+                <i class="fa-solid fa-filter"></i>
+                <span>Filter Products</span>
+            </div>
+            <i class="fa-solid fa-chevron-right"></i>
+        </button>
+    </div>
+
+    <div class="shop-content">
+        <!-- Sidebar Filter -->
+    <form action="">
+        <aside class="filter-sidebar" id="filterSidebar">
+                <div class="filter-section">
+                    <div class="filter-header">
+                        <h3>Filter</h3>
+                        <button class="close-filter" id="closeFilterBtn">
+                            <i class="fa-solid fa-xmark"></i>
+                        </button>
+                    </div>
+                    <div class="filter-group">
+                        <h4>Category</h4>
+                            <% categories.forEach( (category,index) => { %>
+                                <% if (!category.isDeleted) { %>
+                                <label class="checkbox-container">
+                                <input class="categoryFilter" value="<%= category._id %>" type="checkbox" >
+                                <span class="checkmark"></span>
+                            <%= category.name.toUpperCase() %>
+                               </label>
+                               <% } %>
+                            <% }) %>
+                    </div>
+
+                    <div class="filter-group">
+                        <h4>Price</h4>
+                        <label class="checkbox-container">
+                            <input class="sortOption" value="priceLow" type="radio" name="sort-price">
+                            <span class="checkmark radio"></span>
+                            Low to High
+                        </label>
+                        <label class="checkbox-container">
+                            <input class="sortOption" value="priceHigh" type="radio" name="sort-price">
+                            <span class="checkmark radio"></span>
+                            High to Low
+                        </label>
+                    </div>
+
+                    <div class="filter-group">
+                        <h4>Name</h4>
+                        <label class="checkbox-container">
+                            <input class="sortOption" value="nameAZ" type="radio" name="sort-name">
+                            <span class="checkmark radio"></span>
+                            A to Z
+                        </label>
+                        <label class="checkbox-container">
+                            <input class="sortOption" value="nameZA" type="radio" name="sort-name">
+                            <span class="checkmark radio"></span>
+                            Z to A
+                        </label>
+                    </div>
+
+                    <button type="button"  id="applyFilterBtn" class="btn-apply-filter">Apply Filter</button>
+                </div>
+            </aside>
+    </form>
+        <!-- Product List -->
+        <section id="productContainer" class="product-list">
+           
+             <% variants.forEach ( (variant,index) => { %>
+                <% if (variant.status && !variant.productId.isDeleted && !variant.productId.categoryId.isDeleted) { %>
+            <a style="text-decoration: none;" href="/product/<%= variant._id %>">
+            <div class="product-item">
+                <div class="product-image">
+                    <button onclick="toggleWishlist(event,'<%= variant._id %>',this)" class="wishlist-btn <%= wishlistVariantIds.includes(variant._id.toString()) ? 'active' : '' %>" title="Add to Wishlist"><i class="<%= wishlistVariantIds.includes(variant._id.toString()) 
+                        ? 'fa-solid fa-heart' 
+                        : 'fa-regular fa-heart' %>">
+                    </i></button>
+                    <img src="<%= variant.images[0] %>" style="width:100%; height:100%; object-fit:cover; ;" >
+                </div>
+                <div class="product-details">
+                    <h3><%= variant.productId.name %></h3>
+                    <div class="product-rating">
+                        <span class="rating-badge">4.6 <i class="fa-solid fa-star"></i></span>
+                    </div>
+                    <p class="product-color">
+                        <% variant.attributes.forEach ( (attr,index) => { %>
+                            <% if (attr.value) { %>
+                                <% if (attr.key == "color") { %>
+                                    <%= attr.key %> : <%= variant.colorName %> <br>
+                                <% } else { %>
+                                    <%= attr.key %> : <%= attr.value %> <br>
+                                <% } %>
+                            <% } %>
+                        <% }) %>
+                    </p>
+                    <div class="product-price-row">
+                        <span class="current-price">₹ <%= variant.offeredPrice %></span>
+                        <% if (variant.productId.offer != 0){ %>
+                            <span class="discount">
+                            -<%= variant.productId.offer %>% OFF
+                            </span>
+                        <% } %>
+                        <span class="old-price">₹ <%= variant.price %></span>
+                    </div>
+                </div>
+            </div>
+            </a>
+            <% } %>
+            <% }) %>
+
+        </section>
+        <div id="paginationContainer"></div>
+        
+    </div>
+
+    <!-- Sidebar Overlay -->
+    <div class="filter-overlay" id="filterOverlay"></div>
+</main>
+
+<!-- Mobile Bottom Navbar -->
+<div class="mobile-bottom-nav">
+    <a href="../home/index.html" class="nav-item">
+        <i class="fa-solid fa-house"></i>
+        <span>Home</span>
+    </a>
+    <a href="index.html" class="nav-item active">
+        <i class="fa-solid fa-bag-shopping"></i>
+        <span>Shop</span>
+    </a>
+    <a href="#" class="nav-item">
+        <i class="fa-solid fa-cart-shopping"></i>
+        <span>Cart</span>
+    </a>
+    <a href="#" class="nav-item">
+        <i class="fa-solid fa-heart"></i>
+        <span>Wishlist</span>
+    </a>
+    <a href="../profile/index.html" class="nav-item">
+        <i class="fa-solid fa-user"></i>
+        <span>Profile</span>
+    </a>
+</div>
+
+
+
+<script>
+window.addEventListener("DOMContentLoaded", () => {
+    renderPagination(<%= totalPages %>, <%= currentPage %>);
+});
+</script>
+
+<script>
+
+async function toggleWishlist(event,variantId,button) {
+    try {
+        event.preventDefault();
+        event.stopPropagation();
+        const response = await fetch ("/wishlist/toggle",{
+            method : "post",
+            headers : {
+                "content-type" : "application/json"
+            },
+            body : JSON.stringify({variantId})
+        })
+
+        const data = await response.json()
+
+        if (data.loginRequired){
+            window.location.href = "/login"
+            return 
+        }
+        
+        const icon = button.querySelector('i');
+        if (data.added) {
+            button.classList.add("active")
+            icon.classList.remove('fa-regular');
+            icon.classList.add('fa-solid');
+            showToast("Product Added To The Wishlist","success")
+        }else {
+            button.classList.remove("active")
+            button.querySelector("i").classList.replace("fa-solid","fa-regular")
+        }
+    } catch (err) {
+        console.log(err)
+    }
+}
+
+
+
+let currentSearch = "";
+let currentCategories = [];
+let currentSort = "";
+let currentPage = 1;
+    
+    function setupSearchBar(inputId, clearBtnId) {
+        const input = document.getElementById(inputId);
+        const clearBtn = document.getElementById(clearBtnId);
+
+        if (!input || !clearBtn) return;
+
+        input.addEventListener('input', () => {
+            if (input.value.length > 0) {
+                clearBtn.classList.add('active');
+            } else {
+                clearBtn.classList.remove('active');
+            }
+        });
+
+        clearBtn.addEventListener('click', () => {
+            input.value = '';
+            clearBtn.classList.remove('active');
+            input.focus();
+        });
+    }
+
+    
+    setupSearchBar('shopSearchInput', 'clearSearchBtn');
+    setupSearchBar('desktopSearchInput', 'clearDesktopSearchBtn');
+
+    const sidebar = document.getElementById('filterSidebar');
+    const overlay = document.getElementById('filterOverlay');
+    const toggleBtn = document.getElementById('toggleFilterBtn');
+    const closeBtn = document.getElementById('closeFilterBtn');
+
+    function openSidebar() {
+        sidebar.classList.add('active');
+        overlay.classList.add('active');
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeSidebar() {
+        sidebar.classList.remove('active');
+        overlay.classList.remove('active');
+        document.body.style.overflow = 'auto';
+    }
+
+    toggleBtn.addEventListener('click', openSidebar);
+    closeBtn.addEventListener('click', closeSidebar);
+    overlay.addEventListener('click', closeSidebar);
+
+    // Optional: Close on window resize if larger than 992px
+    window.addEventListener('resize', () => {
+        if (window.innerWidth > 992 && sidebar.classList.contains('active')) {
+            closeSidebar();
+        }
+    });
+
+    document.getElementById("applyFilterBtn").addEventListener("click", function () {
+
+    
+        currentCategories = Array.from(
+            document.querySelectorAll(".categoryFilter:checked")
+        ).map(cb => cb.value);
+
+    
+        const selectedSort = document.querySelector(".sortOption:checked");
+        currentSort = selectedSort ? selectedSort.value : "";
+
+        currentPage = 1;
+
+        fetchProducts();
+    });
+
+
+    document.getElementById("searchBtn").addEventListener("click", function () {
+
+        currentSearch = document.getElementById("desktopSearchInput").value;
+
+        currentPage = 1;
+
+        fetchProducts();
+    });
+
+
+
+
+async function fetchProducts() {
+
+    const query = new URLSearchParams({
+        search: currentSearch,
+        categories: currentCategories.join(","),
+        sort: currentSort,
+        page: currentPage
+    });
+
+    const response = await fetch(`/shop?${query}`, {
+        headers: {
+            "Accept": "application/json"
+        }
+    });
+
+    const data = await response.json();
+
+    renderProducts(data.variants);
+    renderPagination(data.totalPages, data.currentPage)
+}
+
+
+
+
+function renderProducts(variants, wishlistVariantIds = []) {
+
+    const container = document.getElementById("productContainer");
+    container.innerHTML = "";
+
+    if (variants.length === 0) {
+        container.innerHTML = "<h2>No Products Found</h2>";
+        return;
+    }
+
+    variants.forEach(variant => {
+
+    const isWishlisted = wishlistVariantIds.includes(variant._id);
+
+    let attributesHTML = "";
+
+    if (variant.attributes && variant.attributes.length > 0) {
+        variant.attributes.forEach(attr => {
+
+            if (attr.value) {
+
+                if (attr.key === "color") {
+                    attributesHTML += `color : ${variant.colorName || ''} <br>`;
+                } else {
+                    attributesHTML += `${attr.key} : ${attr.value} <br>`;
+                }
+
+            }
+
+        });
+    }
+
+    container.innerHTML += `
+        <a style="text-decoration: none;" href="/product/${variant._id}">
+            <div class="product-item">
+                <div class="product-image">
+
+                    <button onclick="toggleWishlist(event,'${variant._id}',this)"
+                        class="wishlist-btn ${isWishlisted ? 'active' : ''}">
+                        <i class="${isWishlisted ? 'fa-solid' : 'fa-regular'} fa-heart"></i>
+                    </button>
+
+                    <img src="${variant.images[0]}" 
+                         style="width:100%; height:100%; object-fit:cover;">
+                </div>
+
+                <div class="product-details">
+                    <h3>${variant.productId.name}</h3>
+
+                    <div class="product-rating">
+                        <span class="rating-badge">
+                            4.6 <i class="fa-solid fa-star"></i>
+                        </span>
+                    </div>
+
+                    <p class="product-color">
+                        ${attributesHTML}
+                    </p>
+
+                    <div class="product-price-row">
+                        <span class="current-price">
+                            ₹ ${variant.offeredPrice}
+                        </span>
+
+                        ${
+                            variant.productId.offer != 0
+                            ? `<span class="discount">-${variant.productId.offer}% OFF</span>`
+                            : ""
+                        }
+
+                        <span class="old-price">
+                            ₹ ${variant.price}
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </a>
+    `;
+});
+}
+
+
+function showToast(message, type = "success") {
+
+    const toast = document.createElement("div");
+    toast.innerText = message;
+
+    toast.style.position = "fixed";
+    toast.style.top = "20px";
+    toast.style.right = "20px";
+    toast.style.padding = "12px 20px";
+    toast.style.borderRadius = "6px";
+    toast.style.color = "white";
+    toast.style.zIndex = "9999";
+    toast.style.fontWeight = "500";
+    toast.style.boxShadow = "0 5px 15px rgba(0,0,0,0.2)";
+    toast.style.transition = "all 0.3s ease";
+
+    if (type === "success") {
+        toast.style.backgroundColor = "#28a745";
+    } else {
+        toast.style.backgroundColor = "#dc3545";
+    }
+
+    document.body.appendChild(toast);
+
+    setTimeout(() => {
+        toast.remove();
+    }, 3000);
+}
+
+function changePage(page) {
+    currentPage = page;
+    fetchProducts();
+}
+
+
+function renderPagination(totalPages, currentPage) {
+
+    const container = document.getElementById("paginationContainer");
+    container.innerHTML = "";
+
+    if (totalPages <= 1) return;
+
+    let html = `<div class="pagination">`;
+
+    if (currentPage > 1) {
+        html += `
+            <button onclick="changePage(${currentPage - 1})" class="page-arrow">
+                <i class="fa-solid fa-chevron-left"></i>
+            </button>
+        `;
+    }
+
+    for (let i = 1; i <= totalPages; i++) {
+        html += `
+            <button onclick="changePage(${i})"
+                class="page-num ${currentPage === i ? 'active' : ''}">
+                ${i}
+            </button>
+        `;
+    }
+
+    if (currentPage < totalPages) {
+        html += `
+            <button onclick="changePage(${currentPage + 1})" class="page-arrow">
+                <i class="fa-solid fa-chevron-right"></i>
+            </button>
+        `;
+    }
+
+    html += `</div>`;
+
+    container.innerHTML = html;
+}
+
+
+/*
+window.addEventListener("DOMContentLoaded", () => {
+    fetchProducts();
+})*/
+</script>

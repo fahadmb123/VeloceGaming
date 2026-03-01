@@ -34,6 +34,8 @@ app.use(noCache())
 
 
 
+
+
 app.set("view engine","ejs");
 app.set("views",path.join(__dirname,"views"))
 app.use(express.static("public"))
@@ -41,10 +43,15 @@ app.use(expressLayouts);
 
 
 
+
 app.use("/",userRouter)
 app.use("/admin",adminRouter)
 
 
+
+app.use((req,res)=>{
+    res.status(404).render("404")
+})
 
 
 dbConnect();

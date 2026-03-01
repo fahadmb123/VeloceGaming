@@ -19,9 +19,11 @@ const productSchema = mongoose.Schema({
         trim : true,
         unique : true
     },
-    details : {
-        type : String
-    },
+    details : [
+        {
+            type : String
+        }
+    ],
     offer : {
         type : Number,
         default : 0
@@ -52,9 +54,9 @@ const productSchema = mongoose.Schema({
         type : Number,
         default : 0
     },
-    variantCount : {
+    /*variantCount : {
         type : Number
-    }
+    }*/
 
 },{timestamps:true})
 
@@ -98,6 +100,9 @@ const variantSchema = mongoose.Schema({
     status : {
         type : Boolean,
         default : true
+    },
+    offeredPrice : {
+        type : String
     }
 },{timestamps : true})
 

@@ -1,0 +1,465 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+:root {
+    --primary-color: #FF0000;
+    --text-color: #333;
+    --light-gray: #F5F5F7;
+    --border-color: #E5E5E5;
+    --secondary-text: #666;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Inter', sans-serif;
+}
+
+body {
+    background-color: #ffffff;
+    padding-bottom: 70px;
+}
+
+/* Header Styles */
+header {
+    border-bottom: 1px solid var(--border-color);
+    padding: 1rem 0;
+    background: white;
+}
+
+.header-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 2rem;
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.logo-icon {
+    width: 24px;
+    height: 24px;
+    background-color: var(--primary-color);
+    border-radius: 50%;
+    color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 14px;
+}
+
+.logo-text {
+    display: flex;
+    flex-direction: column;
+    line-height: 1;
+}
+
+.brand {
+    font-weight: 700;
+    color: var(--primary-color);
+    font-size: 14px;
+}
+
+.sub-brand {
+    font-size: 10px;
+    color: #333;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+}
+
+nav {
+    display: flex;
+    align-items: center;
+    gap: 48px;
+    margin-left: 60px;
+    margin-right: auto;
+}
+
+nav a {
+    text-decoration: none;
+    color: #333;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+
+
+.header-icons {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.header-icons a {
+    color: #333;
+    font-size: 20px;
+}
+
+.header-icons a.active {
+    color: var(--primary-color);
+}
+
+.profile-circle {
+    width: 32px;
+    height: 32px;
+    background-color: #D64545;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: white;
+}
+
+/* Main Content */
+.cart-main {
+    max-width: 1200px;
+    margin: 2rem auto;
+    padding: 0 2rem;
+}
+
+.page-title {
+    font-size: 24px;
+    margin-bottom: 2rem;
+    font-weight: 700;
+}
+
+.cart-layout {
+    display: flex;
+    gap: 2rem;
+    align-items: flex-start;
+}
+
+.cart-items {
+    flex: 2;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.cart-card {
+    background-color: var(--light-gray);
+    border-radius: 12px;
+    display: flex;
+    padding: 20px;
+    gap: 20px;
+}
+
+.cart-card .product-image {
+    width: 160px;
+    height: 140px;
+    background: white;
+    border-radius: 8px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.cart-card .product-image img {
+    max-width: 80%;
+    max-height: 80%;
+    object-fit: contain;
+}
+
+.product-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.product-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+}
+
+.product-header h3 {
+    font-size: 18px;
+    font-weight: 600;
+    max-width: 85%;
+    line-height: 1.4;
+}
+
+.remove-btn {
+    background: none;
+    border: none;
+    color: var(--primary-color);
+    font-size: 20px;
+    cursor: pointer;
+}
+
+.product-main {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+}
+
+.price-section .price {
+    display: block;
+    font-size: 24px;
+    font-weight: 700;
+    margin-bottom: 8px;
+}
+
+.attributes p {
+    font-size: 14px;
+    color: var(--secondary-text);
+    margin-bottom: 4px;
+}
+
+.subtotal-section {
+    text-align: right;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.subtotal-label {
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.subtotal-label span {
+    font-weight: 700;
+    margin-left: 8px;
+}
+
+.quantity-control {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.qty-label {
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.qty-input {
+    display: flex;
+    align-items: center;
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 4px 8px;
+    gap: 8px;
+}
+
+.qty-input input {
+    width: 24px;
+    border: none;
+    text-align: center;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.qty-arrows {
+    display: flex;
+    flex-direction: column;
+    font-size: 8px;
+    color: #999;
+}
+
+/* Sidebar summary */
+.cart-summary {
+    flex: 1;
+    background: white;
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+}
+
+.cart-summary h2 {
+    font-size: 18px;
+    margin-bottom: 1.5rem;
+}
+
+.summary-details {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 2rem;
+}
+
+.summary-row {
+    font-size: 14px;
+    color: #999;
+}
+
+.total-row {
+    margin-top: 1rem;
+    text-align: right;
+}
+
+.total-price {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--primary-color);
+}
+
+.btn-checkout {
+    background-color: #FF0000;
+    color: white;
+    border: none;
+    padding: 14px;
+    border-radius: 8px;
+    font-weight: 700;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+.btn-checkout:hover {
+    background-color: #CC0000;
+}
+
+/* Mobile Nav */
+.mobile-bottom-nav {
+    display: none;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    background: white;
+    border-top: 1px solid var(--border-color);
+    justify-content: space-around;
+    padding: 12px 0;
+    z-index: 1000;
+}
+
+.mobile-bottom-nav .nav-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-decoration: none;
+    color: #666;
+    gap: 4px;
+}
+
+.mobile-bottom-nav .nav-item i {
+    font-size: 20px;
+}
+
+.mobile-bottom-nav .nav-item span {
+    font-size: 10px;
+}
+
+.mobile-bottom-nav .nav-item.active {
+    color: var(--primary-color);
+}
+
+/* Responsive Styles */
+@media (max-width: 992px) {
+    .cart-layout {
+        gap: 1.5rem;
+    }
+
+}
+
+@media (max-width: 768px) {
+
+    header nav,
+    
+
+    .mobile-bottom-nav {
+        display: flex;
+    }
+
+    .cart-layout {
+        flex-direction: column;
+    }
+
+    .cart-summary {
+        width: 100%;
+        order: -1;
+        /* Move summary to top or keep at bottom? Mockup shows it on right, usually on mobile it goes below or stays prominent. */
+    }
+
+    .cart-card {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 15px;
+    }
+
+    .cart-card .product-image {
+        width: 100%;
+        height: 200px;
+    }
+
+    .product-header h3 {
+        font-size: 16px;
+    }
+
+    .product-main {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 15px;
+    }
+
+    .subtotal-section {
+        text-align: left;
+        width: 100%;
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .btn-checkout {
+        width: 100%;
+    }
+}
+
+@media (max-width: 480px) {
+    .subtotal-section {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+}
+
+
+
+
+/* Base Toast Style */
+.toast {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    padding: 12px 20px;
+    border-radius: 6px;
+    color: #fff;
+    font-weight: 500;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    z-index: 9999;
+
+    opacity: 0;
+    transform: translateX(100%);
+    transition: all 0.3s ease;
+}
+
+/* Show Animation */
+.toast.show {
+    opacity: 1;
+    transform: translateX(0);
+}
+
+/* Success */
+.toast-success {
+    background-color: #28a745;
+}
+
+/* Error */
+.toast-error {
+    background-color: #dc3545;
+}
+.toast {
+    min-width: 250px;
+    max-width: 350px;
+}

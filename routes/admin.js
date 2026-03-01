@@ -30,6 +30,10 @@ router.patch("/productManagement/productStatus/:id",isLogged,adminController.pro
 
 
 
+router.delete("/productManagement/deleteVariant/:id", adminController.deleteVariant);
+
+
+
 router.post("/login",adminController.login)
 
 router.post("/addCategory",upload.single("categoryImage"),adminController.addCategory)

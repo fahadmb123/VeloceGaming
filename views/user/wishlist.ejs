@@ -1,0 +1,275 @@
+<link rel="stylesheet" href="/css/user/wishlist.css">
+
+<!-- Header -->
+<header>
+    <div class="header-container">
+        <div class="logo">
+            <div class="logo-icon"><i class="fa-solid fa-check"></i></div>
+            <div class="logo-text">
+                <span class="brand">VELOCE</span>
+                <span class="sub-brand">GAMING</span>
+            </div>
+        </div>
+
+        <nav>
+            <a href="/">Home</a>
+            <a href="/shop">Shop</a>
+
+        </nav>
+
+
+
+        <div class="header-icons">
+            <a href="/wishlist"><i class="fa-solid fa-heart"></i></a>
+            <a href="/cart"><i class="fa-solid fa-cart-shopping"></i></a>
+            <a href="/profile">
+            <div class="user-menu">
+                <div class="profile-circle">
+                <% if (user.profileImage){ %>
+                        <img src="<%= user.profileImage %>" 
+                           style="width:100%; height:100%; object-fit:cover; border-radius:50%;">
+                    <% }  else { %>
+                    <%= user.name.charAt(0).toUpperCase() %> 
+                    <% } %> 
+                </div>
+            
+            </div>
+        </a>
+        </div>
+    </div>
+</header>
+
+<main>
+
+
+    <section class="wishlist-section">
+        <div class="wishlist-header">
+            <h2>Wishlist</h2>
+            <button onclick="moveAllToBag()" class="btn-move-all">Move All To Bag</button>
+        </div>
+        <div class="wishlist-container">
+            <% wishlistItems.forEach ( (item,index) => { %>
+                <% if (item.variantId && item.variantId.status && !item.variantId.productId.isDeleted && !item.variantId.productId.categoryId.isDeleted) { %>
+        <div id="wishlist-<%= item.variantId._id %>">
+        
+            <div class="wishlist-card">
+                <a style="text-decoration: none;" href="/product/<%= item.variantId._id %>" >
+                <div class="product-image">
+                    <img src="<%= item.variantId.images[0] %>" style="width:100%; height:100%; object-fit:cover; ;"
+                        class="product-img">
+                </div>
+                </a>
+                <div class="product-details">
+                    <div class="product-info-top">
+                        <h3><%= item.variantId.productId.name %></h3>
+                        <div class="price-info">
+                            <span class="current-price">₹ <%= item.variantId.offeredPrice %></span>
+                            <% if (item.variantId.productId.offer != 0){ %>
+                            <span class="discount">
+                            -<%= item.variantId.productId.offer %>% OFF
+                            </span>
+                            <% } %>
+                        </div>
+                    </div>
+
+                    <div class="product-attributes">
+                        <p>
+                            <% item.variantId.attributes.forEach ( (attr,index) => { %>
+                            <% if (attr.value) { %>
+                                <% if (attr.key == "color") { %>
+                                    <%= attr.key %> : <%= item.variantId.colorName %> <br>
+                                <% } else { %>
+                                    <%= attr.key %> : <%= attr.value %> <br>
+                                <% } %>
+                            <% } %>
+                        <% }) %>
+                        </p>
+                    </div>
+
+                    <div class="product-actions">
+                         <i onclick="handleRemove(event,'<%= item.variantId._id %>'); " class="fa-regular fa-trash-can delete-icon"></i>
+                        
+                        <button onclick="addToCart('<%= item.variantId._id %>')" class="btn-add-to-cart">Add To Cart</button>
+                    </div>
+                </div>
+            </div>
+        
+        </div>
+        <% } %>
+            <% }) %>
+        </div>
+    </section>
+</main>
+
+
+
+<!-- Mobile Bottom Navbar -->
+<div class="mobile-bottom-nav">
+    <a href="../home/index.html" class="nav-item">
+        <i class="fa-solid fa-house"></i>
+        <span>Home</span>
+    </a>
+    <a href="../shop/index.html" class="nav-item">
+        <i class="fa-solid fa-bag-shopping"></i>
+        <span>Shop</span>
+    </a>
+    <a href="#" class="nav-item">
+        <i class="fa-solid fa-cart-shopping"></i>
+        <span>Cart</span>
+    </a>
+    <a href="#" class="nav-item active">
+        <i class="fa-solid fa-heart"></i>
+        <span>Wishlist</span>
+    </a>
+    <a href="../profile/index.html" class="nav-item">
+        <i class="fa-solid fa-user"></i>
+        <span>Profile</span>
+    </a>
+</div>
+
+<!-- Scripts -->
+<script>
+    function setupSearchBar(inputId, clearBtnId) {
+        const input = document.getElementById(inputId);
+        const clearBtn = document.getElementById(clearBtnId);
+
+        if (!input || !clearBtn) return;
+
+        input.addEventListener('input', () => {
+            if (input.value.length > 0) {
+                clearBtn.classList.add('active');
+            } else {
+                clearBtn.classList.remove('active');
+            }
+        });
+
+        clearBtn.addEventListener('click', () => {
+            input.value = '';
+            clearBtn.classList.remove('active');
+            input.focus();
+        });
+    }
+
+    setupSearchBar('shopSearchInput', 'clearSearchBtn');
+    setupSearchBar('desktopSearchInput', 'clearDesktopSearchBtn');
+
+
+
+function handleRemove (event,id) {
+    event.preventDefault()
+    event.stopPropagation()
+    removeWishlist(id)
+}
+async function removeWishlist (id) {
+    try {
+
+        console.log("Hey")
+        
+        const response = await fetch(`/wishlist/remove/${id}`,{
+            method : "post",
+            headers : {
+                "content-type" : "application/json"
+            }
+        })
+        const data = await response.json()
+
+        
+        if (data.success){
+          let card = document.getElementById(`wishlist-${id}`)
+          if (card) {
+            card.remove()
+          }
+          showToast("Product Removed","success")
+        } else {
+            showToast(data.message,"error")
+        }
+
+
+    } catch (err) {
+        console.log(err)
+    }
+}
+
+
+
+
+async function addToCart (id) {
+    try {
+
+        const response = await fetch(`/cart/add?variantId=${id}`,{
+            method : "post"
+        })
+
+        const data = await response.json()
+
+        if (data.loginRequired) {
+            window.location.href = "/login"
+        }
+
+        if (data.success) {
+            showToast(data.message,"success")
+        }else {
+            showToast("error","error")
+        }
+    } catch (err) {
+        console.log(err)
+    }
+}
+
+
+
+
+
+
+function showToast(message, type = "success") {
+
+    const toast = document.createElement("div");
+    toast.innerText = message;
+
+    toast.style.position = "fixed";
+    toast.style.top = "20px";
+    toast.style.right = "20px";
+    toast.style.padding = "12px 20px";
+    toast.style.borderRadius = "6px";
+    toast.style.color = "white";
+    toast.style.zIndex = "9999";
+    toast.style.fontWeight = "500";
+    toast.style.boxShadow = "0 5px 15px rgba(0,0,0,0.2)";
+    toast.style.transition = "all 0.3s ease";
+
+    if (type === "success") {
+        toast.style.backgroundColor = "#28a745";
+    } else {
+        toast.style.backgroundColor = "#dc3545";
+    }
+
+    document.body.appendChild(toast);
+
+    setTimeout(() => {
+        toast.remove();
+    }, 3000);
+}
+
+async function moveAllToBag() {
+    try {
+
+        const response = await fetch ("/wishlist/allToCart",{
+            method : "post"
+        })
+        const data = await response.json()
+
+        if (data.loginRequired) {
+            return window.location.href = "/login"
+        }
+
+        if (data.success) {
+            showToast(data.message,"success")
+        }else {
+            showToast(data.message,"error")
+        }
+
+    } catch (err) {
+        console.log(err)
+    }
+}
+</script>

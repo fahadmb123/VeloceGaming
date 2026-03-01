@@ -101,6 +101,12 @@ const loadCategoryManagement = async (req,res) => {
             .skip(skip)
             .limit(limit)
 
+        await Promise.all(
+            categories.map(async (obj) => {
+            const count = await productModel.countDocuments({ categoryId: obj._id })
+            obj.productCount = count
+            })
+        )
         const totalCategory = await categoryModel.countDocuments(filter)
         const totalPages = Math.ceil(totalCategory / limit)
 
@@ -146,6 +152,13 @@ const loadProductManagement = async (req,res) => {
             .skip(skip)
             .limit(limit).populate("categoryId")
 
+        await Promise.all(
+            products.map(async (obj) => {
+            const count = await variantModel.countDocuments({ productId: obj._id })
+            obj.variantCount = count
+            })
+        )
+
         const totalProduct = await productModel.countDocuments(filter)
         const totalPages = Math.ceil(totalProduct / limit)
 
@@ -178,13 +191,24 @@ const productManagement = async (req,res) => {
                 public_id: v.imagesId[index]
             }));
 
+            const colorAttr = v.attributes.find(a => a.key === "color");
+
+            let parsedColor = {name : "" , hex: "#000000"}
+            if (colorAttr) {
+                try {
+                    parsedColor = JSON.parse(colorAttr.value)
+                } catch {
+                    parsedColor = { name: colorAttr.value, hex: "#000000" };
+                }
+            }
             return {
                 _id: v._id,
                 productId: v.productId,
                 price: v.price,
                 stock: v.stock,
                 status: v.status,
-                color: v.attributes.find(a => a.key === "color")?.value || "",
+                colorName:parsedColor.name,
+                colorHex : parsedColor.hex,
                 ram: v.attributes.find(a => a.key === "ram")?.value || "",
                 rom: v.attributes.find(a => a.key === "rom")?.value || "",
                 images
@@ -404,6 +428,23 @@ console.log("Hello")
 
 
 
+const deleteVariant = async (req, res) => {
+    try {
+
+        const variantId = req.params.id;
+
+        await variantModel.findByIdAndDelete(variantId);
+
+        res.json({ success: true });
+
+    } catch (error) {
+        console.log(error);
+        res.json({ success: false, message: "Failed to delete variant" });
+    }
+};
+
+
+
 
 module.exports = {
     loadLogin,
@@ -419,5 +460,6 @@ module.exports = {
     addProduct,
     productManagement,
     editProduct,
-    productStatus
+    productStatus,
+    deleteVariant
 }

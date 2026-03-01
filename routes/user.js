@@ -1,6 +1,7 @@
 const express = require("express")
 const router = express.Router()
 const userController = require("../controller/userController")
+const userProductController = require("../controller/userProductController")
 const {isLogged,isLoggedOut} = require("../middleware/userAuth")
 const upload = require("../middleware/multer")
 
@@ -39,9 +40,23 @@ router.get("/editAddress",isLogged,userController.loadEditAddress)
 
 router.get("/logout",isLogged,userController.logout)
 
+router.get("/wishlist",isLogged,userProductController.loadWishlist)
+
+router.get("/cart",isLogged,userProductController.loadCart)
 
 
 
+
+router.get("/shop",userProductController.loadShop)
+
+router.get("/product/:id",userProductController.loadProduct)
+
+
+
+
+router.post("/wishlist/remove/:id",isLogged,userProductController.wishlistRemove)
+
+router.post("/cart/remove/:id",isLogged,userProductController.cartRemove)
 
 
 router.post("/signup",userController.signup)
@@ -64,8 +79,14 @@ router.post("/profile-upload",upload.single("profileImage"),userController.uploa
 
 router.post("/profile-remove",userController.removeProfile)
 
+router.post("/wishlist/toggle",userProductController.wishlistToggle)
+
+router.post("/cart/add",userProductController.addToCart)
+
+router.post("/cart/inc",userProductController.cartInc)
+
+router.post("/cart/dec",userProductController.cartDec)
 
 
-
-
+router.post("/wishlist/allToCart",userProductController.allToCart)
 module.exports = router

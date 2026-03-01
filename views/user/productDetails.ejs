@@ -1,0 +1,407 @@
+<link rel="stylesheet" href="/css/user/productDetails.css">
+
+
+
+<!-- Header -->
+<header>
+    <div class="header-container">
+        <div class="logo">
+            <div class="logo-icon"><i class="fa-solid fa-check"></i></div>
+            <div class="logo-text">
+                <span class="brand">VELOCE</span>
+                <span class="sub-brand">GAMING</span>
+            </div>
+        </div>
+
+        <nav>
+            <a href="/">Home</a>
+            <a href="/shop" class="active">Shop</a>
+            <% if (user) { %>
+                <a style="display: none;" href="/login">Log In</a>
+            <% } else { %>
+                <a href="/login">Log In</a>
+            <% } %>  
+        </nav>
+
+        <div class="search-bar">
+            <input type="text" id="desktopSearchInput" placeholder="Search for products, brands and more...">
+            <div class="search-icons">
+                <i class="fa-solid fa-circle-xmark clear-search" id="clearDesktopSearchBtn"></i>
+                <i class="fa-solid fa-magnifying-glass"></i>
+            </div>
+        </div>
+
+        <div class="header-icons">
+            <% if (user) { %>
+                <a href="/wishlist"><i class="fa-regular fa-heart"></i></a>
+                <a href="/cart"><i class="fa-solid fa-cart-shopping"></i></a>
+            <% } %>
+            <div class="user-menu">
+                <% if (user) { %>
+                    <a style="text-decoration: none;" href="/profile">
+                        <div class="profile-circle">
+                        <% if (user.profileImage){ %>
+                        <img src="<%= user.profileImage %>" 
+                           style="width:100%; height:100%; object-fit:cover; border-radius:50%;">
+                    <% }  else { %>
+                    <%= user.name.charAt(0).toUpperCase() %> 
+                    <% } %> 
+                    </div>
+                </a>
+                <% } else { %>
+                    <div style="display: none;" class="profile-circle"></div>
+                <% } %>
+            </div>
+        </div>
+    </div>
+</header>
+
+<main class="product-details-container">
+    
+    <div class="mobile-search">
+        <div class="search-wrapper">
+            <input type="text" id="shopSearchInput" placeholder="Search for products, brands and more...">
+            <div class="search-icons">
+                <i class="fa-solid fa-circle-xmark clear-search" id="clearSearchBtn"></i>
+                <i class="fa-solid fa-magnifying-glass"></i>
+            </div>
+        </div>
+    </div>
+
+    <section class="product-main">
+        
+        <div class="product-gallery">                
+            <div class="main-image" id="mainImageBox">
+                    <img src="<%= variant.images[0] %>" id="mainProductImg">
+                    <div class="zoom-pane" id="zoomPane"></div>
+            </div>
+            <div class="thumbnail-list">
+                <% variant.images.forEach ( (image,index) => { %>
+                <div class="thumbnail active">
+                    <img src="<%= image %>" alt="Thumbnail 1">
+                </div>
+                <% }) %>
+            </div>
+        </div>
+
+        
+        <div class="product-info-section">
+            <h1> <%= variant.productId.name %> </h1>
+
+            <div class="price-rating-row">
+                <div class="rating-badge-large">
+                    4.6 <i class="fa-solid fa-star"></i>
+                </div>
+                <div class="product-price">
+                    <span class="current-price">₹ <%= variant.offeredPrice %></span>
+                    <% if (variant.productId.offer != 0){ %>
+                            <span class="discount">
+                            -<%= variant.productId.offer %>% OFF
+                            </span>
+                        <% } %>
+                        
+                    <p class="old-price">₹ <%= variant.price %></p><br>
+                </div>
+                <p class="product-color">
+                        <% variant.attributes.forEach ( (attr,index) => { %>
+                            <% if (attr.value) { %>
+                                <% if (attr.key == "color") { %>
+                                    <%= attr.key %> : <%= variant.colorName %> <br>
+                                <% } else { %>
+                                    <%= attr.key %> : <%= attr.value %> <br>
+                                <% } %>
+                            <% } %>
+                        <% }) %>
+                    </p>
+            </div>
+            <% if (variant.stock <= 5) {  %>
+            <div class="out-of-stock-badge">
+                    <% if (variant.stock == 0) { %>
+                        Out of Stock
+                    <% } else { %>
+                        <%= variant.stock %> Left
+                    <% } %>
+                </div>
+                <% } %>
+            <div class="color-selection">
+                <p>Color :</p>
+                <div class="color-options">
+                    <% colorVariants.forEach ((obj,index)=>{  %>
+                    <!-- <a style="background-color: <%= obj.colorHex %>;"  class="color-circle active" style="text-decoration: none;" href="/product/<%= obj.variantId %>" <% variant.colorName == obj.colorName ? "active" : "" %>></a> -->
+                    <a href="/product/<%= obj.variantId %>" class="color-circle <%= variant.colorName === obj.colorName ? 'active' : '' %>" style='background-color: <%= obj.colorHex %>; text-decoration: none;'></a>
+                    <% }) %>
+                </div>
+            </div>
+
+            <div class="highlights">
+                <h3>Highlights :</h3>
+                <ul>
+                    <% variant.productId.highlights.forEach ( (highlight,index) => { %>
+                    <li><%= highlight %></li>
+                    <% }) %>
+                </ul>
+            </div>
+
+            <div class="action-buttons">
+                <button onclick="addToCart('<%= variant._id %>')" class="btn-add-to-cart">Add to Cart</button>
+                <button class="btn-buy-now">Buy Now</button>
+                    <button onclick="toggleWishlist('<%= variant._id %>',this)" class="btn-wishlist <%= wishlistVariant ? 'active' : '' %>" title="Add to Wishlist"><i class="<%= wishlistVariant
+                        ? 'fa-solid fa-heart' 
+                        : 'fa-regular fa-heart' %>">
+                    </i></button>
+            </div>
+        </div>
+    </section>
+
+    <section class="product-specs">
+        <div class="details-column">
+            <h3>Product details :</h3>
+            <ul class="spec-list">
+                <% variant.productId.details.forEach ( (det,index) => { %>
+                <li><%= det %></li>
+                <% }) %>
+            </ul>
+        </div>
+
+        <div class="services-column">
+            <h3>Services</h3>
+            <ul class="service-list">
+                <% variant.productId.services.forEach ( (service,index) => { %>
+                <li><i class="fa-solid fa-circle"></i> <%= service %></li>
+                <% }) %>
+            </ul>
+
+                
+            <div class="delivery-info">
+                <div class="info-item">
+                    <i class="fa-solid fa-truck-fast"></i>
+                    <div class="info-text">
+                        <h4>Free Delivery</h4>
+                        <p>On eligible orders</p>
+                    </div>
+                </div>
+                <div class="info-item">
+                    <i class="fa-solid fa-rotate-left"></i>
+                    <div class="info-text">
+                        <h4>Return Delivery</h4>
+                        <p>Free 7-Days Delivery Returns: <a href="#">Details</a></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <section class="product-reviews">
+        <div class="reviews-header">
+            <h3>Customer Reviews</h3>
+        </div>
+
+        <div class="reviews-grid">
+            
+            <div class="review-card">
+                <div class="review-top">
+                    <div class="user-info">
+                        <div class="user-avatar">JD</div>
+                        <div>
+                            <h4>John Doe</h4>
+                            <span class="rating-badge small">5.0 <i class="fa-solid fa-star"></i></span>
+                        </div>
+                    </div>
+                    <span class="review-date">Feb 15, 2024</span>
+                </div>
+                <p class="review-text">Best controller I've ever used. The haptic feedback is a game changer!</p>
+            </div>
+
+            
+            <div class="review-card">
+                <div class="review-top">
+                    <div class="user-info">
+                        <div class="user-avatar">AS</div>
+                        <div>
+                            <h4>Alice Smith</h4>
+                            <span class="rating-badge small">4.0 <i class="fa-solid fa-star"></i></span>
+                        </div>
+                    </div>
+                    <span class="review-date">Jan 28, 2024</span>
+                </div>
+                <p class="review-text">Overall great, but the battery life could be a bit better. Still worth it
+                    though.</p>
+            </div>
+        </div>
+    </section>
+</main>
+
+
+<div class="mobile-bottom-nav">
+    <a href="../home/index.html" class="nav-item">
+        <i class="fa-solid fa-house"></i>
+        <span>Home</span>
+    </a>
+    <a href="../shop/index.html" class="nav-item active">
+        <i class="fa-solid fa-bag-shopping"></i>
+        <span>Shop</span>
+    </a>
+    <a href="#" class="nav-item">
+        <i class="fa-solid fa-cart-shopping"></i>
+        <span>Cart</span>
+    </a>
+    <a href="#" class="nav-item">
+        <i class="fa-solid fa-heart"></i>
+        <span>Wishlist</span>
+    </a>
+    <a href="../profile/index.html" class="nav-item">
+        <i class="fa-solid fa-user"></i>
+        <span>Profile</span>
+    </a>
+</div>
+
+
+
+
+
+<script>
+    const searchInputs = document.querySelectorAll('#desktopSearchInput, #shopSearchInput');
+
+    searchInputs.forEach(input => {
+        const clearBtn = input.nextElementSibling.querySelector('.clear-search');
+
+        input.addEventListener('input', () => {
+            if (input.value.length > 0) {
+                clearBtn.classList.add('active');
+            } else {
+                clearBtn.classList.remove('active');
+            }
+        });
+
+        clearBtn.addEventListener('click', () => {
+            input.value = '';
+            clearBtn.classList.remove('active');
+            input.focus();
+        });
+    });
+
+
+    
+        const mainImg = document.querySelector('.main-image img');
+        const thumbnails = document.querySelectorAll('.thumbnail');
+
+        thumbnails.forEach(thumb => {
+            thumb.addEventListener('click', () => {
+                thumbnails.forEach(t => t.classList.remove('active'));
+                thumb.classList.add('active');
+                const newSrc = thumb.querySelector('img').src;
+                mainImg.style.opacity = '0';
+                setTimeout(() => {
+                    mainImg.src = newSrc;
+                    mainImg.style.opacity = '1';
+                }, 200);
+            });
+        });
+
+
+        const box = document.getElementById('mainImageBox');
+        const pane = document.getElementById('zoomPane');
+
+        box.addEventListener('mouseenter', () => {
+            pane.style.backgroundImage = `url('${mainImg.src}')`;
+            pane.style.backgroundSize = '250%';
+            pane.style.display = 'block';
+        });
+        box.addEventListener('mousemove', e => {
+            const r = box.getBoundingClientRect();
+            const x = (e.clientX - r.left) / r.width * 100;
+            const y = (e.clientY - r.top) / r.height * 100;
+            pane.style.backgroundPosition = `${x}% ${y}%`;
+        });
+        box.addEventListener('mouseleave', () => pane.style.display = 'none');
+
+
+
+async function toggleWishlist(variantId,button) {
+    try {
+        //event.preventDefault();
+        //event.stopPropagation();
+        const response = await fetch ("/wishlist/toggle",{
+            method : "post",
+            headers : {
+                "content-type" : "application/json"
+            },
+            body : JSON.stringify({variantId})
+        })
+
+        const data = await response.json()
+
+        if (data.loginRequired){
+            window.location.href = "/login"
+            return 
+        }
+        
+        const icon = button.querySelector('i');
+        if (data.added) {
+            button.classList.add("active")
+            icon.classList.remove('fa-regular');
+            icon.classList.add('fa-solid');
+            showToast("Product Added To The Wishlist","success")
+        }else {
+            button.classList.remove("active")
+            button.querySelector("i").classList.replace("fa-solid","fa-regular")
+        }
+    } catch (err) {
+        console.log(err)
+    }
+}
+    
+
+     function showToast(message, type = "success") {
+
+    const toast = document.createElement("div");
+    toast.innerText = message;
+
+    toast.style.position = "fixed";
+    toast.style.top = "20px";
+    toast.style.right = "20px";
+    toast.style.padding = "12px 20px";
+    toast.style.borderRadius = "6px";
+    toast.style.color = "white";
+    toast.style.zIndex = "9999";
+    toast.style.fontWeight = "500";
+    toast.style.boxShadow = "0 5px 15px rgba(0,0,0,0.2)";
+    toast.style.transition = "all 0.3s ease";
+
+    if (type === "success") {
+        toast.style.backgroundColor = "#28a745";
+    } else {
+        toast.style.backgroundColor = "#dc3545";
+    }
+
+    document.body.appendChild(toast);
+
+    setTimeout(() => {
+        toast.remove();
+    }, 3000);
+}
+
+
+
+async function addToCart (id) {
+    try {
+
+        const response = await fetch(`/cart/add?variantId=${id}`,{
+            method : "post"
+        })
+
+        const data = await response.json()
+
+        if (data.loginRequired) {
+            window.location.href = "/login"
+        }
+
+        if (data.success) {
+            showToast(data.message,"success")
+        }else {
+            showToast("error","error")
+        }
+    } catch (err) {
+        console.log(err)
+    }
+}
+</script>

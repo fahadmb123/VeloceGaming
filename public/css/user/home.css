@@ -871,3 +871,88 @@ footer {
         gap: 10px;
     }
 }
+
+
+
+
+
+
+
+/* Base Toast Style */
+.toast {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    padding: 12px 20px;
+    border-radius: 6px;
+    color: #fff;
+    font-weight: 500;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    z-index: 9999;
+
+    opacity: 0;
+    transform: translateX(100%);
+    transition: all 0.3s ease;
+}
+
+/* Show Animation */
+.toast.show {
+    opacity: 1;
+    transform: translateX(0);
+}
+
+/* Success */
+.toast-success {
+    background-color: #28a745;
+}
+
+/* Error */
+.toast-error {
+    background-color: #dc3545;
+}
+.toast {
+    min-width: 250px;
+    max-width: 350px;
+}
+
+
+
+
+
+/* Wishlist button on shop product cards */
+.wishlist-btn {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border: none;
+    background: white;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 15px;
+    color: #aaa;
+    transition: color 0.25s, transform 0.2s, box-shadow 0.2s;
+    z-index: 2;
+}
+
+.wishlist-btn:hover {
+    color: #FF1E1E;
+    transform: scale(1.12);
+    box-shadow: 0 4px 14px rgba(255, 30, 30, 0.18);
+}
+
+.wishlist-btn.active {
+    color: #FF1E1E;
+}
+.wishlist-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    opacity: 1;
+    visibility: visible;
+}

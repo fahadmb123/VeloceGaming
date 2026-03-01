@@ -2,7 +2,8 @@ const userModel = require("../model/userModel")
 const userService = require("../service/userService")
 const cloudinary = require("../helpers/cloudinary.js")
 const categoryModel = require("../model/categoryModel.js")
-
+const { variantModel, productModel } = require("../model/productModel.js")
+const wishlistModel = require("../model/wishlistModel.js")
 
 
 const loadEmailEntry = async (req,res) => {
@@ -34,6 +35,11 @@ const loadOtp = async (req,res) => {
 const loadResetPassword = async (req,res) => {
     try {
 
+        let resetPassword = req.session.resetPassword
+        req.session.resetPassword = null
+        if (!resetPassword) {
+            return res.redirect("/login")
+        }
         res.render("user/resetPassword")
 
     } catch (error){
@@ -74,11 +80,31 @@ const loadHome = async (req,res) => {
         const swalMessage = req.session.swalMessage
         req.session.swalMessage = null
 
+        let wishlistVariantIds = [];
+        
+        if (req.session.user) {
+            const wishlistItems = await wishlistModel.find({
+                userId: req.session.user._id
+            });
+            wishlistVariantIds = wishlistItems.map(item =>
+                item.variantId.toString()
+            );
+        }
+
         const categories = await categoryModel.find()
 
+        let products = await productModel.find({homepage:true})
+
+        let productIds = products.map(p => p._id)
+
+        const variants = await variantModel.find({productId:{$in:productIds}}).populate({path:"productId",populate:{path:"categoryId"}}).sort({updatedAt:-1}).limit(8)
+
+        
         res.render("user/home",{
             swalMessage,
-            categories
+            categories,
+            variants,
+            wishlistVariantIds
         })
     } catch (error) {
         console.log(error)

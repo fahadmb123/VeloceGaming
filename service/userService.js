@@ -120,6 +120,7 @@ const otpVarification = async (req) => {
         }
         else if (originalOtp == otp && req.session.otpKey == "reset-password"){
             const resetPassword = true
+            req.session.resetPassword = "resetPassword"
             return {resetPassword}
         } 
         else if (originalOtp == otp && req.session.otpKey  == "profile-update") {
@@ -267,6 +268,9 @@ const resetPassword = async (req) => {
     try {
         const {newPassword} = req.body
 
+        if (req.session.resetPassword == "resetPassword"){
+            return {resetPassword:true}
+        }
         email = req.session.userEmail
 
         const user = await userModel.findOne({email})

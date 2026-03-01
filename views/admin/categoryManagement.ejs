@@ -96,7 +96,7 @@
                             </td>
                             <td class="category-name"><%= category.name %></td>
                             <td class="offer-value"><%= category.offer %>%</td>
-                            <td class="product-count">3</td>
+                            <td class="product-count"><%= category.productCount %></td>
                             <td class="text-right">
                                 <div class="actions-column">
                                     <button class="icon-btn edit-btn"
@@ -366,7 +366,7 @@
         }
     }
 
-    // ================= DELETE =================
+
     async function deleteCategory(id,status) {
         if (confirm("Are You Sure ?")) {
             /*window.location.href =
@@ -393,7 +393,8 @@
         }
     }
 
-    // ================= FORM SUBMIT (FULL AJAX + FILE UPLOAD) =================
+    
+    
     catForm.addEventListener("submit", async function (e) {
 
         e.preventDefault();
@@ -408,7 +409,7 @@
         const offerDiv = document.getElementById("offerDiv");
         const imageDiv = document.getElementById("imageDiv");
 
-        // ===== NAME VALIDATION =====
+        
         if (!name || name.length < 3) {
             nameDiv.querySelector('input').style.border = '1px solid red';
             nameDiv.querySelector('p').style.display = 'block';
@@ -418,7 +419,7 @@
             nameDiv.querySelector('p').style.display = 'none';
         }
 
-        // ===== OFFER VALIDATION =====
+        
         if (!offer || isNaN(offer)) {
             offerDiv.querySelector('input').style.border = '1px solid red';
             offerDiv.querySelector('p').style.display = 'block';
@@ -428,7 +429,7 @@
             offerDiv.querySelector('p').style.display = 'none';
         }
 
-        // ===== IMAGE VALIDATION (ONLY FOR ADD) =====
+        
         if (currentMode === "add" && imageInput.files.length === 0) {
             imageDiv.querySelector('p').style.display = 'block';
             isValid = false;
@@ -444,8 +445,7 @@
         }
 
 
-        // ===== CREATE FORMDATA =====
-        // ===== CREATE FORMDATA =====
+        
         const formData = new FormData();
         formData.append("name", name);
         formData.append("offer", offer);
