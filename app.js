@@ -2,6 +2,7 @@ const express = require("express")
 const app = express()
 const dotenv = require("dotenv").config()
 const session = require("express-session")
+const flash = require("connect-flash")
 const PORT = process.env.PORT || 8000
 const dbConnect = require("./database/dbConnect")
 const userRouter = require("./routes/user.js")
@@ -10,6 +11,18 @@ const path = require("path")
 const expressLayouts = require("express-ejs-layouts");
 const { url } = require("inspector")
 const noCache = require("nocache")
+require("./cron/cleanupJob.js")
+
+
+
+
+const dns = require("dns")
+console.log(dns.getServers());
+dns.setServers(["8.8.8.8", "8.8.4.4"]);
+
+
+
+
 
 
 
@@ -26,6 +39,14 @@ app.use(session({
     saveUninitialized:false,
     cookie : {maxAge:1000*60*60*24}
 }))
+app.use(flash())
+
+app.use((req, res, next) => {
+    res.locals.success_msg = req.flash("success");
+    res.locals.error_msg = req.flash("error");
+    next();
+});
+
 app.use((req,res,next) => {
     res.locals.user = req.session.user || null
     next()

@@ -22,15 +22,15 @@
                 <a href="/login">Log In</a>
             <% } %>    
         </nav>
-
+        
         <div class="search-bar">
             <input type="text" id="desktopSearchInput" placeholder="What are you looking for?">
             <div class="search-icons">
                 <i class="fa-solid fa-circle-xmark clear-search" id="clearDesktopSearchBtn"></i>
-                <i class="fa-solid fa-magnifying-glass"></i>
+                <i class="fa-solid fa-magnifying-glass" id="searchIconDesktop"></i>
             </div>
         </div>
-
+       
         <div class="header-icons">
             
             <% if (user) { %>
@@ -267,32 +267,44 @@
             const input = document.getElementById(inputId);
             const clearBtn = document.getElementById(clearBtnId);
 
-            if (!input || !clearBtn) return;
+            if (!input || !clearBtn) return
 
             input.addEventListener('input', () => {
                 if (input.value.length > 0) {
-                    clearBtn.classList.add('active');
+                    clearBtn.classList.add('active')
                 } else {
-                    clearBtn.classList.remove('active');
+                    clearBtn.classList.remove('active')
                 }
             });
 
             clearBtn.addEventListener('click', () => {
                 input.value = '';
-                clearBtn.classList.remove('active');
-                input.focus();
-            });
+                clearBtn.classList.remove('active')
+                input.focus()
+            })
         }
 
-        setupSearchBar('shopSearchInput', 'clearSearchBtn');
-        setupSearchBar('desktopSearchInput', 'clearDesktopSearchBtn');
+        setupSearchBar('shopSearchInput', 'clearSearchBtn')
+        setupSearchBar('desktopSearchInput', 'clearDesktopSearchBtn')
+
+
+
+document.getElementById("searchIconDesktop").addEventListener("click", function () {
+
+    const value = document.getElementById("desktopSearchInput").value.trim();
+
+    if (value) {
+        window.location.href = `/shop?search=${encodeURIComponent(value)}`;
+    }
+
+});
 
 
         // Category Carousel Logic
-        const carousel = document.getElementById('categoryCarousel');
-        const dots = document.querySelectorAll('#paginationDots .dot');
-        const prevBtn = document.getElementById('prevBtn');
-        const nextBtn = document.getElementById('nextBtn');
+        const carousel = document.getElementById('categoryCarousel')
+        const dots = document.querySelectorAll('#paginationDots .dot')
+        const prevBtn = document.getElementById('prevBtn')
+        const nextBtn = document.getElementById('nextBtn')
 
         function updateActiveDot() {
             const scrollLeft = carousel.scrollLeft;

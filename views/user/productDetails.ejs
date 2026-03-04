@@ -4,6 +4,23 @@
 
 <!-- Header -->
 <header>
+    
+<% if (error_msg.length > 0) { %>
+
+    <span id="flashErrorMessage" style="display:none;">
+        <%= error_msg[0] %>
+    </span>
+    
+<% } %>
+
+<% if (success_msg.length > 0) { %>
+    <span id="flashSuccessMessage" style="display:none;">
+        <%= success_msg[0] %>
+    </span>
+<% } %>
+
+
+
     <div class="header-container">
         <div class="logo">
             <div class="logo-icon"><i class="fa-solid fa-check"></i></div>
@@ -144,7 +161,7 @@
 
             <div class="action-buttons">
                 <button onclick="addToCart('<%= variant._id %>')" class="btn-add-to-cart">Add to Cart</button>
-                <button class="btn-buy-now">Buy Now</button>
+                <button onclick="buyNow('<%= variant._id %>')" class="btn-buy-now">Buy Now</button>
                     <button onclick="toggleWishlist('<%= variant._id %>',this)" class="btn-wishlist <%= wishlistVariant ? 'active' : '' %>" title="Add to Wishlist"><i class="<%= wishlistVariant
                         ? 'fa-solid fa-heart' 
                         : 'fa-regular fa-heart' %>">
@@ -259,6 +276,17 @@
 
 
 <script>
+    let errorMessageElement = document.getElementById("flashErrorMessage");
+    let successMessageElement = document.getElementById("flashSuccessMessage");
+
+    if (errorMessageElement && errorMessageElement.innerText.trim() !== "") {
+    showToast(errorMessageElement.innerText,"error");
+    } else if (successMessageElement && successMessageElement.innerText.trim() !== "") {
+    showToast(successMessageElement.innerText,"error");
+    }
+
+
+    
     const searchInputs = document.querySelectorAll('#desktopSearchInput, #shopSearchInput');
 
     searchInputs.forEach(input => {
@@ -403,5 +431,10 @@ async function addToCart (id) {
     } catch (err) {
         console.log(err)
     }
+}
+
+
+function buyNow(id){
+    window.location.href = `/checkout?variantId=${id}&quantity=1`
 }
 </script>

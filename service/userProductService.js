@@ -173,7 +173,7 @@ const allToCart = async (req) => {
             return {loginRequired : true}
         }
         const userId = req.session.user._id
-        const wishlistItems = await wishlistModel.find()
+        const wishlistItems = await wishlistModel.find({userId:req.session.user._id})
 
         if (!wishlistItems){
             return {failMessage : "Products Not Found"}

@@ -80,7 +80,23 @@ const loadShop = async (req, res) => {
 
         let cleanedSearch = searchQuery
             .replace(/under\s+\d+/i, "")
-            .trim();
+            .trim()
+        const words = cleanedSearch
+        .split(" ")
+        .filter(word => word.trim() !== "");
+
+        let nameConditions = [];
+        let attributeConditions = [];
+
+        words.forEach(word => {
+            nameConditions.push({
+                name: { $regex: word, $options: "i" }
+            })
+
+            attributeConditions.push({
+                "attributes.value": { $regex: word, $options: "i" }
+            })
+        })   
 
         let productFilter = { isDeleted: false };
 
@@ -90,10 +106,13 @@ const loadShop = async (req, res) => {
                 $options: "i"
             };
         }
+      
+      
 
         if (queryCategories.length > 0) {
             productFilter.categoryId = { $in: queryCategories };
         }
+
 
         const matchedProducts = await productModel
             .find(productFilter)
@@ -101,34 +120,43 @@ const loadShop = async (req, res) => {
 
         const productIds = matchedProducts.map(p => p._id);
 
-        if (productIds.length === 0) {
-
-            if (req.headers.accept.includes("application/json")) {
-                return res.json({
-                    variants: [],
-                    totalPages: 0,
-                    currentPage: page
-                });
-            }
-
-            return res.render("user/shop", {
-                categories,
-                variants: [],
-                wishlistVariantIds: [],
-                currentPage: 1,
-                totalPages: 0
-            });
-        }
 
         let variantFilter = {
-            productId: { $in: productIds },
             status: true
-        };
+        }
 
+        if (cleanedSearch) {
+
+            variantFilter.$or = [
+
+        
+                {
+                    productId: { $in: productIds }
+                },
+
+        
+                {
+                    attributes: {
+                        $elemMatch: {
+                            key: "color",
+                            value: {
+                                $regex: cleanedSearch,
+                                $options: "i"
+                            }
+                        }
+                    }
+                }
+            ]
+        }
+
+if (!cleanedSearch) {
+    variantFilter.productId = { $in: productIds };
+}
+    
         if (maxPrice) {
             variantFilter.$expr = {
                 $lte: [
-                    { $toInt: "$offeredPrice" },
+                    { $toDouble: "$offeredPrice" },
                     maxPrice
                 ]
             };
@@ -332,6 +360,7 @@ const loadWishlist = async (req,res) => {
     }
 }
 
+
 const loadCart = async (req,res) => {
     try {
 
@@ -343,7 +372,8 @@ const loadCart = async (req,res) => {
 
         if (!cartItems || !cartItems.items) {
             return res.render("user/cart",{
-                cartItems : { items : [] }
+                cartItems : { items : [] },
+                total : 0
             })
         }
 
@@ -374,9 +404,10 @@ const loadCart = async (req,res) => {
 
 
         let total = 0
+        
             if (cart && cart.items){
-                let cal = cart?.items.map ((obj)=>{
-                    return obj.variantId.offeredPrice * obj.quantity
+                let cal = cart.items.map ((obj)=>{
+                    return (obj.variantId?.offeredPrice || 0) * obj.quantity
                 })
                 total = cal.reduce ((acc,curr)=>{
                     acc += curr
@@ -384,6 +415,14 @@ const loadCart = async (req,res) => {
                 },0)
                 
             }
+            /*
+        if (cart && cart.items) {
+            total = cart.items.reduce((acc, item) => {
+                const price = item.variantId?.offeredPrice || 0; // safely access
+                const qty = item.quantity || 0;
+                return acc + price * qty;
+            }, 0);
+        }*/
         
         return res.render ("user/cart",{
             cartItems,
@@ -428,7 +467,8 @@ const cartRemove = async (req,res) => {
             let total = 0
             if (cart && cart.items){
                 let cal = cart?.items.map ((obj)=>{
-                    return obj.variantId.offeredPrice * obj.quantity
+                    //return obj.variantId.offeredPrice * obj.quantity
+                    return (obj.variantId?.offeredPrice || 0) * obj.quantity
                 })
                 total = cal.reduce ((acc,curr)=>{
                     acc += curr
@@ -547,7 +587,8 @@ const cartInc = async (req,res) => {
             let total = 0
             if (cart && cart.items){
                 let cal = cart?.items.map ((obj)=>{
-                    return obj.variantId.offeredPrice * obj.quantity
+                    //return obj.variantId.offeredPrice * obj.quantity
+                    return (obj.variantId?.offeredPrice || 0) * obj.quantity
                 })
                 total = cal.reduce ((acc,curr)=>{
                     acc += curr
@@ -606,7 +647,8 @@ const cartDec = async (req,res) => {
             let total = 0
             if (cart && cart.items){
                 let cal = cart?.items.map ((obj)=>{
-                    return obj.variantId.offeredPrice * obj.quantity
+                    //return obj.variantId.offeredPrice * obj.quantity
+                    return (obj.variantId?.offeredPrice || 0) * obj.quantity
                 })
                 total = cal.reduce ((acc,curr)=>{
                     acc += curr
@@ -657,6 +699,9 @@ const allToCart = async (req,res) => {
         console.log(err)
     }
 }
+
+
+
 
 
 

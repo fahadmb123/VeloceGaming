@@ -18,8 +18,8 @@
         </nav>
 
         <div class="header-icons">
-            <a href="#"><i class="fa-regular fa-heart"></i></a>
-            <a href="#"><i class="fa-solid fa-cart-shopping"></i></a>
+            <a href="/wishlist"><i class="fa-regular fa-heart"></i></a>
+            <a href="/cart"><i class="fa-solid fa-cart-shopping"></i></a>
             <a style="text-decoration: none;" href="/profile">
                 <div class="profile-circle">
                 <% if (user.profileImage){ %>
@@ -110,6 +110,8 @@
     }
 
     function editAddress(id) {
-        window.location.href = `/editAddress?id=${id}`
+        
+        //window.location.href = `/editAddress?from=address&id=${id}`
+        window.location.href = `/editAddress?id=${id}&from=address`
     }
 </script>

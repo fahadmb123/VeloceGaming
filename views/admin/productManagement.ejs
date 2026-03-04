@@ -2,6 +2,10 @@
 </head>
 
 <body>
+    <!-- Loading Spinner -->
+<div id="admin-spinner" class="spinner-overlay" style="display:none;">
+    <div class="spinner"></div>
+</div>
     <div class="dashboard-container">
         <!-- Sidebar -->
         <aside class="sidebar">
@@ -770,6 +774,7 @@ productForm.onsubmit = async function (e) {
     e.preventDefault();
 
     let isValid = true;
+    
 
     const formData = new FormData();
 
@@ -982,7 +987,9 @@ productForm.onsubmit = async function (e) {
 
     formData.append("homepage", document.getElementById("prodHomepage").value);
     formData.append("variants", JSON.stringify(variants));
-
+    const spinner = document.getElementById("admin-spinner");
+    spinner.style.display = "flex"
+    
     try {
 
         let url = "/admin/productManagement/add";
@@ -1000,7 +1007,10 @@ productForm.onsubmit = async function (e) {
             body: formData
         });
 
+        spinner.style.display = "none";
+
         const result = await response.json();
+        
 
         if (result.success) {
             showToast(result.message,"success")
@@ -1070,4 +1080,6 @@ function showToast(message, type = "success") {
         setTimeout(() => toast.remove(), 300);
     }, 3000);
 }
+
+
 </script>

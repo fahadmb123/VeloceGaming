@@ -505,6 +505,7 @@ const editAddress = async (req) => {
                 "address.$.type" : type
             }}
         )
+       
 
 
         req.session.user = await userModel.findOne({_id:req.session.user._id})

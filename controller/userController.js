@@ -152,6 +152,7 @@ const loadEditAddress = async (req,res) => {
     try {
 
         const {id} = req.query
+        req.session.from = req.query.from
 
         const user = await userModel.findOne({_id:req.session.user._id})
 
@@ -358,14 +359,22 @@ const deleteAddress = async (req,res) => {
 const editAddress = async (req,res) => {
     try {
         const id = req.query.id
+        
         const {swalMessage,message} = await userService.editAddress(req)
         req.session.swalMessage = swalMessage
         req.session.message = message
+        const from = req.session.from
+        req.session.from = null
         //res.redirect(`/editAddress?id=${id}`)
         if (swalMessage) {
-            res.redirect("/address")
+            if (from === "address"){
+                return res.redirect("/address")
+            }
+            if (from === "checkout") {
+                return res.redirect("/checkout")
+            }
         }else {
-            res.redirect(`/editAddress?id=${id}`)
+            return res.redirect(`/editAddress?id=${id}`)
         }
     } catch (err) {
         console.log(err)

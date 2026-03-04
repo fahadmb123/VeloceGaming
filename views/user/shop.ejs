@@ -219,6 +219,19 @@
 window.addEventListener("DOMContentLoaded", () => {
     renderPagination(<%= totalPages %>, <%= currentPage %>);
 });
+window.addEventListener("DOMContentLoaded", () => {
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const searchValue = urlParams.get("search");
+
+    if (searchValue) {
+        document.getElementById("desktopSearchInput").value = searchValue;
+        document.getElementById("shopSearchInput").value = searchValue;
+        currentSearch = searchValue;
+    }
+
+    renderPagination(<%= totalPages %>, <%= currentPage %>);
+});
 </script>
 
 <script>
@@ -334,15 +347,17 @@ let currentPage = 1;
     });
 
 
-    document.getElementById("searchBtn").addEventListener("click", function () {
+document.getElementById("searchBtn").addEventListener("click", function () {
 
-        currentSearch = document.getElementById("desktopSearchInput").value;
+    const desktopValue = document.getElementById("desktopSearchInput").value.trim();
+    const mobileValue = document.getElementById("shopSearchInput").value.trim();
 
-        currentPage = 1;
+    currentSearch = desktopValue || mobileValue;
 
-        fetchProducts();
-    });
+    currentPage = 1;
 
+    fetchProducts();
+});
 
 
 

@@ -2,6 +2,12 @@
 
 <!-- Header -->
 <header>
+
+<%
+    cart = typeof cart !== "undefined" ? cart : null
+    variant = typeof variant !== "undefined" ? variant : null;
+%>
+
     <div class="header-container">
         <div class="logo">
             <div class="logo-icon"><i class="fa-solid fa-check"></i></div>
@@ -12,8 +18,8 @@
         </div>
 
         <nav>
-            <a href="../home/index.html">Home</a>
-            <a href="../shop/index.html">Shop</a>
+            <a href="/">Home</a>
+            <a href="/shop">Shop</a>
         </nav>
 
         <div class="search-bar">
@@ -22,12 +28,18 @@
         </div>
 
         <div class="header-icons">
-            <a href="../wishlist/index.html"><i class="fa-regular fa-heart"></i></a>
-            <a href="../cart/index.html"><i class="fa-solid fa-cart-shopping"></i></a>
+            <a href="/wishlist"><i class="fa-regular fa-heart"></i></a>
+            <a href="/cart"><i class="fa-solid fa-cart-shopping"></i></a>
             <div class="user-menu">
+                <a style="text-decoration: none;" href="/profile">
                 <div class="profile-circle">
-                    <i class="fa-solid fa-user"></i>
+                    <% if (user.profileImage){ %>
+                        <img src="<%= user.profileImage %>"  style="width:100%; height:100%; object-fit:cover; border-radius:50%;">
+                    <% }  else { %>
+                    <%= user.name.charAt(0).toUpperCase() %> 
+                    <% } %> 
                 </div>
+                </a>
             </div>
         </div>
     </div>
@@ -42,23 +54,21 @@
             <section class="checkout-section">
                 <h2 class="section-title">Delivery Address</h2>
                 <div class="address-list">
+                    <% if (address) { %>
+                    <% address.forEach ((obj,index) => { %>
                     <label class="address-card selected">
                         <input type="radio" name="address" checked>
                         <div class="radio-custom"></div>
                         <div class="address-details">
-                            <h3>John Martin 1</h3>
-                            <p>123 Tech Street, Mumbai, Maharashtra - 400001</p>
+                            <h3><%= obj.fullName %></h3>
+                            <p><%= obj.address %>  ,  <%= obj.state %>  ,  <%= obj.city %>  --  <%= obj.pincode %> -------- , Address Type  : <%= obj.type %></p>
                         </div>
+                        <button onclick="editAddress(`<%= obj._id %>`)" class="btn-edit-small" type="button">
+                            <i class="fa-solid fa-pen"></i> Edit
+                        </button>
                     </label>
-
-                    <label class="address-card">
-                        <input type="radio" name="address">
-                        <div class="radio-custom"></div>
-                        <div class="address-details">
-                            <h3>John Martin 2</h3>
-                            <p>456 Gaming Avenue, Bangalore, Karnataka - 560001</p>
-                        </div>
-                    </label>
+                    <% }) %>
+                    <% } %>
                 </div>
                 <button class="btn-add-address">+ Add New Address</button>
             </section>
@@ -87,29 +97,39 @@
 
             <!-- Cart Items -->
             <section class="checkout-section">
-                <h2 class="section-title">Cart Items</h2>
+                <h2 class="section-title">Items</h2>
                 <div class="checkout-items">
+                    <% if (cart && cart.items) { %>
+                        <% cart.items.forEach ( (item,index) => { %>
                     <div class="checkout-item">
-                        <div class="item-image">
-                            <img src="../../../image/product-1.png" alt="CPU Cooler">
+                        <a style="text-decoration: none;" href="/product/<%= item.variantId._id %>">
+                            <div class="item-image">
+                            <img  src="<%= item.variantId?.images[0] %>"  style="width:100%; height:100%; object-fit:cover; border-radius:50%;">
                         </div>
+                    </a>
                         <div class="item-info">
-                            <h3>GIGABYTE GME 360 AIO Liquid CPU Cooler</h3>
-                            <p>Qty: 1</p>
+                            <h3><%= item.variantId?.productId?.name %></h3>
+                            <p>Qty: <%= item.quantity %></p>
                         </div>
-                        <div class="item-price">₹ 8,399</div>
+                        <div class="item-price">₹ <%= item.variantId?.offeredPrice %></div>
                     </div>
-
+                    <% }) %>
+                    <% } else { %>
+                        <% if (variant) { %>
                     <div class="checkout-item">
-                        <div class="item-image">
-                            <img src="../../../image/product-3.jpeg" alt="Computer Case">
-                        </div>
+                        <a style="text-decoration: none;" href="/product/<%= variant._id %>">
+                            <div class="item-image">
+                                <img  src="<%= variant.images[0] %>"  style="width:100%; height:100%; object-fit:cover; border-radius:50%;">
+                            </div>
+                        </a>
                         <div class="item-info">
-                            <h3>Ant Esports Crystal Mini-Tower Computer Case</h3>
-                            <p>Qty: 2</p>
+                            <h3><%= variant.productId?.name %></h3>
+                            <p>Qty: <%= quantity %></p>
                         </div>
-                        <div class="item-price">₹ 14,018</div>
+                        <div class="item-price">₹ <%= variant.offeredPrice %></div>
                     </div>
+                       <% } %>
+                    <% } %>
                 </div>
             </section>
         </div>
@@ -120,15 +140,21 @@
             <div class="summary-details">
                 <div class="summary-row">
                     <span>Subtotal</span>
-                    <span>₹ 22,417</span>
+                    <span>₹ <%= subtotal %></span>
                 </div>
                 <div class="summary-row">
                     <span>Shipping</span>
-                    <span class="free">Free</span>
+                    <span class="free">
+                        <% if (shipping === 0) { %>
+                            Free
+                        <% } else { %>
+                            <%= shipping %>
+                        <% } %>
+                    </span>
                 </div>
                 <div class="summary-row">
                     <span>Tax</span>
-                    <span>₹ 0</span>
+                    <span>₹ <%= tax %></span>
                 </div>
 
                 <div class="coupon-section">
@@ -140,7 +166,7 @@
                 </div>
 
                 <div class="total-row">
-                    <span class="total-amount">₹ 22,417</span>
+                    <span class="total-amount">₹ <%= total %></span>
                 </div>
             </div>
             <button class="btn-place-order">Place Order</button>
@@ -171,3 +197,20 @@
         <span>Profile</span>
     </a>
 </div>
+<% if (typeof swalMessage !== "undefined" && swalMessage) { %>
+<span id="swalMessage" style="display:none;">
+    <%= swalMessage %>
+</span>
+<% } %>
+
+<script>
+    let messageElement = document.getElementById("swalMessage");
+
+    if (messageElement && messageElement.innerText.trim() !== "") {
+    swal(messageElement.innerText);
+    }
+
+    function editAddress(id) {
+        window.location.href = `/editAddress?id=${id}&from=checkout`
+    }
+</script>

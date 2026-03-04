@@ -2,6 +2,7 @@ const express = require("express")
 const router = express.Router()
 const userController = require("../controller/userController")
 const userProductController = require("../controller/userProductController")
+const userCheckoutController = require("../controller/userCheckoutController")
 const {isLogged,isLoggedOut} = require("../middleware/userAuth")
 const upload = require("../middleware/multer")
 
@@ -44,6 +45,7 @@ router.get("/wishlist",isLogged,userProductController.loadWishlist)
 
 router.get("/cart",isLogged,userProductController.loadCart)
 
+router.get("/checkout",isLogged,userCheckoutController.loadCheckout)
 
 
 

@@ -14,17 +14,20 @@
     "axios": "^1.13.5",
     "bcrypt": "^6.0.0",
     "cloudinary": "^2.9.0",
-    "dotenv": "^17.2.4",
+    "connect-flash": "^0.1.1",
+    "dotenv": "^17.3.1",
     "ejs": "^4.0.1",
     "express": "^5.2.1",
     "express-ejs-layouts": "^2.5.1",
     "express-session": "^1.19.0",
     "google-auth-library": "^10.5.0",
     "i": "^0.3.7",
-    "mongoose": "^9.2.1",
+    "mongodb": "^7.1.0",
+    "mongoose": "^9.2.3",
     "multer": "^2.0.2",
     "nocache": "^4.0.0",
+    "node-cron": "^4.2.1",
     "nodemailer": "^8.0.1",
-    "nodemon": "^3.1.11"
+    "nodemon": "^3.1.14"
   }
 }

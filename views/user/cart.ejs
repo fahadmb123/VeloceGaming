@@ -4,6 +4,40 @@
 
 <!-- Header -->
 <header>
+
+
+<!--
+<% if (error_msg.length > 0) { %>
+    <div class="alert alert-danger">
+        <%= error_msg[0] %>
+    </div>
+    
+<% } %>
+
+<% if (success_msg.length > 0) { %>
+    <div class="alert alert-success">
+        <%= success_msg[0] %>
+    </div>
+<% } %>
+-->
+
+
+<% if (error_msg.length > 0) { %>
+
+    <span id="flashErrorMessage" style="display:none;">
+        <%= error_msg[0] %>
+    </span>
+    
+<% } %>
+
+<% if (success_msg.length > 0) { %>
+    <span id="flashSuccessMessage" style="display:none;">
+        <%= success_msg[0] %>
+    </span>
+<% } %>
+
+
+
     <div class="header-container">
         <div class="logo">
             <div class="logo-icon"><i class="fa-solid fa-check"></i></div>
@@ -24,8 +58,7 @@
             <div class="user-menu">
                 <div class="profile-circle">
                     <% if (user.profileImage){ %>
-                        <img src="<%= user.profileImage %>" 
-                           style="width:100%; height:100%; object-fit:cover; border-radius:50%;">
+                        <img src="<%= user.profileImage %>"  style="width:100%; height:100%; object-fit:cover; border-radius:50%;">
                     <% }  else { %>
                     <%= user.name.charAt(0).toUpperCase() %> 
                     <% } %> 
@@ -104,7 +137,7 @@
                     <span id="totalInput" class="total-price">₹ <%= total %></span>
                 </div>
             </div>
-            <button class="btn-checkout">Process to checkout</button>
+            <a href="/checkout"><button class="btn-checkout">Process to checkout</button></a>
         </aside>
     </div>
 </main>
@@ -135,6 +168,18 @@
 
 <!-- Scripts -->
 <script>
+    let errorMessageElement = document.getElementById("flashErrorMessage");
+    let successMessageElement = document.getElementById("flashSuccessMessage");
+
+    if (errorMessageElement && errorMessageElement.innerText.trim() !== "") {
+    showToast(errorMessageElement.innerText,"error");
+    } else if (successMessageElement && successMessageElement.innerText.trim() !== "") {
+    showToast(successMessageElement.innerText,"error");
+    }
+
+
+
+
     document.querySelectorAll('.quantity-control').forEach(control => {
         const input = control.querySelector('input');
         const upBtn = control.querySelector('.qty-up');
