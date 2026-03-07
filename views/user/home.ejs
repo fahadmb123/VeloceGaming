@@ -137,10 +137,10 @@
                 <div class="product-info">
                     <h3><%= variant.productId.name %></h3>
                     <div class="price">
-                        <span class="current-price">₹ <%= variant.offeredPrice %></span>
+                        <span class="current-price">₹ <%= variant.offeredPrice.toLocaleString("en-IN") %></span>
                         <span class="discount">-<%= variant.productId.offer %>% OFF</span>
                     </div>
-                    <span class="old-price">₹ <%= variant.price%></span>
+                    <span class="old-price">₹ <%= variant.price.toLocaleString("en-IN") %></span>
                 </div>
             </div>
             

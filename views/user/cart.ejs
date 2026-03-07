@@ -90,7 +90,7 @@
                     </div>
                     <div class="product-main">
                         <div class="price-section">
-                            <span id="offferedInputPrice"  class="price">₹ <%= item.variantId.offeredPrice %></span>
+                            <span id="offferedInputPrice"  class="price">₹ <%= item.variantId.offeredPrice.toLocaleString("en-IN") %></span>
                             <div class="attributes">
                                 <p>
                                     <% item.variantId.attributes.forEach ( (attr,index) => { %>
@@ -104,9 +104,18 @@
                                     <% }) %>
                                 </p>
                             </div>
+                            <% if (item.variantId.stock <= 5) {  %>
+                        <span class="out-of-stock-badge">
+                    <% if (item.variantId.stock == 0) { %>
+                        Out of Stock
+                    <% } else { %>
+                        <%= item.variantId.stock %> Left
+                    <% } %>
+                    </span>
+                <% } %>
                         </div>
                         <div class="subtotal-section">
-                            <p  class="itemSubtotalInput subtotal-label">Subtotal : <span>₹ <%= item.subtotal %></span></p>
+                            <p  class="itemSubtotalInput subtotal-label">Subtotal : <span>₹ <%= item.subtotal.toLocaleString("en-IN") %></span></p>
                             <div class="quantity-control">
                                 <span class="qty-label">Quantity</span>
                                 <div class="qty-input">
@@ -134,7 +143,7 @@
                     <span>Shipping</span>
                 </div>
                 <div class="total-row">
-                    <span id="totalInput" class="total-price">₹ <%= total %></span>
+                    <span id="totalInput" class="total-price">₹ <%= total.toLocaleString("en-IN") %></span>
                 </div>
             </div>
             <a href="/checkout"><button class="btn-checkout">Process to checkout</button></a>
@@ -228,7 +237,7 @@ async function incQuantity(id) {
             subtotalEl.innerHTML =
                 `Subtotal : <span>₹ ${data.item.quantity * price}</span>`
             
-            document.getElementById("totalInput").innerHTML = `₹ ${data.total}`
+            document.getElementById("totalInput").innerHTML = `₹ ${data.total.toLocaleString("en-IN")}`
 
         } else {
             showToast(data.message,"error")
@@ -267,7 +276,7 @@ async function decQuantity(id) {
             subtotalEl.innerHTML =
                 `Subtotal : <span>₹ ${data.item.quantity * price}</span>`
 
-            document.getElementById("totalInput").innerHTML = `₹ ${data.total}`
+            document.getElementById("totalInput").innerHTML = `₹ ${data.total.toLocaleString("en-IN")}`
         } else {
             showToast(data.message,"error")
         }
@@ -304,7 +313,7 @@ async function removeCart (id) {
           }
           showToast("Product Removed","success")
 
-          document.getElementById("totalInput").innerHTML = `₹ ${data.total}`
+          document.getElementById("totalInput").innerHTML = `₹ ${data.total.toLocaleString("en-IN")}`
         } else {
             showToast(data.message,"error")
         }

@@ -138,9 +138,16 @@ const loadAddress = async (req,res) => {
 
 const loadAddAddress = async (req,res) => {
     try {
+        req.session.from = req.query.from
         const message = req.session.message
         req.session.swalMessage = null
         req.session.message = null
+        let variantId = req.query.variantId
+        if (variantId) {
+            req.session.variantId = variantId
+        } else {
+            req.session.variantId = null
+        }
         res.render("user/addAddress",{message})
     } catch (err) {
         console.log(err)
@@ -153,7 +160,12 @@ const loadEditAddress = async (req,res) => {
 
         const {id} = req.query
         req.session.from = req.query.from
-
+        let variantId = req.query.variantId
+        if (variantId) {
+            req.session.variantId = variantId
+        } else {
+            req.session.variantId = null
+        }
         const user = await userModel.findOne({_id:req.session.user._id})
 
         const address = user.address.id(id)
@@ -333,8 +345,21 @@ const addAddress = async (req,res) => {
         const {swalMessage,message} = await userService.addAddress(req)
         req.session.swalMessage = swalMessage
         req.session.message = message
+        const from = req.session.from
+        req.session.from = null
+        let variantId = req.session.variantId
+        req.session.variantId = null
         if (swalMessage) {
-            res.redirect("/address")
+            if (from === "address"){
+                return res.redirect("/address")
+            }
+            if (from === "checkout") {
+                if (variantId){
+                    return res.redirect(`/checkout?variantId=${variantId}&quantity=1`)
+                } else {
+                    return res.redirect("/checkout")
+                }
+            }
         }else {
             res.redirect("/addAddress")
         }
@@ -365,13 +390,21 @@ const editAddress = async (req,res) => {
         req.session.message = message
         const from = req.session.from
         req.session.from = null
+        let variantId = req.session.variantId
+        req.session.variantId = null
         //res.redirect(`/editAddress?id=${id}`)
         if (swalMessage) {
             if (from === "address"){
                 return res.redirect("/address")
             }
             if (from === "checkout") {
-                return res.redirect("/checkout")
+                
+                if (variantId){
+                    return res.redirect(`/checkout?variantId=${variantId}&quantity=1`)
+                } else {
+                    return res.redirect("/checkout")
+                }
+               
             }
         }else {
             return res.redirect(`/editAddress?id=${id}`)

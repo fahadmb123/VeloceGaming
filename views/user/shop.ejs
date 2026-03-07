@@ -85,7 +85,7 @@
         <aside class="filter-sidebar" id="filterSidebar">
                 <div class="filter-section">
                     <div class="filter-header">
-                        <h3>Filter</h3>
+                        <h3>Filter</h3> <a style="text-decoration: none;" href="/shop"><h5>Clear</h5></a>
                         <button class="close-filter" id="closeFilterBtn">
                             <i class="fa-solid fa-xmark"></i>
                         </button>
@@ -115,17 +115,13 @@
                             <span class="checkmark radio"></span>
                             High to Low
                         </label>
-                    </div>
-
-                    <div class="filter-group">
-                        <h4>Name</h4>
                         <label class="checkbox-container">
-                            <input class="sortOption" value="nameAZ" type="radio" name="sort-name">
+                            <input class="sortOption" value="nameAZ" type="radio" name="sort-price">
                             <span class="checkmark radio"></span>
                             A to Z
                         </label>
                         <label class="checkbox-container">
-                            <input class="sortOption" value="nameZA" type="radio" name="sort-name">
+                            <input class="sortOption" value="nameZA" type="radio" name="sort-price">
                             <span class="checkmark radio"></span>
                             Z to A
                         </label>
@@ -165,14 +161,23 @@
                             <% } %>
                         <% }) %>
                     </p>
+                    <% if (variant.stock <= 5) {  %>
+                        <span class="out-of-stock-badge">
+                    <% if (variant.stock == 0) { %>
+                        Out of Stock
+                    <% } else { %>
+                        <%= variant.stock %> Left
+                    <% } %>
+                    </span>
+                <% } %>
                     <div class="product-price-row">
-                        <span class="current-price">₹ <%= variant.offeredPrice %></span>
+                        <span class="current-price">₹ <%= variant.offeredPrice.toLocaleString("en-IN") %></span>
                         <% if (variant.productId.offer != 0){ %>
                             <span class="discount">
                             -<%= variant.productId.offer %>% OFF
                             </span>
                         <% } %>
-                        <span class="old-price">₹ <%= variant.price %></span>
+                        <span class="old-price">₹ <%= variant.price.toLocaleString("en-IN") %></span>
                     </div>
                 </div>
             </div>
@@ -378,7 +383,7 @@ async function fetchProducts() {
 
     const data = await response.json();
 
-    renderProducts(data.variants);
+    renderProducts(data.variants,data.wishlistVariantIds);
     renderPagination(data.totalPages, data.currentPage)
 }
 
@@ -465,7 +470,6 @@ function renderProducts(variants, wishlistVariantIds = []) {
     `;
 });
 }
-
 
 function showToast(message, type = "success") {
 

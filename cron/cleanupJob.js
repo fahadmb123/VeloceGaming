@@ -19,7 +19,7 @@ cron.schedule("*/5 * * * *",async () => {
                             path : "categoryId"
                         }
                     })
-                    if (!variant || !variant.status || variant.productId.isDeleted || variant.productId.categoryId.isDeleted){
+                    if (variant.stock === 0 || !variant || !variant.status || variant.productId.isDeleted || variant.productId.categoryId.isDeleted){
                         await wishlistModel.deleteOne({_id:item._id}) 
                     }
                 }

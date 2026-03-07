@@ -3,6 +3,7 @@ const router = express.Router()
 const userController = require("../controller/userController")
 const userProductController = require("../controller/userProductController")
 const userCheckoutController = require("../controller/userCheckoutController")
+const userOrderController = require("../controller/userOrderController")
 const {isLogged,isLoggedOut} = require("../middleware/userAuth")
 const upload = require("../middleware/multer")
 
@@ -47,6 +48,7 @@ router.get("/cart",isLogged,userProductController.loadCart)
 
 router.get("/checkout",isLogged,userCheckoutController.loadCheckout)
 
+router.get("/orderSuccessPage",isLogged,userOrderController.loadOrderSuccessPage)
 
 
 router.get("/shop",userProductController.loadShop)
@@ -89,6 +91,12 @@ router.post("/cart/inc",userProductController.cartInc)
 
 router.post("/cart/dec",userProductController.cartDec)
 
-
 router.post("/wishlist/allToCart",userProductController.allToCart)
+
+router.post("/placeOrder",userOrderController.placeOrder)
+
+
+
+
+
 module.exports = router

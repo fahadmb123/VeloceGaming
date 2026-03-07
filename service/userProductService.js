@@ -49,7 +49,28 @@ const addToCart = async (req) => {
             return {valid : false}
         }
 
+        if (validItem.stock < 1) {
+            return {failMessage : "Out Of Stock"}
+        }
+        const variant = await variantModel.findOne({_id:variantObjectId})
 
+        const item = await cartModel.findOne({
+            userId : req.session.user._id,
+            "items.variantId" : variantObjectId
+        })
+
+        
+
+        const existingItem = item.items.find(obj => {
+            return obj.variantId.toString() === variantObjectId.toString()
+        })
+
+        console.log()
+
+        if (variant.stock <= existingItem.quantity){
+            return {failMessage : `only ${variant.stock} Stocks`}
+        }
+        
         const result = await cartModel.updateOne(
             {
                 userId,
@@ -74,6 +95,8 @@ const addToCart = async (req) => {
                 { upsert: true }
             )
         }
+        await wishlistModel.deleteOne({userId})
+    
 
         return { message: "Cart Updated Successfully" }
 
@@ -83,6 +106,7 @@ const addToCart = async (req) => {
     }
 }
 
+
 const cartInc = async (req) => {
     try {
 
@@ -91,10 +115,20 @@ const cartInc = async (req) => {
         }
         const variantId = req.query.variantId
 
+        const variant = await variantModel.findOne({_id:variantId})
+
         const item = await cartModel.findOne({
             userId : req.session.user._id,
             "items.variantId" : variantId
         })
+        
+        const existingItem = item.items.find(obj => {
+            return obj.variantId == variantId
+        })
+        if (variant.stock <= existingItem.quantity){
+            return {failMessage : `only ${variant.stock} Stocks`}
+        }
+        
 
         if (item) {
             await cartModel.updateOne(
@@ -165,7 +199,6 @@ const cartDec = async (req) => {
     }
 }
 
-
 const allToCart = async (req) => {
     try {
 
@@ -174,8 +207,8 @@ const allToCart = async (req) => {
         }
         const userId = req.session.user._id
         const wishlistItems = await wishlistModel.find({userId:req.session.user._id})
-
-        if (!wishlistItems){
+        
+        if (wishlistItems.length === 0){
             return {failMessage : "Products Not Found"}
         }
 
@@ -186,7 +219,7 @@ const allToCart = async (req) => {
         variants.forEach(variant => {
             async function work() {
                 let variantId = variant._id
-
+                
                 const result = await cartModel.updateOne(
                     {
                         userId,
@@ -211,6 +244,7 @@ const allToCart = async (req) => {
                         { upsert: true }
                     )
                 }
+                await wishlistModel.deleteOne({userId})   
             }
             work()
         });

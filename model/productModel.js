@@ -69,7 +69,7 @@ const variantSchema = mongoose.Schema({
         required : true
     },
     price : {
-        type : String,
+        type : Number,
         required : true
     },
     stock : {
@@ -102,7 +102,7 @@ const variantSchema = mongoose.Schema({
         default : true
     },
     offeredPrice : {
-        type : String
+        type : Number
     }
 },{timestamps : true})
 

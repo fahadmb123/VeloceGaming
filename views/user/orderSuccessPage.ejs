@@ -1,0 +1,157 @@
+
+    <link rel="stylesheet" href="/css/user/orderSuccessPage.css">
+
+
+    <!-- Header -->
+    <header>
+        <div class="header-container">
+            <div class="logo">
+                <div class="logo-icon"><i class="fa-solid fa-check"></i></div>
+                <div class="logo-text">
+                    <span class="brand">VELOCE</span>
+                    <span class="sub-brand">GAMING</span>
+                </div>
+            </div>
+
+            <nav>
+                <a href="/">Home</a>
+                <a href="/shop">Shop</a>
+            </nav>
+
+            <!-- <div class="search-bar">
+                <input type="text" placeholder="What are you looking for?">
+                <i class="fa-solid fa-magnifying-glass"></i>
+            </div> -->
+
+            <div class="header-icons">
+                <a href="../wishlist/index.html"><i class="fa-regular fa-heart"></i></a>
+                <a href="../cart/index.html"><i class="fa-solid fa-cart-shopping"></i></a>
+                <div class="user-menu">
+                    <div class="profile-circle">
+                        <i class="fa-solid fa-user"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="success-main">
+        <div class="success-card">
+            <div class="checkmark-wrapper">
+                <svg class="checkmark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52">
+                    <circle class="checkmark__circle" cx="26" cy="26" r="25" fill="none" />
+                    <path class="checkmark__check" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8" />
+                </svg>
+            </div>
+
+            <h1 class="success-title">Order Placed Successfully!</h1>
+            <p class="success-message">Thank you for your purchase. Your order has been received and is being processed.
+            </p>
+
+            <div class="order-info">
+                <div class="info-row">
+                    <span>Order ID:</span>
+                    <span class="info-value"><%= order.orderId %></span>
+                </div>
+                <div class="info-row">
+                    <span>Date:</span>
+                    <span class="info-value"><%= new Date(order.createdAt).toLocaleDateString("en-US",{
+                        year : "numeric",
+                        month : "long",
+                        day : "numeric"
+                    }) %></span>
+                </div>
+                <div class="info-row">
+                    <span>Estimated Delivery:</span>
+                    <span class="info-value">7 Days</span>
+                </div>
+            </div>
+
+            <div class="action-buttons">
+                <a href="/shop" class="btn-primary">Continue Shopping</a>
+                <a href="/profile" class="btn-secondary">View Order Details</a>
+            </div>
+        </div>
+    </main>
+
+    <!-- Mobile Bottom Navbar -->
+    <div class="mobile-bottom-nav">
+        <a href="../home/index.html" class="nav-item">
+            <i class="fa-solid fa-house"></i>
+            <span>Home</span>
+        </a>
+        <a href="../shop/index.html" class="nav-item">
+            <i class="fa-solid fa-bag-shopping"></i>
+            <span>Shop</span>
+        </a>
+        <a href="../cart/index.html" class="nav-item">
+            <i class="fa-solid fa-cart-shopping"></i>
+            <span>Cart</span>
+        </a>
+        <a href="../wishlist/index.html" class="nav-item">
+            <i class="fa-solid fa-heart"></i>
+            <span>Wishlist</span>
+        </a>
+        <a href="../profile/index.html" class="nav-item">
+            <i class="fa-solid fa-user"></i>
+            <span>Profile</span>
+        </a>
+    </div>
+
+    <script >
+        document.addEventListener('DOMContentLoaded', () => {
+        // Add confetti effect or other JS-based animations here if needed
+        console.log('Order Success Page Loaded');
+
+        // Optional: Add a simple confetti effect using a canvas or just CSS particles
+     createConfetti();
+});
+
+function createConfetti() {
+    const colors = ['#FF0000', '#00ffff', '#4CAF50', '#ffffff'];
+    const container = document.querySelector('.success-main');
+
+    for (let i = 0; i < 50; i++) {
+        const confetti = document.createElement('div');
+        confetti.className = 'confetti';
+        confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+        confetti.style.left = Math.random() * 100 + 'vw';
+        confetti.style.animationDuration = (Math.random() * 3 + 2) + 's';
+        confetti.style.opacity = Math.random();
+        confetti.style.width = (Math.random() * 10 + 5) + 'px';
+        confetti.style.height = confetti.style.width;
+
+        container.appendChild(confetti);
+
+        // Remove confetti after animation ends
+        setTimeout(() => {
+            confetti.remove();
+        }, 5000);
+    }
+}
+
+// Add CSS for confetti dynamically
+const style = document.createElement('style');
+style.textContent = `
+    .confetti {
+        position: absolute;
+        top: -20px;
+        z-index: 0;
+        pointer-events: none;
+        animation: fall linear forwards;
+        border-radius: 50%;
+    }
+
+    @keyframes fall {
+        to {
+            transform: translateY(100vh) rotate(360deg);
+        }
+    }
+
+    .success-card {
+        z-index: 1;
+        position: relative;
+    }
+`;
+document.head.appendChild(style);
+    </script>

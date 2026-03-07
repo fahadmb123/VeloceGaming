@@ -165,8 +165,6 @@ if (!cleanedSearch) {
         let sortOption = {};
         if (sort === "priceLow") sortOption.offeredPrice = 1;
         if (sort === "priceHigh") sortOption.offeredPrice = -1;
-        if (sort === "nameAZ") sortOption["productId.name"] = 1;
-        if (sort === "nameZA") sortOption["productId.name"] = -1;
 
         const total = await variantModel.countDocuments(variantFilter);
 
@@ -181,6 +179,14 @@ if (!cleanedSearch) {
         .limit(limit);
 
         variants = variants.map(v => v.toObject());
+
+        if (sort === "nameAZ") {
+            variants.sort((a,b)=> a.productId.name.localeCompare(b.productId.name))
+        }
+
+        if (sort === "nameZA") {
+            variants.sort((a,b)=> b.productId.name.localeCompare(a.productId.name)) 
+        }
 
         /*let wishlistVariantIds = [];
 
@@ -539,7 +545,7 @@ const wishlistToggle = async (req,res) => {
 const addToCart = async (req,res) => {
     try {
 
-        const {loginRequired,message,valid} = await userProductService.addToCart(req)
+        const {loginRequired,message,valid,failMessage} = await userProductService.addToCart(req)
 
         /*if (!valid) {
             return res.redirect("/shop")
@@ -547,7 +553,12 @@ const addToCart = async (req,res) => {
         if (loginRequired) {
             return res.json({loginRequired : true})
         }
-
+        if (failMessage) {
+            return res.json({
+                success : false,
+                message : failMessage
+            })
+        }
 
         return res.json({
             success : true,
@@ -565,7 +576,10 @@ const cartInc = async (req,res) => {
         const  {failMessage,message,loginRequired} = await userProductService.cartInc(req)
 
         if (failMessage) {
-            return {failMessage}
+            return res.json({
+                success:false,
+                message : failMessage
+            })
         }
 
         /*const cartItems = await cartModel.findOne({userId:req.session.user._id}).populate({path:"items.variantId",populate:{path:"productId"}})

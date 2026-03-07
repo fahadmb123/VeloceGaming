@@ -29,7 +29,7 @@ const couponSchema = mongoose.Schema({
     status : {
         type : Boolean
     }
-},{timesstamps:true})
+},{timestamps:true})
 
 
 

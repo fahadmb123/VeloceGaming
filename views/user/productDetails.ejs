@@ -110,14 +110,14 @@
                     4.6 <i class="fa-solid fa-star"></i>
                 </div>
                 <div class="product-price">
-                    <span class="current-price">₹ <%= variant.offeredPrice %></span>
+                    <span class="current-price">₹ <%= variant.offeredPrice.toLocaleString("en-IN") %></span>
                     <% if (variant.productId.offer != 0){ %>
                             <span class="discount">
                             -<%= variant.productId.offer %>% OFF
                             </span>
                         <% } %>
                         
-                    <p class="old-price">₹ <%= variant.price %></p><br>
+                    <p class="old-price">₹ <%= variant.price.toLocaleString("en-IN") %></p><br>
                 </div>
                 <p class="product-color">
                         <% variant.attributes.forEach ( (attr,index) => { %>
@@ -420,13 +420,13 @@ async function addToCart (id) {
         const data = await response.json()
 
         if (data.loginRequired) {
-            window.location.href = "/login"
+            return window.location.href = "/login"
         }
 
         if (data.success) {
-            showToast(data.message,"success")
+            return showToast(data.message,"success")
         }else {
-            showToast("error","error")
+            return showToast(data.message,"error")
         }
     } catch (err) {
         console.log(err)

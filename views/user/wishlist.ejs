@@ -48,6 +48,7 @@
             <button onclick="moveAllToBag()" class="btn-move-all">Move All To Bag</button>
         </div>
         <div class="wishlist-container">
+            <% if (wishlistItems.length > 0) { %>
             <% wishlistItems.forEach ( (item,index) => { %>
                 <% if (item.variantId && item.variantId.status && !item.variantId.productId.isDeleted && !item.variantId.productId.categoryId.isDeleted) { %>
         <div id="wishlist-<%= item.variantId._id %>">
@@ -63,7 +64,7 @@
                     <div class="product-info-top">
                         <h3><%= item.variantId.productId.name %></h3>
                         <div class="price-info">
-                            <span class="current-price">₹ <%= item.variantId.offeredPrice %></span>
+                            <span class="current-price">₹ <%= item.variantId.offeredPrice.toLocaleString("en-IN") %></span>
                             <% if (item.variantId.productId.offer != 0){ %>
                             <span class="discount">
                             -<%= item.variantId.productId.offer %>% OFF
@@ -84,7 +85,17 @@
                             <% } %>
                         <% }) %>
                         </p>
+                        
                     </div>
+                    <% if (item.variantId.stock <= 5) {  %>
+                        <span class="out-of-stock-badge">
+                    <% if (item.variantId.stock == 0) { %>
+                        Out of Stock
+                    <% } else { %>
+                        <%= item.variantId.stock %> Left
+                    <% } %>
+                    </span>
+                <% } %>
 
                     <div class="product-actions">
                          <i onclick="handleRemove(event,'<%= item.variantId._id %>'); " class="fa-regular fa-trash-can delete-icon"></i>
@@ -96,7 +107,10 @@
         
         </div>
         <% } %>
-            <% }) %>
+        <% }) %>
+        <% } else { %>
+            <h1>Product Not Found</h1>
+        <% } %>
         </div>
     </section>
 </main>
@@ -160,6 +174,7 @@ function handleRemove (event,id) {
     event.stopPropagation()
     removeWishlist(id)
 }
+
 async function removeWishlist (id) {
     try {
 
@@ -207,9 +222,13 @@ async function addToCart (id) {
         }
 
         if (data.success) {
+            let card = document.getElementById(`wishlist-${id}`)
+            if (card) {
+                card.remove()
+            }
             showToast(data.message,"success")
         }else {
-            showToast("error","error")
+            showToast(data.message,"error")
         }
     } catch (err) {
         console.log(err)
@@ -263,6 +282,10 @@ async function moveAllToBag() {
         }
 
         if (data.success) {
+            const container = document.querySelector(".wishlist-container")
+            if (container) {
+                container.innerHTML = "<h1>Products Not Found </h1>"
+            }
             showToast(data.message,"success")
         }else {
             showToast(data.message,"error")

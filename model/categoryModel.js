@@ -32,6 +32,6 @@ const categorySchema = mongoose.Schema({
         type : Boolean,
         default : false
     }
-},{timesstamps:true})
+},{timestamps:true})
 
 module.exports = mongoose.model("category",categorySchema)

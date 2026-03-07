@@ -13,6 +13,7 @@ try {
     const variantId = req.query.variantId
     const quantity = parseInt(req.query.quantity)
 
+    
     if (!req.session.user){
         return res.redirect("/login")
     }
@@ -38,7 +39,7 @@ try {
         }
 
         const user = await userModel.findOne({_id:req.session.user._id})
-        const address = user.address
+        const address = user.address.slice().reverse()
         const swalMessage = req.session.swalMessage
         req.session.swalMessage = null
 
@@ -46,7 +47,7 @@ try {
         let shipping = 0
         let tax = 0
 
-        subtotal = Number(variant.offeredPrice)
+        subtotal = quantity * Number(variant.offeredPrice)
 
         const total = subtotal + shipping + tax
 
@@ -94,7 +95,7 @@ try {
             }
         }
         const user = await userModel.findOne({_id:req.session.user._id})
-        const address = user.address
+        const address = user.address.slice().reverse()
         const swalMessage = req.session.swalMessage
         req.session.swalMessage = null
 
@@ -126,14 +127,6 @@ try {
         console.log(err)
 }
 }
-
-
-
-
-
-
-
-
 
 
 
