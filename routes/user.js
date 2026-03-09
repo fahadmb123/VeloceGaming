@@ -1,9 +1,9 @@
 const express = require("express")
 const router = express.Router()
-const userController = require("../controller/userController")
-const userProductController = require("../controller/userProductController")
-const userCheckoutController = require("../controller/userCheckoutController")
-const userOrderController = require("../controller/userOrderController")
+const userController = require("../controller/user/userController")
+const userProductController = require("../controller/user/userProductController")
+const userCheckoutController = require("../controller/user/userCheckoutController")
+const userOrderController = require("../controller/user/userOrderController")
 const {isLogged,isLoggedOut} = require("../middleware/userAuth")
 const upload = require("../middleware/multer")
 
@@ -51,9 +51,18 @@ router.get("/checkout",isLogged,userCheckoutController.loadCheckout)
 router.get("/orderSuccessPage",isLogged,userOrderController.loadOrderSuccessPage)
 
 
+
+
 router.get("/shop",userProductController.loadShop)
 
 router.get("/product/:id",userProductController.loadProduct)
+
+
+
+
+router.get("/orderDetails",isLogged,userOrderController.loadOrderDetails)
+
+router.get("/orderHistory",isLogged,userOrderController.loadOrderHistory)
 
 
 
@@ -97,6 +106,8 @@ router.post("/placeOrder",userOrderController.placeOrder)
 
 
 
+router.post("/orderDetails/cancel",userOrderController.cancelOrder)
+router.post("/orderDetails/return",userOrderController.returnOrder)
 
 
 module.exports = router

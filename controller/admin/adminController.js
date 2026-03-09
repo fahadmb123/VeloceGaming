@@ -1,7 +1,7 @@
-const adminService = require("../service/adminService")
-const userModel = require("../model/userModel")
-const categoryModel = require("../model/categoryModel")
-const {productModel, variantModel} = require ("../model/productModel.js")
+const adminService = require("../../service/adminService.js")
+const userModel = require("../../model/userModel.js")
+const categoryModel = require("../../model/categoryModel.js")
+const {productModel, variantModel} = require ("../../model/productModel.js")
 
 
 

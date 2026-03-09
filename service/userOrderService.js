@@ -2,6 +2,19 @@ const userModel = require("../model/userModel")
 const {variantModel} = require("../model/productModel")
 const orderModel = require("../model/orderModel")
 const cartModel = require("../model/cartModel")
+const {z} = require("zod")
+
+
+
+const validateBody = z.object({
+    orderId : z.string().min(1),
+    orderItemId : z.string().min(1),
+    reason : z.string().min(1),
+    description : z.string().min(10)
+})
+
+
+
 
 
 const placeOrder = async (req) => {
@@ -132,6 +145,7 @@ const placeOrder = async (req) => {
                     price : variant.offeredPrice,
                     total : total
                 }
+                console.log(variant.attributes)
 
                 products.push(product)
             }
@@ -171,10 +185,89 @@ const placeOrder = async (req) => {
     }
 }
 
+const cancelOrder = async (req) => {
+    try {
+        
+        const validatedBody = validateBody.safeParse(req.body)
+        if (!validatedBody.success) {
+            return {validateBody : true}
+        }
 
+        const {orderId,orderItemId,reason,description} = validatedBody.data
+
+        const order = await orderModel.findOne({_id:orderId})
+        const items = order.items
+
+        const orderItem = items.find( item => {
+            return item._id.toString() === orderItemId.toString()
+        })
+
+        if (!orderItem.status === 'placed') {
+            return {placedRequired : true}
+        }
+
+        await orderModel.updateOne(
+            {_id:orderId,"items._id":orderItemId},
+            {
+                $set : {
+                    "items.$.cancelReason" : reason,
+                    "items.$.cancelDescription" : description,
+                    "items.$.status" : "cancelled"
+                }
+            }
+        )
+
+        return {message : "Product Cancelled"}
+
+    } catch (err) {
+        console.log(err)
+    }
+}
+
+const returnOrder = async (req) => {
+    try {
+
+        const validatedBody = validateBody.safeParse(req.body)
+        if (!validatedBody.success) {
+            return {validateBody : true}
+        }
+
+        const {orderId,orderItemId,reason,description} = validatedBody.data
+
+        const order = await orderModel.findOne({_id:orderId})
+        const items = order.items
+
+        const orderItem = items.find( item => {
+            return item._id.toString() === orderItemId.toString()
+        })
+
+        if (!orderItem.status === 'delivered') {
+            return {failMessage : "Request Is Not Available For This Status"}
+        }
+
+        await orderModel.updateOne(
+            {_id:orderId,"items._id":orderItemId},
+            {
+                $set : {
+                    "items.$.returnRequest.reason" : reason,
+                    "items.$.returnRequest.description" : description,
+                    "items.$.returnRequest.status" : "pending",
+                    "items.$.returnRequest.requestedAt" : new Date()
+                }
+            }
+        )
+
+        return {message : "Rquested For Return"}
+
+    } catch (err) {
+        console.log(err)
+    }
+}
 
 
 
 module.exports = {
-    placeOrder
+    placeOrder,
+    cancelOrder,
+    returnOrder
 }

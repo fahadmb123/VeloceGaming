@@ -848,3 +848,38 @@ nav a.active {
     min-width: 250px;
     max-width: 350px;
 }
+
+
+
+
+
+
+
+
+
+
+.breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 14px;
+    flex-wrap: wrap;
+}
+
+.breadcrumb a {
+    text-decoration: none;
+    color: #555;
+}
+
+.breadcrumb a:hover {
+    color: #000;
+}
+
+.product-name {
+    max-width: 200px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    color: #000;
+    font-weight: 500;
+}

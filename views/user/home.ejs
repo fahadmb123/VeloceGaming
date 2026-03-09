@@ -84,14 +84,17 @@
                 <div class="category-grid" id="categoryCarousel">
                     <% categories.forEach((category,index)=>{ %>
                         <% if (!category.isDeleted) { %>
+            
                     <div class="category-card">
                         <div class="cat-content">
+                            <a href="/shop?category=<%= category._id %>">
                             <div class="cat-image-wrapper">
                                 <img src="<%= category.image %>" alt="Phone Category" class="category-img">
-                            </div>
+                            </div></a>
                             <h3><%= category.name %></h3>
                         </div>
                     </div>
+                    
                     <% }}) %>
                 </div>
                 <button class="carousel-nav-btn next-btn" id="nextBtn"><i

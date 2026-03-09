@@ -1,9 +1,9 @@
-const userModel = require("../model/userModel")
-const userService = require("../service/userService")
-const cloudinary = require("../helpers/cloudinary.js")
-const categoryModel = require("../model/categoryModel.js")
-const { variantModel, productModel } = require("../model/productModel.js")
-const wishlistModel = require("../model/wishlistModel.js")
+const userModel = require("../../model/userModel.js")
+const userService = require("../../service/userService.js")
+const cloudinary = require("../../helpers/cloudinary.js")
+const categoryModel = require("../../model/categoryModel.js")
+const { variantModel, productModel } = require("../../model/productModel.js")
+const wishlistModel = require("../../model/wishlistModel.js")
 
 
 const loadEmailEntry = async (req,res) => {

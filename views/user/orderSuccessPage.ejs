@@ -27,10 +27,22 @@
                 <a href="../wishlist/index.html"><i class="fa-regular fa-heart"></i></a>
                 <a href="../cart/index.html"><i class="fa-solid fa-cart-shopping"></i></a>
                 <div class="user-menu">
-                    <div class="profile-circle">
-                        <i class="fa-solid fa-user"></i>
+                <% if (user) { %>
+                    
+                    <a style="text-decoration: none;" href="/profile">
+                        <div class="profile-circle">
+                        <% if (user.profileImage){ %>
+                        <img src="<%= user.profileImage %>" 
+                           style="width:100%; height:100%; object-fit:cover; border-radius:50%;">
+                    <% }  else { %>
+                    <%= user.name.charAt(0).toUpperCase() %> 
+                    <% } %> 
                     </div>
-                </div>
+                </a>
+                <% } else { %>
+                    <div style="display: none;" class="profile-circle"></div>
+                <% } %>
+            </div>
             </div>
         </div>
     </header>
@@ -61,15 +73,15 @@
                         day : "numeric"
                     }) %></span>
                 </div>
-                <div class="info-row">
+               <!-- <div class="info-row">
                     <span>Estimated Delivery:</span>
                     <span class="info-value">7 Days</span>
-                </div>
+                </div> -->
             </div>
 
             <div class="action-buttons">
                 <a href="/shop" class="btn-primary">Continue Shopping</a>
-                <a href="/profile" class="btn-secondary">View Order Details</a>
+                <a href='/orderDetails?id=<%= order.items[0]._id %>' class="btn-secondary">View Order Details</a>
             </div>
         </div>
     </main>

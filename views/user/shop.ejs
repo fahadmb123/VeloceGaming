@@ -67,7 +67,11 @@
             </div>
         </div>
     </div>
-
+    <nav class="breadcrumb">
+        <a href="/">Home</a>
+        <span>/</span>
+        <a href="/shop">Shop</a>
+    </nav><br><br>
     <!-- Mobile Filter Toggle Button -->
     <div class="mobile-filter-toggle">
         <button id="toggleFilterBtn">
@@ -143,7 +147,9 @@
                         ? 'fa-solid fa-heart' 
                         : 'fa-regular fa-heart' %>">
                     </i></button>
-                    <img src="<%= variant.images[0] %>" style="width:100%; height:100%; object-fit:cover; ;" >
+                    <div>
+                        <img  src="<%= variant.images[0] %>" style="width:100%; height:100%; object-fit:cover; ;" >
+                    </div>
                 </div>
                 <div class="product-details">
                     <h3><%= variant.productId.name %></h3>
@@ -235,7 +241,25 @@ window.addEventListener("DOMContentLoaded", () => {
         currentSearch = searchValue;
     }
 
+
+
+    const category = urlParams.get("category");
+
+    if (category) {
+        currentCategories = [category];
+
+        document.querySelectorAll(".categoryFilter").forEach(cb => {
+            if (cb.value === category) {
+                cb.checked = true;
+            }
+        });
+
+        fetchProducts();
+    }
+
+
     renderPagination(<%= totalPages %>, <%= currentPage %>);
+
 });
 </script>
 
@@ -421,6 +445,25 @@ function renderProducts(variants, wishlistVariantIds = []) {
 
         });
     }
+let stock = "";
+
+if (variant.stock <= 5) {
+
+    if (variant.stock === 0) {
+        stock = `
+        <span class="out-of-stock-badge">
+            Out of Stock
+        </span>
+        `;
+    } else {
+        stock = `
+        <span class="out-of-stock-badge">
+            ${variant.stock} Left
+        </span>
+        `;
+    }
+
+}
 
     container.innerHTML += `
         <a style="text-decoration: none;" href="/product/${variant._id}">
@@ -448,10 +491,10 @@ function renderProducts(variants, wishlistVariantIds = []) {
                     <p class="product-color">
                         ${attributesHTML}
                     </p>
-
+                    ${stock}
                     <div class="product-price-row">
                         <span class="current-price">
-                            ₹ ${variant.offeredPrice}
+                            ₹ ${variant.offeredPrice.toLocaleString("en-IN")}
                         </span>
 
                         ${
@@ -461,7 +504,7 @@ function renderProducts(variants, wishlistVariantIds = []) {
                         }
 
                         <span class="old-price">
-                            ₹ ${variant.price}
+                            ₹ ${variant.price.toLocaleString("en-IN")}
                         </span>
                     </div>
                 </div>

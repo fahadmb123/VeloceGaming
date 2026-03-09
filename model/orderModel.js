@@ -14,14 +14,14 @@ const orderItemSchema = mongoose.Schema({
    productImage : {
       type : String
    },
-   attributes : {
+   attributes : [{
       key : {
          type : String,
       },
       value : {
          type : String
       }
-   },
+   }],
    quantity : {
       type : Number
    },
@@ -57,12 +57,28 @@ const orderItemSchema = mongoose.Schema({
       enum : [
          "placed",
          "shipped",
-         "outForDelivary",
+         "ofd",
          "delivered",
          "cancelled",
          "returned"
       ],
       default: "placed"
+   },
+   returnRequest: {
+      reason: {
+         type : String
+      },
+      description: {
+         type : String
+      },
+      status: {
+        type: String,
+        enum: ["pending", "approved", "rejected"],
+        default: null
+      },
+      requestedAt: {
+         type : Date
+      }
    }
 })
 
@@ -153,7 +169,8 @@ orderSchema.pre("save", function(){
 
         const random = Math.floor(1000 + Math.random() * 9000)
 
-        this.orderId = `ORD-${date}-${random}`
+        //this.orderId = `ORD-${date}-${random}`
+        this.orderId = `ORD-${random}`
     }
 })
 

@@ -1,9 +1,9 @@
-const {productModel, variantModel} = require ("../model/productModel.js")
-const categoryModel = require("../model/categoryModel")
-const userProductService = require("../service/userProductService")
-const wishlistModel = require ("../model/wishlistModel.js")
+const {productModel, variantModel} = require ("../../model/productModel.js")
+const categoryModel = require("../../model/categoryModel")
+const userProductService = require("../../service/userProductService")
+const wishlistModel = require ("../../model/wishlistModel.js")
 const { populate } = require("dotenv")
-const cartModel = require("../model/cartModel.js")
+const cartModel = require("../../model/cartModel.js")
 
 
 
@@ -71,7 +71,7 @@ const loadShop = async (req, res) => {
         const sort = req.query.sort || "";
         const page = parseInt(req.query.page) || 1;
 
-        const limit = 10 
+        const limit = 10
         const skip = (page - 1) * limit;
 
         
@@ -177,7 +177,6 @@ if (!cleanedSearch) {
         .sort(sortOption)
         .skip(skip)
         .limit(limit);
-
         variants = variants.map(v => v.toObject());
 
         if (sort === "nameAZ") {
@@ -247,7 +246,12 @@ const loadProduct = async (req,res) => {
 
         const variantId = req.params.id.trim()
 
-        const variant = await variantModel.findOne ({_id:variantId}).populate("productId")
+        const variant = await variantModel.findOne ({_id:variantId}).populate({
+            path : "productId",
+            populate : {
+                path : "categoryId"
+            }
+        })
 
         if (!variant) {
             return res.redirect("/shop")

@@ -1,6 +1,6 @@
-const cartModel = require("../model/cartModel")
-const { variantModel } = require("../model/productModel")
-const userModel = require("../model/userModel")
+const cartModel = require("../../model/cartModel")
+const { variantModel } = require("../../model/productModel")
+const userModel = require("../../model/userModel")
 
 
 
@@ -84,7 +84,7 @@ try {
 
         for (let item of cart.items){
             let variant = item.variantId
-
+            //console.log(!variant || !variant.status || variant.productId.isDeleted || variant.productId.categoryId.isDeleted)
             if (!variant || !variant.status || variant.productId.isDeleted || variant.productId.categoryId.isDeleted){
                 req.flash("error","Some Product Are No Longer Available")
                 return res.redirect("/cart")

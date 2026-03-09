@@ -53,22 +53,23 @@ const addToCart = async (req) => {
             return {failMessage : "Out Of Stock"}
         }
         const variant = await variantModel.findOne({_id:variantObjectId})
-
+        //console.log(variantObjectId)
         const item = await cartModel.findOne({
-            userId : req.session.user._id,
-            "items.variantId" : variantObjectId
+            userId : req.session.user._id
         })
 
-        
+        //console.log(item)
 
-        const existingItem = item.items.find(obj => {
+        const existingItem = item.items?.find(obj => {
             return obj.variantId.toString() === variantObjectId.toString()
         })
 
         console.log()
 
-        if (variant.stock <= existingItem.quantity){
-            return {failMessage : `only ${variant.stock} Stocks`}
+        if (existingItem) {
+            if (variant.stock <= existingItem.quantity){
+                return {failMessage : `only ${variant.stock} Stocks`}
+            }
         }
         
         const result = await cartModel.updateOne(
@@ -206,7 +207,7 @@ const allToCart = async (req) => {
             return {loginRequired : true}
         }
         const userId = req.session.user._id
-        const wishlistItems = await wishlistModel.find({userId:req.session.user._id})
+        const wishlistItems = await wishlistModel.find({userId:req.session.user._id}).populate("variantId")
         
         if (wishlistItems.length === 0){
             return {failMessage : "Products Not Found"}
@@ -216,10 +217,25 @@ const allToCart = async (req) => {
             return variant.variantId
         })
 
+
+        let returnMessage = null
+        for (let variant of variants) {
+            if (variant.stock < 1) {
+                returnMessage = "Some Product Don't Have Much Stock"
+                break;
+            }
+        }
+        if (returnMessage) {
+            return {failMessage:returnMessage}
+        }
+
+
         variants.forEach(variant => {
             async function work() {
                 let variantId = variant._id
                 
+                
+
                 const result = await cartModel.updateOne(
                     {
                         userId,

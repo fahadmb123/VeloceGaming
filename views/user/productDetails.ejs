@@ -41,10 +41,10 @@
         </nav>
 
         <div class="search-bar">
-            <input type="text" id="desktopSearchInput" placeholder="Search for products, brands and more...">
+            <input type="text" id="desktopSearchInput" placeholder="What are you looking for?">
             <div class="search-icons">
                 <i class="fa-solid fa-circle-xmark clear-search" id="clearDesktopSearchBtn"></i>
-                <i class="fa-solid fa-magnifying-glass"></i>
+                <i class="fa-solid fa-magnifying-glass" id="searchIconDesktop"></i>
             </div>
         </div>
 
@@ -84,6 +84,23 @@
             </div>
         </div>
     </div>
+
+    <nav class="breadcrumb">
+        <a href="/">Home</a>
+        <span>/</span>
+
+        <a href="/shop">Shop</a>
+        <span>/</span>
+
+        <a href="/shop?category=<%= variant.productId.categoryId._id %>">
+            <%= variant.productId.categoryId.name %>
+        </a>
+        <span>/</span>
+
+        <span class="product-name" >
+            <%= variant.productId.name %>
+        </span>
+    </nav><br>
 
     <section class="product-main">
         
@@ -285,6 +302,17 @@
     showToast(successMessageElement.innerText,"error");
     }
 
+
+document.getElementById("searchIconDesktop").addEventListener("click", function () {
+
+    const value = document.getElementById("desktopSearchInput").value.trim();
+
+    if (value) {
+        window.location.href = `/shop?search=${encodeURIComponent(value)}`;
+    }
+
+});
+    
 
     
     const searchInputs = document.querySelectorAll('#desktopSearchInput, #shopSearchInput');
