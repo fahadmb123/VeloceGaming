@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+<style>
+
+body{
+font-family: Arial;
+padding:40px;
+}
+
+.header{
+display:flex;
+justify-content:space-between;
+}
+
+.title{
+font-size:28px;
+font-weight:bold;
+}
+
+table{
+width:100%;
+border-collapse:collapse;
+margin-top:30px;
+}
+
+th,td{
+padding:10px;
+border-bottom:1px solid #ddd;
+}
+
+.total{
+font-weight:bold;
+font-size:18px;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="header">
+<h2>VELOCE GAMING</h2>
+<div class="title">INVOICE</div>
+</div>
+
+<p>Order ID : <%= order.orderId %></p>
+<p>Date : <%= new Date(order.createdAt).toLocaleDateString() %></p>
+
+<hr>
+
+<table>
+
+<thead>
+<tr>
+<th>Product</th>
+<th>Qty</th>
+<th>Price</th>
+<th>Total</th>
+</tr>
+</thead>
+
+<tbody>
+
+<tr>
+<td><%= orderItem.productName %></td>
+<td><%= orderItem.quantity %></td>
+<td>₹ <%= orderItem.price %></td>
+<td>₹ <%= orderItem.total %></td>
+</tr>
+
+</tbody>
+
+</table>
+
+<div style="margin-top:30px;text-align:right">
+
+<p>Shipping : ₹ <%= order.shippingCharge %></p>
+
+<p class="total">Grand Total : ₹ <%= orderItem.total %></p>
+
+</div>
+
+<hr>
+
+<p>Payment Method : <%= order.paymentMethod === "cod" ? 'Cash On Delivary' : order.paymentMethod %></p>
+
+</body>
+</html>

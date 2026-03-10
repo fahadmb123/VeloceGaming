@@ -52,6 +52,9 @@ router.get("/orderSuccessPage",isLogged,userOrderController.loadOrderSuccessPage
 
 
 
+router.get("/downloadInvoice",isLogged,userOrderController.downloadInvoice)
+
+
 
 router.get("/shop",userProductController.loadShop)
 

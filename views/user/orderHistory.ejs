@@ -141,7 +141,9 @@
                 </div>
                 <div class="order-actions">
                     <% if (item.status === "delivered") { %>
+                        <a href="/downloadInvoice?orderId=<%= order._id %>&itemId=<%= item._id %>">
                         <button class="btn btn-outline">Download Invoice</button>
+                    </a>
                     <% } %>
                     <button onclick="viewDetails('<%= item._id %>')" class="btn btn-secondary">View Details</button>
                 </div>

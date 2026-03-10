@@ -1,7 +1,9 @@
 const userOrderService = require("../../service/userOrderService")
 const orderModel = require("../../model/orderModel")
 const {z} = require("zod")
-
+const html_to_pdf = require("html-pdf-node")
+const ejs = require("ejs")
+const path = require("path")
 
 const validate = z.object({
     id : z.string().min(1)
@@ -37,11 +39,6 @@ const loadOrderDetails = async (req,res) => {
         }
         const {id} = validated.data
         const order = await orderModel.findOne({"items._id":id})
-        
-        let orderItem = order?.items.find(item => {
-            return item._id.toString() === id.toString()
-        })
-
 
 
         order?.items.forEach (item => {
@@ -55,11 +52,13 @@ const loadOrderDetails = async (req,res) => {
                     parsedColor = { name: colorAttr.value, hex: "#000000" };
                 }
             }
-            orderItem.colorName = parsedColor.name
-            orderItem.colorHex = parsedColor.hex          
+            item.colorName = parsedColor.name
+            item.colorHex = parsedColor.hex          
         })
-        
 
+        let orderItem = order?.items.find(item => {
+            return item._id.toString() === id.toString()
+        })
 
         return res.render("user/orderDetails",{
             order,
@@ -245,6 +244,41 @@ const returnOrder = async (req,res) => {
 }
 
 
+const downloadInvoice = async (req,res)=>{
+    try{
+
+        const {orderId,itemId} = req.query
+
+        const order = await orderModel.findById(orderId)
+
+        const orderItem = order.items.find(
+            item => item._id.toString() === itemId
+        )
+
+        const filePath = path.join(__dirname,"../../views/user/invoice.ejs")
+
+        const html = await ejs.renderFile(filePath,{
+            order,
+            orderItem
+        })
+
+        const options = {format:"A4"}
+
+        const file = {content:html}
+
+        const pdfBuffer = await html_to_pdf.generatePdf(file,options)
+
+        res.setHeader("Content-Type","application/pdf")
+        res.setHeader("Content-Disposition","attachment; filename=invoice.pdf")
+
+        res.send(pdfBuffer)
+
+    }catch(err){
+        console.log(err)
+    }
+}
+
+
 
 
 
@@ -254,5 +288,6 @@ module.exports = {
     loadOrderDetails,
     loadOrderHistory,
     cancelOrder,
-    returnOrder
+    returnOrder,
+    downloadInvoice
 }

@@ -84,9 +84,12 @@
                     class="tracking-id"><%= order.orderId %></span></p>
         </div>
         <div class="header-btns">
+            <% if (orderItem.status === 'delivered') { %>
+            <a style="text-decoration: none;" href="/downloadInvoice?orderId=<%= order._id %>&itemId=<%= orderItem._id %>">
             <button class="btn btn-outline">
                 <i class="fa-solid fa-download"></i> Download Invoice
-            </button>
+            </button></a>
+            <% } %>
             <a style="text-decoration: none;" href="/orderHistory"><button class="btn btn-primary">
                 <i class="fa-solid fa-box"></i> <-- Back To Orders
             </button></a>
@@ -103,28 +106,28 @@
                 <div class="step-icon"><i class="fa-solid fa-box-open"></i></div>
                 <div class="step-info">
                     <span class="step-label">Order Placed</span>
-                    <span class="step-date">Oct 24, 2023</span>
+                    <!-- <span class="step-date">Oct 24, 2023</span>-->
                 </div>
             </div>
             <div class="step <%= (orderItem.status === 'cancelled' || orderItem.status === 'returned') ? '' : statusIndex == 3 ? 'completed' : statusIndex >= 1 ? 'active' : '' %>">
                 <div class="step-icon"><i class="fa-solid fa-truck"></i></div>
                 <div class="step-info">
                     <span class="step-label">Shipped</span>
-                    <span class="step-date">Oct 25, 2023</span>
+                    <!-- <span class="step-date">Oct 25, 2023</span> -->
                 </div>
             </div>
             <div class="step <%= (orderItem.status === 'cancelled' || orderItem.status === 'returned') ? '' : statusIndex == 3 ? 'completed' : statusIndex >= 2 ? 'active' : '' %>">
                 <div class="step-icon"><i class="fa-solid fa-truck-fast"></i></div>
                 <div class="step-info">
                     <span class="step-label">Out For Delivary</span>
-                    <span class="step-date">Oct 26, 2023</span>
+                    <!-- <span class="step-date">Oct 26, 2023</span> -->
                 </div>
             </div>
             <div class="step <%= (orderItem.status === 'cancelled' || orderItem.status === 'returned') ? '' : statusIndex >= 3 ? 'completed' : '' %>">
                 <div class="step-icon"><i class="fa-solid fa-<%= (orderItem.status === 'cancelled' ? 'cancel' : orderItem.status === 'returned' ? 'close' : 'house')%>"></i></div>
                 <div class="step-info">
                     <span class="step-label"><%= (orderItem.status === 'cancelled' ? 'Cancelled' : orderItem.status === 'returned' ? 'Returned' : 'Delivered')%></span>
-                    <span class="step-date">Expected Oct 28</span>
+                    <!-- <span class="step-date">Expected Oct 28</span> -->
                 </div>
             </div>
         </div>
@@ -166,7 +169,7 @@
                     </div>
                 </div>
                 
-                <div class="item-meta">
+                <!-- <div class="item-meta">
                     <div class="meta-box">
                         <div class="meta-icon"><i class="fa-solid fa-box"></i></div>
                         <div class="meta-text">
@@ -181,7 +184,7 @@
                             <p>Saturday, Oct 28, 2023</p>
                         </div>
                     </div>
-                </div>
+                </div> -->
             </div>
 
             <div class="info-columns">
@@ -239,8 +242,11 @@
                             style="font-size: 0.75rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Billing
                             Address</label>
                         <p><-- Same as shipping address</p>
+                        <span class="status-lbl">PAYMENT STATUS</span>
+                                    <span class="badge badge-<%= orderItem.paymentStatus %>-small"><%= orderItem.paymentStatus %></span>
                     </div>
                 </div>
+                
             </div>
         </div>
 
@@ -284,20 +290,25 @@
                 </div>
             </div> -->
 
-            <% if ((statusIndex == 3 || statusIndex < 1) && orderItem.status != "returned" && orderItem.status != "cancelled" ) { %>
+            <% if ((statusIndex == 3 || statusIndex < 1) && orderItem.status != "returned" && orderItem.status != "cancelled" && orderItem?.returnRequest.status != "approved" ) { %>
             <div class="help-card">
                 <% if (orderItem.status === "delivered") { %>
                     <% if (orderItem?.returnRequest.status === "pending") { %>
                 <h3>Requested For Return</h3>
                 <p>Please Wait We Will Update It..</p>
+                    <% } else if (orderItem?.returnRequest.status === "sheduled") { %>
+                <h3>We Have Approved For Return</h3>
+                <p>We will pick up your product at the time ... Don't worry please wait</p>
+                    <% } else if (orderItem?.returnRequest.status === "rejected") { %>
+                <h3>Return Request Rejected </h3>
                     <% } else { %>
-                <h3>Want To Return ?</h3>
-                <p>You can request a return after delivery within the return period, and the refund will be processed after verification.</p>
-                <button class="btn btn-outline" id="openSupportModal"
-                    style="width: 100%; justify-content: center; background: white; border-radius: 12px; padding: 1rem;">
-                    Request Return
-                </button>
-                     <% } %>
+                        <h3>Want To Return ?</h3>
+                        <p>You can request a return after delivery within the return period, and the refund will be processed after verification.</p>
+                        <button class="btn btn-outline" id="openSupportModal"
+                            style="width: 100%; justify-content: center; background: white; border-radius: 12px; padding: 1rem;">
+                            Request Return
+                        </button>
+                    <% } %>
                 <% } else { %>
                 <h3>Want To Cancel ?</h3>
                 <p>You can cancel this order before it is shipped; the refund will be processed after cancellation.</p>

@@ -778,6 +778,61 @@ nav a {
 }
 
 
+.status-lbl {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--text-muted);
+    letter-spacing: 0.5px;
+}
+
+
+.badge-paid-small {
+    background-color: var(--paid-bg);
+    color: var(--paid-text);
+    padding: 2px 8px;
+    border-radius: 100px;
+    font-size: 0.65rem;
+    font-weight: 800;
+    width: fit-content;
+}
+.badge-pending-small {
+    background-color: rgb(241, 184, 110);
+    color: rgb(205, 82, 0);
+    padding: 2px 8px;
+    border-radius: 100px;
+    font-size: 0.65rem;
+    font-weight: 800;
+    width: fit-content;
+}
+.badge-closed-small {
+    background-color:#FFFF00;
+    color: black;
+    padding: 2px 8px;
+    border-radius: 100px;
+    font-size: 0.65rem;
+    font-weight: 800;
+    width: fit-content;
+    
+}
+.badge-failed-small {
+    background-color: #F1F5F9;
+    color:#ff3232;
+    padding: 2px 8px;
+    border-radius: 100px;
+    font-size: 0.65rem;
+    font-weight: 800;
+    width: fit-content;
+}
+.badge-refunded-small {
+    background-color: rgb(139, 255, 139);
+    color: rgb(0, 82, 0);
+    padding: 2px 8px;
+    border-radius: 100px;
+    font-size: 0.65rem;
+    font-weight: 800;
+    width: fit-content;
+}
+
 
 
 

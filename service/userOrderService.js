@@ -17,6 +17,8 @@ const validateBody = z.object({
 
 
 
+
+
 const placeOrder = async (req) => {
     try {
 
@@ -212,7 +214,8 @@ const cancelOrder = async (req) => {
                 $set : {
                     "items.$.cancelReason" : reason,
                     "items.$.cancelDescription" : description,
-                    "items.$.status" : "cancelled"
+                    "items.$.status" : "cancelled",
+                    "items.$.paymentStatus" : "closed"
                 }
             }
         )
@@ -263,6 +266,7 @@ const returnOrder = async (req) => {
         console.log(err)
     }
 }
+
 
 
 

@@ -73,12 +73,26 @@ const orderItemSchema = mongoose.Schema({
       },
       status: {
         type: String,
-        enum: ["pending", "approved", "rejected"],
+        enum: ["pending", "approved", "rejected","sheduled"],
         default: null
       },
       requestedAt: {
          type : Date
+      },
+      pickUpDate : {
+         type : Date
       }
+   },
+   paymentStatus : {
+      type : String,
+      enum : [
+         "pending",
+         "paid",
+         "closed",
+         "failed",
+         "refunded"
+      ],
+      default : "pending"
    }
 })
 

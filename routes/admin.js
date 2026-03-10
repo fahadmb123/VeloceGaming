@@ -3,6 +3,7 @@ const router = express.Router()
 const adminController = require("../controller/admin/adminController")
 const {isLogged,isLoggedOut} = require("../middleware/adminAuth")
 const upload = require("../middleware/multer")
+const orderManagement = require("../controller/admin/orderManagement")
 
 
 
@@ -20,6 +21,11 @@ router.get("/productmanagement",isLogged,adminController.loadProductManagement)
 
 router.get("/productManagement/:id",isLogged,adminController.productManagement)
 
+
+
+router.get("/orderManagement",isLogged,orderManagement.loadOrderManagement)
+
+router.get("/orderDetails",isLogged,orderManagement.loadOrderDetails)
 
 
 
@@ -44,6 +50,12 @@ router.post("/productManagement/add",upload.any(),adminController.addProduct)
 
 router.post("/productManagement/edit/:id",upload.any(),adminController.editProduct)
 
+router.post("/orderManagement/updateOrderStatus",orderManagement.updateOrderStatus)
+
+
+router.post("/orderManagement/returnRequestAccept",orderManagement.returnRequestAccept)
+
+router.post('/orderManagement/rejectReturnRequest',orderManagement.rejectReturnRequest)
 
 
 module.exports = router
