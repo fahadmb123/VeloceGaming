@@ -787,8 +787,8 @@ nav a {
 
 
 .badge-paid-small {
-    background-color: var(--paid-bg);
-    color: var(--paid-text);
+    background-color: rgb(139, 255, 139) ;
+    color: rgb(2, 101, 2);
     padding: 2px 8px;
     border-radius: 100px;
     font-size: 0.65rem;

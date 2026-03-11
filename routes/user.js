@@ -5,7 +5,7 @@ const userProductController = require("../controller/user/userProductController"
 const userCheckoutController = require("../controller/user/userCheckoutController")
 const userOrderController = require("../controller/user/userOrderController")
 const {isLogged,isLoggedOut} = require("../middleware/userAuth")
-const upload = require("../middleware/multer")
+const {uploadSingle} = require("../middleware/multer")
 
 
 
@@ -91,7 +91,7 @@ router.post("/addAddress",userController.addAddress)
 
 router.post("/editAddress",userController.editAddress)
 
-router.post("/profile-upload",upload.single("profileImage"),userController.uploadProfile)
+router.post("/profile-upload",uploadSingle("profileImage"),userController.uploadProfile)
 
 router.post("/profile-remove",userController.removeProfile)
 

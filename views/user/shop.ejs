@@ -387,6 +387,17 @@ document.getElementById("searchBtn").addEventListener("click", function () {
 
     fetchProducts();
 });
+document.getElementById("clearDesktopSearchBtn").addEventListener("click", function () {
+
+    //const desktopValue = document.getElementById("desktopSearchInput").value.trim();
+    //const mobileValue = document.getElementById("shopSearchInput").value.trim();
+
+    currentSearch = ''
+
+    currentPage = 1;
+
+    fetchProducts();
+});
 
 
 

@@ -1,7 +1,9 @@
 <link rel="stylesheet" href="/css/admin/categoryManagement.css">
 
 
-
+<div id="admin-spinner" class="spinner-overlay" style="display:none;">
+    <div class="spinner"></div>
+</div>
 <div class="dashboard-container">
     <!-- Sidebar -->
     <aside class="sidebar">
@@ -322,41 +324,68 @@
     }
 
     function previewCategoryImage(input) {
-        const preview = document.getElementById('catImagePreview');
 
-        if (input.files && input.files[0]) {
+    const preview = document.getElementById('catImagePreview');
 
-            const reader = new FileReader();
+    if (!input.files || !input.files[0]) return;
 
-            reader.onload = function (e) {
+    const file = input.files[0];
 
-            preview.src = e.target.result;
-            preview.style.display = 'block';
+    const allowedTypes = [
+        "image/jpeg",
+        "image/png",
+        "image/webp",
+        "image/jpg"
+    ];
 
-            // VERY IMPORTANT: wait for image to render
-            setTimeout(() => {
+    
+    if (!allowedTypes.includes(file.type)) {
+        showToast("Only JPG, JPEG, PNG, WEBP images allowed", "error");
+        input.value = "";
+        preview.style.display = "none";
+        return;
+    }
 
-                if (cropper) {
-                    cropper.destroy();
-                }
+    
+    if (file.size > 2 * 1024 * 1024) {
+        showToast("Image must be less than 2MB", "error");
+        input.value = "";
+        preview.style.display = "none";
+        return;
+    }
 
-                cropper = new Cropper(preview, {
-                        viewMode: 1,            // restrict crop area
-                        dragMode: 'move',       // move image inside crop
-                        aspectRatio: 1,         // square crop
-                        cropBoxResizable: false, // fix crop box size
-                        cropBoxMovable: false,   // crop box doesn't move
-                        zoomable: true,          // allow zoom
-                        background: true,        // gray overlay outside
-                        guides: true             // show grid
-                    })
+    const reader = new FileReader();
 
-            }, 100); // small delay fixes modal rendering issue
-        };
+    reader.onload = function (e) {
 
-        reader.readAsDataURL(input.files[0]);
-        } 
-    } 
+        preview.src = e.target.result;
+        preview.style.display = "block";
+
+        setTimeout(() => {
+
+            if (cropper) {
+                cropper.destroy();
+            }
+
+            cropper = new Cropper(preview, {
+                viewMode: 1,
+                dragMode: 'move',
+                aspectRatio: 1,
+                cropBoxResizable: false,
+                cropBoxMovable: false,
+                zoomable: true,
+                background: true,
+                guides: true
+            });
+
+        }, 100);
+
+    };
+
+    reader.readAsDataURL(file);
+}
+
+
 
     window.onclick = function (event) {
         if (event.target == modal) {
@@ -462,6 +491,9 @@
         formData.append("categoryImage", blob, "cropped.jpg");
         }
 
+        const spinner = document.getElementById("admin-spinner");
+        spinner.style.display = "flex"
+
         try {
 
             const url = currentMode === "add"
@@ -472,6 +504,7 @@
                 method: "POST",
                 body: formData
             });
+            spinner.style.display = "none";
 
             const data = await response.json();
 

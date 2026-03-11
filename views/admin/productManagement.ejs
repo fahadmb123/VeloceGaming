@@ -626,26 +626,52 @@ let isEditing = false;
 let currentEditingBox = null;
 
 function handleNewPhoto(input) {
-    if (input.files && input.files[0]) {
-        const gallery = input.closest('.photo-gallery');
-        const photoCount = gallery.querySelectorAll('.photo-upload-box').length;
 
-        if (photoCount >= 6) {
-            alert('Maximum 6 photos allowed.');
-            input.value = '';
-            return;
-        }
+    if (!input.files || !input.files[0]) return;
 
-        isEditing = false;
-        currentPhotoBox = input.closest('.photo-add-box');
+    const file = input.files[0];
 
-        const reader = new FileReader();
-        reader.onload = function (e) {
-            openCropModal(e.target.result);
-        }
-        reader.readAsDataURL(input.files[0]);
-        input.value = '';
+    const allowedTypes = [
+        "image/jpeg",
+        "image/png",
+        "image/webp",
+        "image/jpg"
+    ];
+
+    
+    if (!allowedTypes.includes(file.type)) {
+        showToast("Only JPG, JPEG, PNG, WEBP images allowed", "error");
+        input.value = "";
+        return;
     }
+
+    
+    if (file.size > 3 * 1024 * 1024) {
+        showToast("Image must be less than 3MB", "error");
+        input.value = "";
+        return;
+    }
+
+    const gallery = input.closest('.photo-gallery');
+    const photoCount = gallery.querySelectorAll('.photo-upload-box').length;
+
+    if (photoCount >= 6) {
+        showToast("Maximum 6 photos allowed", "error");
+        input.value = '';
+        return;
+    }
+
+    isEditing = false;
+    currentPhotoBox = input.closest('.photo-add-box');
+
+    const reader = new FileReader();
+
+    reader.onload = function (e) {
+        openCropModal(e.target.result);
+    }
+
+    reader.readAsDataURL(file);
+    input.value = '';
 }
 
 function handleEditPhoto(box) {

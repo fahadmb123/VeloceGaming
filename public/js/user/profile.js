@@ -157,40 +157,43 @@ function togglePassword(inputId, el) {
         document.getElementById('modalOverlay').addEventListener('click', closeModal);
 
         function handleFile(file) {
-            if (file && file.type.startsWith('image/')) {
+            const allowedTypes = ["image/jpeg", "image/png", "image/webp", "image/jpg"];
 
-                if (file.size > 2* 1024 * 1024) {
-                    alert ("Image Must Lest Than 2MB")
-                    return
-                }
+            if (!file) return;
 
+            if (!allowedTypes.includes(file.type)) {
+                showToast("Only JPG, JPEG, PNG, and WEBP images are allowed!","error")
+                fileInput.value = ""; // reset the input
+                return;
+            }
 
-                const reader = new FileReader();
-                reader.onload = (e) => {
-                    previewImg.src = e.target.result;
-                    previewContainer.classList.add('active');
-                    dropZone.style.display = 'none';
-                    confirmBtn.disabled = false;
+            if (file.size > 2 * 1024 * 1024) {
+                showToast("Image must be less than 2MB","error")
+                fileInput.value = ""; // reset the input
+                return;
+            }
 
-                    if (cropper) {
-                        cropper.destroy();
-                    }
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                previewImg.src = e.target.result;
+                previewContainer.classList.add('active');
+                dropZone.style.display = 'none';
+                confirmBtn.disabled = false;
 
-                    cropper = new Cropper(previewImg, {
+                if (cropper) cropper.destroy();
+
+                cropper = new Cropper(previewImg, {
                     aspectRatio: 1,
                     viewMode: 1,
-                    dragMode: "move",        // move image instead of crop box
+                    dragMode: "move",
                     cropBoxResizable: false, 
                     cropBoxMovable: false,
                     zoomable: true,
                     scalable: false,
                     responsive: true
-                    });
-                };
-
-
-                reader.readAsDataURL(file);
+                })
             }
+            reader.readAsDataURL(file)
         }
 
         fileInput.addEventListener('change', (e) => handleFile(e.target.files[0]));
@@ -212,6 +215,8 @@ function togglePassword(inputId, el) {
             
             /*avatarDisplay.innerHTML = `<img src="${previewImg.src}" style="width:100%; height:100%; object-fit:cover; border-radius:50%;">`;
             closeModal();*/
+            const spinner = document.getElementById("admin-spinner");
+            spinner.style.display = "flex"
             if (!cropper ) return 
 
             const canvas = cropper.getCroppedCanvas({
@@ -234,6 +239,7 @@ function togglePassword(inputId, el) {
                 method: "post",
                 body : formData
             })
+            spinner.style.display = "none"
             const data = await response.json()
 
 
@@ -264,15 +270,34 @@ function togglePassword(inputId, el) {
             });
         }
 
-        function showToast(message, type = "success") {
-    const toast = document.getElementById("toast");
-    const toastMessage = document.getElementById("toast-message");
 
-    toastMessage.textContent = message;
 
-    toast.className = "toast show " + type;
+
+function showToast(message, type = "success") {
+
+    const toast = document.createElement("div");
+    toast.innerText = message;
+
+    toast.style.position = "fixed";
+    toast.style.top = "20px";
+    toast.style.right = "20px";
+    toast.style.padding = "12px 20px";
+    toast.style.borderRadius = "6px";
+    toast.style.color = "white";
+    toast.style.zIndex = "9999";
+    toast.style.fontWeight = "500";
+    toast.style.boxShadow = "0 5px 15px rgba(0,0,0,0.2)";
+    toast.style.transition = "all 0.3s ease";
+
+    if (type === "success") {
+        toast.style.backgroundColor = "#28a745";
+    } else {
+        toast.style.backgroundColor = "#dc3545";
+    }
+
+    document.body.appendChild(toast);
 
     setTimeout(() => {
-        toast.classList.remove("show");
+        toast.remove();
     }, 3000);
 }
