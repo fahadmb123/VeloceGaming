@@ -60,7 +60,7 @@ const addToCart = async (req) => {
 
         //console.log(item)
 
-        const existingItem = item.items?.find(obj => {
+        const existingItem = item?.items?.find(obj => {
             return obj.variantId.toString() === variantObjectId.toString()
         })
 
@@ -96,7 +96,7 @@ const addToCart = async (req) => {
                 { upsert: true }
             )
         }
-        await wishlistModel.deleteOne({userId})
+        await wishlistModel.deleteOne({variantId:variantObjectId})
     
 
         return { message: "Cart Updated Successfully" }

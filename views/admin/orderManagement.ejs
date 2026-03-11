@@ -89,22 +89,27 @@
         <section class="content-card">
             <div class="table-controls">
                 <div class="search-box">
+                    <form action="/admin/orderManagement" method="GET">
+                        <input type="hidden" name="filter" value="<%= filter %>">
                     <div class="search-content">
                         <div class="search-wrapper">
                             <i class="fa-solid fa-magnifying-glass search-icon"></i>
-                            <input type="text" id="orderSearchInput" placeholder="Search..." autocomplete="off">
+                            <input name="search" value="<%= search %>" type="text" id="orderSearchInput" placeholder="Search..." autocomplete="off">
                             <i class="fa-solid fa-xmark clear-icon" id="clearSearch" style="display: none;"></i>
                         </div>
                         <button type="submit" class="search-btn">Search</button>
                     </div>
+                    </form>
                 </div>
 
                 <div class="filter-box">
-                    <select class="filter-select">
-                        <option>Filter : Status</option>
-                        <option value="all">All</option>
-                        <option value="arriving">Arriving</option>
-                        <option value="delivered">Delivered</option>
+                    <select onchange="window.location.href='/admin/orderManagement?filter=' + this.value + '&search=<%= search %>'" class="filter-select">
+                        <option value="all" <%= filter === 'all' ? 'selected' : '' %>>All Status</option>
+                        <option  value="placed" <%= filter === 'placed' ? 'selected' : '' %>>placed</option>
+                        <option  value="ofd" <%= filter === 'ofd' ? 'selected' : '' %>>Out For Delivary</option>
+                        <option  value="delivered" <%= filter === 'delivered' ? 'selected' : '' %>>Delivered</option>
+                        <option  value="cancelled" <%= filter === 'cancelled' ? 'selected' : '' %>>Cancelled</option>
+                        <option  value="returned" <%= filter === 'returned' ? 'selected' : '' %>>Returned</option>
                     </select>
                 </div>
             </div>
@@ -168,11 +173,63 @@
             </div>
 
             <div class="pagination">
-                <button class="page-arrow"><i class="fa-solid fa-chevron-left"></i></button>
-                <button class="page-num active">1</button>
-                <button class="page-num">2</button>
-                <button class="page-num">3</button>
-                <button class="page-arrow"><i class="fa-solid fa-chevron-right"></i></button>
+                <div class="pagination">
+
+                        <% if (currentPage > 1) { %>
+                            <a style="text-decoration: none;" href="/admin/orderManagement?page=<%= currentPage - 1 %>
+
+                                <% if (typeof search !== 'undefined') { %>&search=<%= search %><% } %>
+                                <% if (typeof filter !== 'undefined') { %>&filter=<%= filter %><% } %>">
+
+                                <button class="page-arrow">
+                                    <i class="fa-solid fa-chevron-left"></i>
+                                </button>
+
+                            </a>
+                        <% } %>
+
+                        <%
+                            const visiblePages = 3
+                            let start = currentPage
+                            let end = currentPage + visiblePages - 1
+
+                            if (end > totalPages) {
+                                end = totalPages
+                                start = Math.max(1, totalPages - visiblePages + 1)
+                            }
+                        %>
+
+
+                        <% for(let i = start; i <= end; i++) { %>
+                            <a style="text-decoration: none;"  href="/admin/orderManagement?page=<%= i %>
+
+                                <% if (typeof search !== 'undefined') { %>&search=<%= search %><% } %>
+                                <% if (typeof filter !== 'undefined') { %>&filter=<%= filter %><% } %>">
+
+                                <button class="page-num <%= currentPage === i ? 'active' : '' %>">
+                                    <%= i %>
+                                </button>
+                            </a>
+                        <% } %>
+
+
+                        <% if (end < totalPages) { %>
+                            <span>...</span>
+                        <% } %>
+
+
+                        <% if (currentPage < totalPages) { %>
+                            <a style="text-decoration: none;" href="/admin/orderManagement?page=<%= currentPage + 1 %>
+
+                                <% if (typeof search !== 'undefined') { %>&search=<%= search %><% } %>
+                                <% if (typeof filter !== 'undefined') { %>&filter=<%= filter %><% } %>">
+
+                                <button class="page-arrow">
+                                    <i class="fa-solid fa-chevron-right"></i>
+                                </button>
+                            </a>
+                        <% } %>
+                    </div>    
             </div>
         </section>
     </main>
@@ -238,8 +295,25 @@
                 orderSearchInput.value = '';
                 clearSearch.style.display = 'none';
                 orderSearchInput.focus();
+                window.location.href = "/admin/orderManagement?filter=<%= filter %>"
             });
         }
+        orderSearchInput.addEventListener("input", () => {
+            clearSearch.style.display = orderSearchInput.value ? "block" : "none";
+        });
+        if (orderSearchInput.value.trim() !== "") {
+            clearSearch.style.display = "block";
+        }
+        orderSearchInput.addEventListener("input", () => {
+            clearSearch.style.display = orderSearchInput.value.trim() !== "" ? "block" : "none";
+        })
+
+        clearSearch.addEventListener("click", () => {
+            searchInput.value = "";
+            clearSearch.style.display = "none";
+            searchInput.focus();
+            window.location.href = "/admin/orderManagement?filter=<%= filter %>"
+        })
     });
 
 

@@ -29,7 +29,39 @@ const loadOrderManagement = async (req,res) => {
             return res.redirect ("/admin/login")
         }
 
-        const orders = await orderModel.find()
+        let page = parseInt(req.query.page) || 1
+        let limit = 10
+        let skip = (page - 1) * limit
+
+        let filter = {}
+
+        let search = req.query.search || ""
+        let inputSearch = search.trim()
+        let statusFilter = req.query.filter || "all"
+
+        if (inputSearch) {
+            filter.$or = [ 
+                {orderId : {
+                    $regex: inputSearch, $options: "i"
+                }},
+                {"shippingAddress.fullName":{
+                    $regex: inputSearch, $options: "i"
+                }}
+            ]  
+        }
+
+        if (statusFilter !== "all") {
+            filter["items.status"] = statusFilter
+        }
+
+        const orders = await orderModel.find(filter)
+        .sort({_id:-1})
+        .skip(skip)
+        .limit(limit)
+
+        const totalOrder = await orderModel.countDocuments(filter)
+        const totalPages = Math.ceil(totalOrder / limit)
+
 
         let notifications = []
         let notificationsCount = 0
@@ -61,7 +93,11 @@ const loadOrderManagement = async (req,res) => {
         return res.render("admin/orderManagement",{
             orders,
             notifications,
-            notificationsCount
+            notificationsCount,
+            totalPages,
+            currentPage: page,
+            search:inputSearch,
+            filter: statusFilter
         })
 
     } catch (err) {

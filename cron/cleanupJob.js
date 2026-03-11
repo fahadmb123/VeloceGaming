@@ -40,7 +40,7 @@ cron.schedule("*/5 * * * *",async () => {
                     })
 
                     if (variant && variant.status && !variant.productId.isDeleted && !variant.productId.categoryId.isDeleted){
-                        validItems.push(item)
+                        validItems.unshift(item)
                     }
                 }
                 cart.items = validItems
