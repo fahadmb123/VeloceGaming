@@ -203,6 +203,7 @@
 </span>
 <% } %>
 
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 <script>
 
 
@@ -256,6 +257,12 @@
         if (data.loginRequired) {
             window.location.href = "/login"
         }
+
+        if (data.razorpay){
+            openRazorpay(data)
+            return
+        }
+
         if (!data.success) {
             showToast(data.message,"error")
         }
@@ -265,6 +272,48 @@
         }
 
     }
+
+
+
+function openRazorpay(data){
+
+    const options = {
+        key: data.key,
+        amount: data.order.amount,
+        currency: "INR",
+        name: "Veloce Gaming",
+        description: "Order Payment",
+        order_id: data.order.id,
+
+        handler: async function (response){
+
+            const verify = await fetch("/verifyRazorpayPayment",{
+                method:"POST",
+                headers:{
+                    "Content-Type":"application/json"
+                },
+                body:JSON.stringify(response)
+            })
+
+            const result = await verify.json()
+
+            if(result.success){
+                window.location.href = `/orderSuccessPage?id=${result.orderObjectId}`
+            }else{
+                showToast("Payment Failed","error")
+            }
+        }
+    }
+
+    const rzp = new Razorpay(options)
+    rzp.open()
+    rzp.on("payment.success", function (response) {
+        console.log(response.error);
+        alert("Payment failed");
+    });
+}
+
+
 
 
 

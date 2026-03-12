@@ -4,7 +4,8 @@ const {z} = require("zod")
 const html_to_pdf = require("html-pdf-node")
 const ejs = require("ejs")
 const path = require("path")
-
+const razorpay = require("../../helpers/razorpay")
+const crypto = require("crypto")
 const validate = z.object({
     id : z.string().min(1)
 })
@@ -144,12 +145,70 @@ const loadOrderHistory = async (req,res) => {
 
 
 
+
+
+const verifyRazorpayPayment = async (req,res)=>{
+    try{
+
+        const {
+            razorpay_order_id,
+            razorpay_payment_id,
+            razorpay_signature
+        } = req.body
+
+        const body = razorpay_order_id + "|" + razorpay_payment_id
+
+        const expectedSignature = crypto
+        .createHmac("sha256", process.env.RAZORPAY_KEY_SECRET)
+        .update(body)
+        .digest("hex")
+
+        if(expectedSignature === razorpay_signature){
+
+            const {orderObjectId} = await userOrderService.placeOrder(req)
+
+            res.json({
+                success:true,
+                orderObjectId
+            })
+
+        }else{
+            res.json({
+                success:false
+            })
+        }
+
+    }catch(err){
+        console.log(err)
+    }
+}
+
 const placeOrder = async (req,res) => {
     try {
 
         if (!req.session.user){
             return res.json ({
                 loginRequired : true
+            })
+        }
+        const {paymentMethod} = req.body
+
+        if(paymentMethod === "Razorpay"){
+
+            const {amount} = await userOrderService.calculateAmount(req)
+
+            const options = {
+                amount: Math.round(amount * 100),
+                currency: "INR",
+                receipt: "receipt_" + Date.now()
+            }
+
+            const razorpayOrder = await razorpay.orders.create(options)
+
+            return res.json({
+                razorpay : true,
+                key : process.env.RAZORPAY_KEY_ID,
+                order : razorpayOrder
             })
         }
 
@@ -282,6 +341,8 @@ const downloadInvoice = async (req,res)=>{
 
 
 
+
+
 module.exports = {
     placeOrder,
     loadOrderSuccessPage,
@@ -289,5 +350,6 @@ module.exports = {
     loadOrderHistory,
     cancelOrder,
     returnOrder,
-    downloadInvoice
+    downloadInvoice,
+    verifyRazorpayPayment
 }

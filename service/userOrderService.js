@@ -15,6 +15,33 @@ const validateBody = z.object({
 
 
 
+const calculateAmount = async (req) => {
+
+    const variantId = req.query.variantId
+    const quantity = parseInt(req.query.quantity)
+
+    if (variantId){
+
+        const variant = await variantModel.findById(variantId)
+
+        const total = quantity * variant.offeredPrice
+
+        return {amount:total}
+    }
+
+    const cart = await cartModel.findOne({userId:req.session.user._id})
+        .populate("items.variantId")
+
+    let subtotal = 0
+
+    cart.items.forEach(item=>{
+        subtotal += item.quantity * item.variantId.offeredPrice
+    })
+
+    return {amount: subtotal}
+}
+
+
 
 
 
@@ -204,7 +231,7 @@ const cancelOrder = async (req) => {
             return item._id.toString() === orderItemId.toString()
         })
 
-        if (!orderItem.status === 'placed') {
+        if (orderItem.status !== 'placed') {
             return {placedRequired : true}
         }
 
@@ -273,5 +300,6 @@ const returnOrder = async (req) => {
 module.exports = {
     placeOrder,
     cancelOrder,
-    returnOrder
+    returnOrder,
+    calculateAmount
 }

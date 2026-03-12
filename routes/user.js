@@ -107,6 +107,7 @@ router.post("/wishlist/allToCart",userProductController.allToCart)
 
 router.post("/placeOrder",userOrderController.placeOrder)
 
+router.post("/verifyRazorpayPayment", userOrderController.verifyRazorpayPayment)
 
 
 router.post("/orderDetails/cancel",userOrderController.cancelOrder)

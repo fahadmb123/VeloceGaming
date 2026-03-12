@@ -253,6 +253,8 @@ const loadProduct = async (req,res) => {
             }
         })
 
+        //const relatedVariants = await variantModel.find({productId:variant.productId._id})
+
         if (!variant) {
             return res.redirect("/shop")
         }
@@ -269,11 +271,17 @@ const loadProduct = async (req,res) => {
         }
 
 
-        const productVariants = await variantModel.find({productId:variant.productId._id})
+        const relatedVariants = await variantModel.find({productId:variant.productId._id}).
+        populate({
+            path : "productId",
+            populate : {
+                path : "categoryId"
+            }
+        })
 
         let colorVariants = []
 
-        productVariants.forEach( (obj,index) => {
+        relatedVariants.forEach( (obj,index) => {
             const colorAttr = obj.attributes.find(a => a.key === "color");
 
             let parsedColor = {name : "" , hex: "#000000"}
@@ -290,7 +298,6 @@ const loadProduct = async (req,res) => {
                 colorHex : parsedColor.hex,
                 variantId : obj._id
             })
-
         })
 
         const colorAttr = variant.attributes.find(a => a.key === "color");
@@ -316,7 +323,8 @@ const loadProduct = async (req,res) => {
         return res.render("user/productDetails",{
             variant,
             colorVariants,
-            wishlistVariant
+            wishlistVariant,
+            relatedVariants
         })
     } catch (err) {
         console.log(err)
