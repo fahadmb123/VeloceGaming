@@ -86,7 +86,7 @@
         <div class="order-card">
             
             <% orders.forEach ((order,index) => { %>
-                <% order.items.forEach ((item,index) => { %>
+                <% let item = order.item %>
             <div class="order-card-header">
                 <div class="header-info">
                     <div class="info-block">
@@ -148,7 +148,7 @@
                     <button onclick="viewDetails('<%= item._id %>')" class="btn btn-secondary">View Details</button>
                 </div>
             </div>
-            <% }) %>
+            
             <% }) %>
         </div>
         <% } else { %>

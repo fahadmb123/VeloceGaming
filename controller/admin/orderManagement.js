@@ -55,19 +55,37 @@ const loadOrderManagement = async (req,res) => {
         }
 
         const orders = await orderModel.find(filter)
-        .sort({_id:-1})
-        .skip(skip)
-        .limit(limit)
+        
+        let orderItems = []
 
-        const totalOrder = await orderModel.countDocuments(filter)
-        const totalPages = Math.ceil(totalOrder / limit)
+        
 
+        /*const totalOrder = await orderModel.countDocuments(filter)
+        const totalPages = Math.ceil(totalOrder / limit)*/
+
+        orders?.forEach ((order,index) => {
+            order?.items.forEach(item=>{
+                if(statusFilter !== "all" && item.status !== statusFilter){
+                    return
+                }
+                orderItems.push({
+                    _id : order._id,
+                    paymentMethod : order.paymentMethod ,
+                    orderId : order.orderId,
+                    showOrderId : order.orderId,
+                    item : item,
+                    shippingAddress : order.shippingAddress,
+                    createdAt : order.createdAt
+                })
+            })
+        })
 
         let notifications = []
         let notificationsCount = 0
         
         orders.forEach((order,index)=>{
             order.items.forEach((item,index)=>{
+                
                 if (item?.returnRequest?.status !== "pending") {
                     return
                 }
@@ -87,11 +105,14 @@ const loadOrderManagement = async (req,res) => {
             })
         })
 
+        const totalOrder = orderItems.length
+        const totalPages = Math.ceil(totalOrder / limit)
 
+        let paginatedItems = orderItems.slice(skip, skip + limit)
 
 
         return res.render("admin/orderManagement",{
-            orders,
+            orders : paginatedItems,
             notifications,
             notificationsCount,
             totalPages,
@@ -104,6 +125,8 @@ const loadOrderManagement = async (req,res) => {
         console.log(err)
     }
 }
+
+
 
 const loadOrderDetails = async (req,res) => {
     try {

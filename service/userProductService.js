@@ -274,7 +274,6 @@ const allToCart = async (req) => {
 
 
 
-
 module.exports = {
     wishlistToggle,
     addToCart,

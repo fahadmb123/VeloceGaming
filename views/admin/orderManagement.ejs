@@ -131,7 +131,7 @@
                     <tbody>
                         <% if (orders.length != 0) { 
                             orders.forEach ( (order,index) => { 
-                                order?.items.forEach ( (item,index) => { %>
+                                let item = order.item %>
                         <tr>
                             <td class="order-id"><%= order.orderId %></td>
                             <td class="order-id"><%= item.productName.substring(0,20) %>...</td>
@@ -160,7 +160,7 @@
                                 </div>
                             </td>
                         </tr>
-                        <% }) 
+                        <% 
                            }) 
                          } %>
                     </tbody>

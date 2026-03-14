@@ -104,33 +104,50 @@ const loadOrderHistory = async (req,res) => {
         filter.userId = req.session.user._id
 
         const orders = await orderModel.find(filter)
-        .sort({_id:-1})
-        .skip(skip)
-        .limit(limit)
+        
+        let orderItems = []
 
-        const totalOrder = await orderModel.countDocuments(filter)
-        const totalPages = Math.ceil(totalOrder / limit)
+        orders?.forEach ((order,index) => {
+            order?.items.forEach(item=>{
+                if(statusFilter !== "all" && item.status !== statusFilter){
+                    return
+                }
 
-        orders.forEach(order => {
-            order?.items.forEach(item => {
-                const colorAttr = item.attributes?.find(a => a.key === "color");
+                const colorAttr = item.attributes?.find(a => a.key === "color")
 
-                let parsedColor = { name: "", hex: "#000000" };
+                let parsedColor = { name: "", hex: "#000000" }
 
                 if (colorAttr && colorAttr.value) {
                     try {
-                        parsedColor = JSON.parse(colorAttr.value);
+                        parsedColor = JSON.parse(colorAttr.value)
                     } catch {
-                        parsedColor = { name: colorAttr.value, hex: "#000000" };
+                        parsedColor = { name: colorAttr.value, hex: "#000000" }
                     }
                 }
 
                 item.colorName = parsedColor.name
                 item.colorHex = parsedColor.hex
+                orderItems.push({
+                    _id : order._id,
+                    paymentMethod : order.paymentMethod ,
+                    orderId : order.orderId,
+                    showOrderId : order.orderId,
+                    item : item,
+                    shippingAddress : order.shippingAddress,
+                    createdAt : order.createdAt
+                })
             })
         })
+        
+
+        
+        const totalOrder = orderItems.length
+        const totalPages = Math.ceil(totalOrder / limit)
+
+        let paginatedItems = orderItems.slice(skip, skip + limit)
+
         return res.render("user/orderHistory",{
-            orders,
+            orders:paginatedItems,
             totalPages,
             currentPage: page,
             search:inputSearch,
