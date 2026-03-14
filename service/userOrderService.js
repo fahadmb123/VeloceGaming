@@ -230,7 +230,7 @@ const cancelOrder = async (req) => {
         const orderItem = items.find( item => {
             return item._id.toString() === orderItemId.toString()
         })
-
+    
         if (orderItem.status !== 'placed') {
             return {placedRequired : true}
         }
@@ -246,6 +246,7 @@ const cancelOrder = async (req) => {
                 }
             }
         )
+        
 
         return {message : "Product Cancelled"}
 

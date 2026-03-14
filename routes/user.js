@@ -4,6 +4,7 @@ const userController = require("../controller/user/userController")
 const userProductController = require("../controller/user/userProductController")
 const userCheckoutController = require("../controller/user/userCheckoutController")
 const userOrderController = require("../controller/user/userOrderController")
+const walletController = require("../controller/user/walletController")
 const {isLogged,isLoggedOut} = require("../middleware/userAuth")
 const {uploadSingle} = require("../middleware/multer")
 
@@ -50,6 +51,8 @@ router.get("/checkout",isLogged,userCheckoutController.loadCheckout)
 
 router.get("/orderSuccessPage",isLogged,userOrderController.loadOrderSuccessPage)
 
+
+router.get("/wallet",isLogged,walletController.loadWallet)
 
 
 router.get("/downloadInvoice",isLogged,userOrderController.downloadInvoice)

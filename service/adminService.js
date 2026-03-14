@@ -279,7 +279,7 @@ const addProduct = async (req) => {
 }
 
 
-const editProduct = async (req) => {
+/*const editProduct = async (req) => {
     try {
 
         const productId = req.params.id
@@ -404,19 +404,161 @@ const editProduct = async (req) => {
             });
         }
 
-        /*let count = await variantModel.countDocuments({productId:productId})
-        await productModel.updateOne(
-            {_id:productId},
-            {
-                $set : {
-                    variantCount : count
-                }
-            }
-        )
-*/
+        
 
         
         return {success : true,message: "Updated"}
+
+    } catch (err) {
+        console.log(err)
+    }
+}*/
+
+const editProduct = async (req) => {
+    try {
+
+        const productId = req.params.id
+
+        const {
+            name,
+            category,
+            offer,
+            homepage,
+        } = req.body
+
+        const variants = JSON.parse(req.body.variants)
+        const highlights = JSON.parse(req.body.highlights)
+        const services = JSON.parse(req.body.services)
+        const details = JSON.parse(req.body.details)
+
+        let isExist = await productModel.findOne({ _id: productId })
+
+        if (!isExist) {
+            return { failMessage: "The Product Doesn't Exist" }
+        }
+
+        let nameExist = await productModel.findOne({ name })
+
+        if (nameExist && nameExist.name != isExist.name) {
+            return { failMessage: "The Name With The Product Already Exist" }
+        }
+
+        let productCategory = await categoryModel.findOne({ _id: category })
+
+        if (!productCategory) {
+            return { failMessage: "Selected Category Is Not Found" }
+        }
+
+        let slug = await generateSlug(name)
+
+        await productModel.updateOne(
+            { _id: productId },
+            {
+                $set: {
+                    name,
+                    slug,
+                    details,
+                    offer,
+                    highlights,
+                    services,
+                    homepage,
+                    categoryId: productCategory._id
+                }
+            }
+        )
+
+
+        for (let i = 0; i < variants.length; i++) {
+
+            let variant = variants[i]
+
+            let finalImages = []
+            let finalImagesId = []
+
+            if (variant.existingImages && variant.existingImages.length > 0) {
+                for (let img of variant.existingImages) {
+                    finalImages.push(img.url)
+                    finalImagesId.push(img.public_id)
+                }
+            }
+
+            if (req.files && req.files.length > 0) {
+
+                for (let file of req.files) {
+
+                    const field = file.fieldname
+                    let index = field.split("_")[1]
+
+                    if (parseInt(index) === i) {
+
+                        const result = await cloudinary.uploader.upload(file.path, {
+                            folder: "product-variant-images",
+                        })
+
+                        finalImages.push(result.secure_url)
+                        finalImagesId.push(result.public_id)
+
+                        fs.unlinkSync(file.path)
+                    }
+                }
+            }
+
+            let offeredPrice
+
+            if (!offer) {
+                offeredPrice = variant.price
+            } else {
+                offeredPrice = variant.price * (1 - offer / 100)
+            }
+
+
+            // UPDATE EXISTING VARIANT
+            if (variant._id) {
+
+                await variantModel.updateOne(
+                    { _id: variant._id },
+                    {
+                        $set: {
+                            price: variant.price,
+                            stock: variant.stock,
+                            images: finalImages,
+                            imagesId: finalImagesId,
+                            status: variant.status,
+                            offeredPrice: offeredPrice,
+                            attributes: [
+                                { key: "ram", value: variant.ram },
+                                { key: "rom", value: variant.rom },
+                                { key: "color", value: variant.color },
+                            ],
+                        }
+                    }
+                )
+
+            }
+
+            // CREATE NEW VARIANT
+            else {
+
+                await variantModel.create({
+                    productId,
+                    price: variant.price,
+                    stock: variant.stock,
+                    images: finalImages,
+                    imagesId: finalImagesId,
+                    status: variant.status,
+                    offeredPrice: offeredPrice,
+                    attributes: [
+                        { key: "ram", value: variant.ram },
+                        { key: "rom", value: variant.rom },
+                        { key: "color", value: variant.color },
+                    ],
+                })
+
+            }
+
+        }
+
+        return { success: true, message: "Updated" }
 
     } catch (err) {
         console.log(err)

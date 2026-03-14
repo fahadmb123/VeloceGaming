@@ -1,0 +1,363 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+:root {
+    --primary-color: #FF0000;
+    --primary-hover: #CC0000;
+    --text-main: #1A1A1A;
+    --text-muted: #64748B;
+    --bg-light: #F9FAFB;
+    --border-color: #E2E8F0;
+    --white: #FFFFFF;
+    --card-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Inter', sans-serif;
+}
+
+body {
+    background-color: var(--white);
+    color: var(--text-main);
+    line-height: 1.5;
+    padding-bottom: 80px;
+}
+
+/* Header Styles */
+header {
+    background: var(--white);
+    border-bottom: 1px solid var(--border-color);
+    padding: 0.8rem 0;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+.header-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    padding: 0 2rem;
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-right: 60px;
+}
+
+.logo-icon {
+    width: 28px;
+    height: 28px;
+    background-color: var(--primary-color);
+    border-radius: 50%;
+    color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 14px;
+}
+
+.logo-text {
+    display: flex;
+    flex-direction: column;
+    line-height: 1.1;
+}
+
+.brand {
+    font-weight: 800;
+    color: var(--primary-color);
+    font-size: 14px;
+}
+
+.sub-brand {
+    font-size: 10px;
+    color: #000;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+}
+
+nav {
+    display: flex;
+    align-items: center;
+    gap: 32px;
+    margin-right: auto;
+}
+
+nav a {
+    text-decoration: none;
+    color: var(--text-main);
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.header-icons {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+}
+
+.header-icons a {
+    color: var(--text-main);
+    font-size: 20px;
+}
+
+.profile-circle {
+    width: 35px;
+    height: 35px;
+    background-color: #D64545;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: white;
+}
+
+/* Layout */
+.container {
+    max-width: 1200px;
+    margin: 3.5rem auto;
+    padding: 0 2rem;
+    display: flex;
+    gap: 4rem;
+    align-items: flex-start;
+}
+
+/* Sidebar */
+.profile-sidebar {
+    width: 250px;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.profile-header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 2rem;
+}
+
+.user-avatar {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    background-color: var(--primary-color);
+    margin-bottom: 1rem;
+}
+
+.user-name {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--text-main);
+}
+
+.profile-nav {
+    list-style: none;
+    width: 100%;
+    margin-bottom: 2rem;
+}
+
+.profile-nav li {
+    margin-bottom: 0.5rem;
+}
+
+.profile-nav a {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 0.75rem 1rem;
+    color: var(--text-muted);
+    text-decoration: none;
+    font-weight: 500;
+    border-radius: 8px;
+    transition: all 0.2s;
+}
+
+.profile-nav a:hover, .profile-nav li.active a {
+    color: var(--text-main);
+}
+
+.profile-nav li.active a {
+    background-color: #F8FAFC;
+}
+
+.profile-nav i {
+    width: 20px;
+    text-align: center;
+    font-size: 1.1rem;
+}
+
+.logout-btn {
+    width: 100%;
+    padding: 0.8rem;
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: background-color 0.2s;
+}
+
+.logout-btn:hover {
+    background-color: var(--primary-hover);
+}
+
+/* Main Content */
+.profile-content {
+    flex: 1;
+    min-width: 0;
+}
+
+.page-title {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: #1E293B;
+    margin-bottom: 2rem;
+}
+
+/* Wallet Card */
+.wallet-balance-card {
+    background: #FFFFFF;
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 2.5rem;
+    text-align: center;
+    margin-bottom: 3rem;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.wallet-balance-card h3 {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #1E293B;
+    margin-bottom: 1rem;
+}
+
+.balance-amount {
+    font-size: 2.5rem;
+    font-weight: 800;
+    color: var(--primary-color);
+}
+
+/* Transaction History */
+.section-title {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: #1E293B;
+    margin-bottom: 1.5rem;
+}
+
+.transaction-table-wrapper {
+    overflow-x: auto;
+}
+
+.transaction-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.transaction-table th {
+    text-align: left;
+    padding: 1rem 0;
+    color: #1E293B;
+    font-weight: 700;
+    font-size: 0.95rem;
+    border-bottom: 1px solid #E2E8F0;
+}
+
+.transaction-table td {
+    padding: 1.2rem 0;
+    border-bottom: 1px solid #E2E8F0;
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: #1E293B;
+}
+
+.transaction-table .amount {
+    color: #1E293B;
+}
+
+.transaction-table .date {
+    color: #64748B;
+    font-weight: 500;
+}
+
+.status-badge {
+    padding: 6px 16px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    display: inline-block;
+}
+
+.status-badge.debit {
+    background: #FEE2E2;
+    color: #EF4444;
+}
+
+.status-badge.credit {
+    background: #DCFCE7;
+    color: #22C55E;
+}
+
+/* Responsive */
+@media (max-width: 900px) {
+    .container {
+        flex-direction: column;
+        gap: 2rem;
+    }
+    .profile-sidebar {
+        width: 100%;
+        align-items: flex-start;
+    }
+    .profile-header {
+        flex-direction: row;
+        gap: 1.5rem;
+    }
+    .user-avatar {
+        margin-bottom: 0;
+        width: 60px;
+        height: 60px;
+    }
+    .logout-btn {
+        width: auto;
+        padding: 0.8rem 2rem;
+    }
+}
+
+@media (max-width: 600px) {
+    .header-container {
+        flex-direction: column;
+        gap: 1rem;
+    }
+    .nav {
+        margin-right: 0;
+    }
+    .logo {
+        margin-right: 0;
+    }
+    .profile-header {
+        flex-direction: column;
+        align-items: center;
+    }
+    .profile-sidebar {
+        align-items: center;
+    }
+    .transaction-table th, .transaction-table td {
+        padding: 1rem 0.5rem;
+        font-size: 0.85rem;
+    }
+}

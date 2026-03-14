@@ -912,6 +912,7 @@ productForm.onsubmit = async function (e) {
     for (let i = 0; i < variantCards.length; i++) {
 
         const card = variantCards[i];
+        const variantId = card.getAttribute("data-variant-id");
         const photoPreviews = card.querySelectorAll('.photo-preview');
 
         let variantValid = true;
@@ -988,6 +989,7 @@ productForm.onsubmit = async function (e) {
         })
 
         const variantObj = {
+            _id: variantId || null,
             color: color,
             ram: ram,
             rom: rom,
