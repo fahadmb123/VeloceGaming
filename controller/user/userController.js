@@ -65,7 +65,6 @@ const loadLogin = async (req,res) => {
 
 const loadSignup = async (req,res) => {
     try {
-
         res.render("user/signup")
 
     } catch (error) {
@@ -256,6 +255,7 @@ const otpVarification = async (req,res) => {
     try {
         const {swalMessage,message,resetPassword,profileUpdate} = await userService.otpVarification(req)
 
+        
         if (message){
             return res.render("user/otp",{message,expiryTime:CexpiryTime})
         }
@@ -273,6 +273,26 @@ const otpVarification = async (req,res) => {
     }
 }
 
+const checkRefferal = async (req,res) => {
+    try {
+        console.log(req.body)
+        let {refferalCode} = req.body
+
+        let isExist = await userModel.findOne({refferalCode})
+        if (isExist) {
+            return res.json({
+                success : true
+            })
+        }else {
+            return res.json({
+                success : false,
+                message : "The Refferal Code Not Matching"
+            })
+        }
+    } catch (err) {
+        console.log(err)
+    }
+}
 
 const login = async (req,res) => {
     try {
@@ -494,5 +514,6 @@ module.exports = {
     editAddress,
     logout,
     uploadProfile,
-    removeProfile
+    removeProfile,
+    checkRefferal
 }

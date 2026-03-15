@@ -29,6 +29,8 @@ router.get("/login",isLoggedOut,userController.loadLogin)
 
 router.get("/signup",isLoggedOut,userController.loadSignup)
 
+
+
 router.get("/",userController.loadHome )
 
 router.get("/profile",isLogged,userController.loadProfile)
@@ -77,6 +79,8 @@ router.post("/wishlist/remove/:id",isLogged,userProductController.wishlistRemove
 
 router.post("/cart/remove/:id",isLogged,userProductController.cartRemove)
 
+
+router.post("/checkRefferal",isLoggedOut,userController.checkRefferal)
 
 router.post("/signup",userController.signup)
 
