@@ -259,7 +259,7 @@
         }
 
         if (data.razorpay){
-            openRazorpay(data)
+            openRazorpay(data, paymentMethod, addressId,variantId)
             return
         }
 
@@ -275,7 +275,7 @@
 
 
 
-function openRazorpay(data){
+function openRazorpay(data,paymentMethod,addressId,variantId){
 
     const options = {
         key: data.key,
@@ -286,7 +286,11 @@ function openRazorpay(data){
         order_id: data.order.id,
 
         handler: async function (response){
-
+            response.variantId = variantId
+            response.quantity = 1
+           
+            response.paymentMethod = paymentMethod
+            response.addressId = addressId
             const verify = await fetch("/verifyRazorpayPayment",{
                 method:"POST",
                 headers:{
@@ -294,23 +298,19 @@ function openRazorpay(data){
                 },
                 body:JSON.stringify(response)
             })
-
+            
             const result = await verify.json()
 
             if(result.success){
                 window.location.href = `/orderSuccessPage?id=${result.orderObjectId}`
             }else{
-                showToast("Payment Failed","error")
+                showToast(result.message,"error")
             }
         }
     }
 
     const rzp = new Razorpay(options)
     rzp.open()
-    rzp.on("payment.success", function (response) {
-        console.log(response.error);
-        alert("Payment failed");
-    });
 }
 
 

@@ -17,7 +17,10 @@
         </nav>
         <div class="header-icons">
             <a href="/wishlist"><i class="fa-regular fa-heart"></i></a>
-            <a href="/cart"><i class="fa-solid fa-cart-shopping"></i></a>
+            <a href="../cart/index.html" class="cart-icon-wrapper">
+                <i class="fa-solid fa-cart-shopping"></i>
+                <span class="cart-badge">3</span>
+            </a>
             <div class="user-menu">
                 <% if (user) { %>
                     <a style="text-decoration: none;" href="/profile">
@@ -74,7 +77,7 @@
 
         <div class="wallet-balance-card">
             <h3>Wallet Balance</h3>
-            <div class="balance-amount">₹ 0</div>
+            <div class="balance-amount">₹ <%= wallet.balance.toLocaleString("en-IN") %></div>
         </div>
 
         <div class="transaction-history">
@@ -85,20 +88,29 @@
                         <tr>
                             <th>Amount</th>
                             <th>Date</th>
-                            <th>Status</th>
+                            <th>Reason</th>
+                            <th>Type</th>
                         </tr>
                     </thead>
                     <tbody>
+                        <% if (walletTransactions.length !== 0) { %>
+                            <% walletTransactions.forEach ((transaction,index)=> { %>
                         <tr>
-                            <td class="amount">₹ 5,000</td>
-                            <td class="date">05-Jan-2025</td>
-                            <td><span class="status-badge debit">Debit</span></td>
+                            <td class="amount">₹ <%= transaction?.amount.toLocaleString("en-IN") %></td>
+                            <td class="date">
+                                <%= transaction?.createdAt.toLocaleDateString("en-GB", {
+                                    day: "2-digit",
+                                    month: "short",
+                                    year: "numeric"
+                                }) %>
+                            </td>
+                            <td class="date"><%= transaction?.reason.toUpperCase() %></td>
+                            <td><span class="status-badge <%= transaction?.type %>"><%= transaction?.type.toUpperCase() %></span></td>
                         </tr>
-                        <tr>
-                            <td class="amount">₹ 2,000</td>
-                            <td class="date">03-Jan-2025</td>
-                            <td><span class="status-badge credit">Credit</span></td>
-                        </tr>
+                        <% }) %>
+                        <% } else { %>
+                            <td><pre> No Transactions Found</pre></t>
+                        <% } %>
                     </tbody>
                 </table>
             </div>

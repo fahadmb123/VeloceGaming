@@ -16,7 +16,11 @@ const loadOrderSuccessPage = async (req,res) => {
     try {
 
         const orderObjectId = req.query.id
- 
+
+        if(!orderObjectId){
+            return res.redirect("/orderHistory")
+        }
+
         const order = await orderModel.findOne({_id:orderObjectId})
         
         return res.render("user/orderSuccessPage",{
@@ -127,7 +131,7 @@ const loadOrderHistory = async (req,res) => {
 
                 item.colorName = parsedColor.name
                 item.colorHex = parsedColor.hex
-                orderItems.push({
+                orderItems.unshift({
                     _id : order._id,
                     paymentMethod : order.paymentMethod ,
                     orderId : order.orderId,
@@ -182,13 +186,30 @@ const verifyRazorpayPayment = async (req,res)=>{
 
         if(expectedSignature === razorpay_signature){
 
-            const {orderObjectId} = await userOrderService.placeOrder(req)
+            /*const {message,orderObjectId} = await userOrderService.placeOrder(req)
 
             res.json({
                 success:true,
                 orderObjectId
-            })
+            })*/
+           //console.log(req.body.variantId)
+           req.session.variantId = req.body.variantId
+           req.session.quantity = req.body.quantity
+           const {failMessage,message,orderObjectId} = await userOrderService.placeOrder(req)
 
+            if (failMessage) {
+                return res.json({
+                    success : false,
+                    message : failMessage
+                })
+            }
+
+            if (message) {
+                return res.json({
+                    success : true,
+                    orderObjectId
+                })
+            }
         }else{
             res.json({
                 success:false

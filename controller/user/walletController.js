@@ -1,15 +1,29 @@
+const {walletModel, walletTransactionModel } = require("../../model/walletModel")
 
 
 
 const loadWallet = async (req,res) => {
     try {
+        if (!req.session.user) {
+            return res.redirect("/login")
+        }
 
-        return res.render("user/wallet")
+        
+        const wallet = await walletModel.findOne({userId:req.session.user._id})
+        const walletTransactions = await walletTransactionModel.find({userId:req.session.user._id})
+        
+        
+        return res.render("user/wallet",{
+            wallet,
+            walletTransactions
+        })
 
     } catch (err) {
         console.log(err)
     }
 }
+
+
 
 
 module.exports = {

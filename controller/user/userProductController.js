@@ -52,14 +52,17 @@ const loadShop = async (req, res) => {
 
 
         let wishlistVariantIds = [];
+        let cartCount = 0
 
         if (req.session.user) {
             const wishlistItems = await wishlistModel.find({
                 userId: req.session.user._id
-            });
+            })
             wishlistVariantIds = wishlistItems.map(item =>
                 item.variantId.toString()
-            );
+            )
+            const cart = await cartModel.findOne({userId:req.session.user._id})
+            cartCount = cart?.items.length
         }
 
         const categories = await categoryModel.find();
@@ -149,9 +152,9 @@ const loadShop = async (req, res) => {
             ]
         }
 
-if (!cleanedSearch) {
-    variantFilter.productId = { $in: productIds };
-}
+        if (!cleanedSearch) {
+             variantFilter.productId = { $in: productIds };
+        }
     
         if (maxPrice) {
             variantFilter.$expr = {
@@ -215,17 +218,18 @@ if (!cleanedSearch) {
 
             variant.colorName = parsedColor.name;
             variant.colorHex = parsedColor.hex;
-        });         
+        });
 
-
+        
         
         if (req.headers.accept.includes("application/json")) {
             return res.json({
                 variants,
                 totalPages,
                 currentPage: page,
-                wishlistVariantIds
-            });
+                wishlistVariantIds,
+                cartCount
+            })
         }
 
         return res.render("user/shop", {
@@ -233,8 +237,9 @@ if (!cleanedSearch) {
             variants,
             wishlistVariantIds,
             currentPage: page,
-            totalPages
-        });
+            totalPages,
+            cartCount
+        })
 
     } catch (err) {
         console.log(err);

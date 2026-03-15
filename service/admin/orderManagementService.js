@@ -1,5 +1,7 @@
 const orderModel = require("../../model/orderModel")
+const {variantModel} = require("../../model/productModel")
 const {z} = require("zod")
+const {walletModel,walletTransactionModel} = require("../../model/walletModel")
 const {
     returnRequestAcceptSchema,
     rejectReturnRequestSchema
@@ -33,14 +35,45 @@ const updateOrderStatus = async (req) => {
                 }
             }
         )
+        const order = await orderModel.findOne({_id:orderId})
+        
+        const orderItem = order?.items.find(item => {
+            return item._id.toString() === orderItemId.toString()
+        })
+        
 
+        
         let pay
         if (orderStatus === 'delivered') {
             pay = 'paid'
         }
         if (orderStatus === 'cancelled') {
             pay = 'closed'
+            if (order?.paymentMethod !== "cod") {
+                pay = "refunded"
+                await walletModel.updateOne(
+                    {userId : req.session.user._id},
+                    {
+                        $inc : {"balance" : orderItem?.total}
+                    }
+                )
+                const transaction = new walletTransactionModel({
+                    type : "credit",
+                    userId : req.session.user._id,
+                    amount : orderItem?.total,
+                    reason : "refunded"
+                })
+                await transaction.save()
+            }
+            await variantModel.updateOne(
+                {_id:orderItem.variantId},
+                {
+                    $inc : {"stock":1}
+                }
+            )
         }
+
+
         if (orderStatus === 'delivered' || orderStatus === 'cancelled') {
             await orderModel.updateOne(
                 {_id:orderId,"items._id":orderItemId},
@@ -84,6 +117,33 @@ const returnRequestAccept = async (req) => {
                     "items.$.status" : "returned",
                     "items.$.returnedAt" : new Date()
                 }
+            }
+        )
+        const order = await orderModel.findOne({_id:orderId})
+        const orderItem = order?.items.find(item => {
+            return item._id.toString() === orderItemId.toString()
+        })
+
+        
+            
+        await walletModel.updateOne(
+            {userId : req.session.user._id},
+                {
+                    $inc : {"balance" : orderItem?.total}
+                }
+        )
+        const transaction = new walletTransactionModel({
+            type : "credit",
+            userId : req.session.user._id,
+            amount : orderItem?.total,
+            reason : "refunded"
+        })
+        await transaction.save()
+        
+        await variantModel.updateOne(
+            {_id:orderItem.variantId},
+            {
+                $inc : {"stock":1}
             }
         )
 

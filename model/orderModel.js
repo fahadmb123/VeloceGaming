@@ -157,8 +157,8 @@ const orderSchema = mongoose.Schema({
       type : String,
       enum : [
          "cod",
-         "razorpay",
-         "wallet"
+         "Razorpay",
+         "Wallet"
       ]
    },
    paymentStatus : {

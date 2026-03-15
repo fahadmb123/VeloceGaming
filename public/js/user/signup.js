@@ -20,6 +20,7 @@ function togglePassword(inputId, el) {
         let email = document.getElementById("email").value.trim()
         let password = document.getElementById("password").value.trim()
         let confirmPassword = document.getElementById("confirmPassword").value.trim()
+        let refferalCode = document.getElementById("refferalCode")
 
         const nameDiv=document.getElementById('nameDiv');
         const passwordDiv=document.getElementById('passwordDiv');

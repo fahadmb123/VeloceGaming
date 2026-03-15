@@ -3,6 +3,7 @@ const {variantModel} = require("../model/productModel")
 const orderModel = require("../model/orderModel")
 const cartModel = require("../model/cartModel")
 const {z} = require("zod")
+const { walletModel, walletTransactionModel } = require("../model/walletModel")
 
 
 
@@ -19,7 +20,7 @@ const calculateAmount = async (req) => {
 
     const variantId = req.query.variantId
     const quantity = parseInt(req.query.quantity)
-
+    
     if (variantId){
 
         const variant = await variantModel.findById(variantId)
@@ -50,8 +51,10 @@ const placeOrder = async (req) => {
     try {
 
         
-        const variantId = req.query.variantId
-        const quantity = parseInt(req.query.quantity)
+        const variantId = req.query.variantId ? req.query.variantId : req.session.variantId
+        const quantity =  parseInt(req.query.quantity ? req.query.quantity : req.session.quantity)
+        req.session.quantity = null
+        req.session.variantId = null
         const {paymentMethod,addressId} = req.body
         
 
@@ -105,6 +108,10 @@ const placeOrder = async (req) => {
 
             let finalAmount = totalAmount - discount
 
+            let paymentStatus = "pending"
+            if (paymentMethod != "cod") {
+                paymentStatus = "paid"
+            }
             const order = new orderModel ({
                 userId : req.session.user._id,
                 items : [
@@ -115,7 +122,8 @@ const placeOrder = async (req) => {
                         attributes : variant.attributes,
                         quantity : quantity,
                         price : variant.offeredPrice,
-                        total : total
+                        total : total,
+                        paymentStatus : paymentStatus
                     }
                 ],
                 subtotal : subtotal,
@@ -133,6 +141,7 @@ const placeOrder = async (req) => {
                     $inc : {"stock":-1}
                 }
             )
+            
 
             
             return {message : true,orderObjectId : order._id}
@@ -174,7 +183,9 @@ const placeOrder = async (req) => {
                     price : variant.offeredPrice,
                     total : total
                 }
-                console.log(variant.attributes)
+                if (paymentMethod != "cod") {
+                    product.paymentStatus = "paid"
+                }
 
                 products.push(product)
             }
@@ -204,6 +215,7 @@ const placeOrder = async (req) => {
                     }
                 )
             }
+            
             await cartModel.deleteOne({userId:req.session.user._id})
             await order.save()
             console.log("ordered Successfully")
@@ -234,6 +246,23 @@ const cancelOrder = async (req) => {
         if (orderItem.status !== 'placed') {
             return {placedRequired : true}
         }
+        let paymentStatus = "closed"
+        if (order.paymentMethod != "cod") {
+            paymentStatus = "refunded"
+            await walletModel.updateOne(
+                {userId : req.session.user._id},
+                {
+                    $inc : {"balance" : orderItem?.total}
+                }
+            )
+            const transaction = new walletTransactionModel({
+                type : "credit",
+                userId : req.session.user._id,
+                amount : orderItem?.total,
+                reason : "refunded"
+            })
+            await transaction.save()
+        }
 
         await orderModel.updateOne(
             {_id:orderId,"items._id":orderItemId},
@@ -242,11 +271,16 @@ const cancelOrder = async (req) => {
                     "items.$.cancelReason" : reason,
                     "items.$.cancelDescription" : description,
                     "items.$.status" : "cancelled",
-                    "items.$.paymentStatus" : "closed"
+                    "items.$.paymentStatus" : paymentStatus
                 }
             }
         )
-        
+        await variantModel.updateOne(
+            {_id:orderItem.variantId},
+            {
+                $inc : {"stock":1}
+            }
+        )
 
         return {message : "Product Cancelled"}
 
