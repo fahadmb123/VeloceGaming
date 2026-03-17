@@ -4,6 +4,7 @@ const adminController = require("../controller/admin/adminController")
 const {isLogged,isLoggedOut} = require("../middleware/adminAuth")
 const { uploadSingle,uploadMultiple , uploadAny } = require("../middleware/multer")
 const orderManagement = require("../controller/admin/orderManagement")
+const couponManagement = require ("../controller/admin/couponManagement.js")
 
 
 
@@ -27,6 +28,8 @@ router.get("/orderManagement",isLogged,orderManagement.loadOrderManagement)
 
 router.get("/orderDetails",isLogged,orderManagement.loadOrderDetails)
 
+
+router.get("/couponManagement",isLogged,couponManagement.loadCouponManagement)
 
 
 router.patch("/categoryManagement/categoryStatus/:id",isLogged,adminController.categoryStatus)
@@ -58,6 +61,8 @@ router.post("/orderManagement/returnRequestAccept",orderManagement.returnRequest
 router.post('/orderManagement/rejectReturnRequest',orderManagement.rejectReturnRequest)
 
 
+router.post("/addCoupon",couponManagement.addCoupon)
+router.post("/editCoupon",couponManagement.editCoupon)
 
-
+router.post("/couponStatus",couponManagement.couponStatus)
 module.exports = router
