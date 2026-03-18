@@ -38,69 +38,68 @@ const addToCart = async (req) => {
     try {
 
         if (!req.session.user) {
-            return {loginRequired : true}
+            return { loginRequired: true }
         }
-        const variantObjectId = new mongoose.Types.ObjectId(req.query.variantId)
+
         const userId = req.session.user._id
+        const variantId = req.query.variantId
 
-        const validItem = await variantModel.findOne({_id:req.query.variantId}).populate({path:"productId",populate:{path:"categoryId"}})
+        const variant = await variantModel
+            .findById(variantId)
+            .populate({
+                path: "productId",
+                populate: { path: "categoryId" }
+            })
 
-        if (!validItem.status || validItem.productId.isDeleted || validItem.productId.categoryId.isDeleted) {
-            return {valid : false}
+        if (!variant || !variant.status || variant.productId.isDeleted || variant.productId.categoryId.isDeleted) {
+            return { valid: false }
         }
 
-        if (validItem.stock < 1) {
-            return {failMessage : "Out Of Stock"}
+        if (variant.stock < 1) {
+            return { failMessage: "Out Of Stock" }
         }
-        const variant = await variantModel.findOne({_id:variantObjectId})
-        //console.log(variantObjectId)
-        const item = await cartModel.findOne({
-            userId : req.session.user._id
-        })
 
-        //console.log(item)
+        let cart = await cartModel.findOne({ userId })
 
-        const existingItem = item?.items?.find(obj => {
-            return obj.variantId.toString() === variantObjectId.toString()
-        })
-
-        console.log()
-
-        if (existingItem) {
-            if (variant.stock <= existingItem.quantity){
-                return {failMessage : `only ${variant.stock} Stocks`}
-            }
-        }
-        
-        const result = await cartModel.updateOne(
-            {
+        if (!cart) {
+            cart = await cartModel.create({
                 userId,
-                "items.variantId": variantObjectId
-            },
-            {
-                $inc: { "items.$.quantity": 1 }
-            }
+                items: []
+            })
+        }
+
+        const existingItem = cart.items.find(
+            item => item.variantId.toString() === variantId
         )
 
-        if (result.modifiedCount === 0) {
-            await cartModel.updateOne(
-                { userId },
-                {
-                    $push: {
-                        items: {
-                            variantId:variantObjectId,
-                            quantity: 1
-                        }
-                    }
-                },
-                { upsert: true }
-            )
+        if (existingItem) {
+
+            if (existingItem.quantity >= variant.stock) {
+                return { failMessage: `only ${variant.stock} Stocks` }
+            }
+            if (existingItem.quantity >= 10){
+                return {failMessage : "The Limit Is 10 Per Product"}
+            } 
+
+            existingItem.quantity += 1
+
+        } else {
+
+            cart.items.push({
+                variantId,
+                quantity: 1
+            })
         }
-        await wishlistModel.deleteOne({variantId:variantObjectId})
-    
+
+        await cart.save()
+
+        // remove only this user's wishlist item
+        await wishlistModel.deleteOne({
+            userId,
+            variantId
+        })
 
         return { message: "Cart Updated Successfully" }
-
 
     } catch (err) {
         console.log(err)
@@ -129,6 +128,10 @@ const cartInc = async (req) => {
         if (variant.stock <= existingItem.quantity){
             return {failMessage : `only ${variant.stock} Stocks`}
         }
+        if (existingItem.quantity >= 10){
+            return {failMessage : "The Limit Is 10 Per Product"}
+        }
+
         
 
         if (item) {
@@ -176,7 +179,7 @@ const cartDec = async (req) => {
             return { failMessage: "Product Doesn't Found" }
         }
 
-        if (cartItem.quantity === 1) {
+        if (cartItem.quantity <= 1) {
             return { failMessage: "Min Count Is One" }
         }
 
@@ -199,7 +202,7 @@ const cartDec = async (req) => {
         console.log(err)
     }
 }
-
+/*
 const allToCart = async (req) => {
     try {
 
@@ -266,6 +269,67 @@ const allToCart = async (req) => {
         });
 
         return {message : "All Products In The Cart Updated"}
+    } catch (err) {
+        console.log(err)
+    }
+}*/
+const allToCart = async (req) => {
+    try {
+
+        if (!req.session.user) {
+            return { loginRequired: true }
+        }
+
+        const userId = req.session.user._id
+
+        const wishlistItems = await wishlistModel
+            .find({ userId })
+            .populate("variantId")
+
+        if (wishlistItems.length === 0) {
+            return { failMessage: "Products Not Found" }
+        }
+
+        let cart = await cartModel.findOne({ userId })
+
+        if (!cart) {
+            cart = await cartModel.create({
+                userId,
+                items: []
+            })
+        }
+
+        for (const item of wishlistItems) {
+
+            const variant = item.variantId
+            if (!variant || variant.stock < 1) continue
+
+            const variantId = variant._id
+
+            const existingItem = cart.items.find(
+                obj => obj.variantId.toString() === variantId.toString()
+            )
+            
+
+            if (existingItem) {
+                if (existingItem.quantity >= 10){
+                    continue
+                }
+                existingItem.quantity += 1
+            } else {
+                cart.items.push({
+                    variantId,
+                    quantity: 1
+                })
+            }
+        }
+
+        await cart.save()
+
+        await wishlistModel.deleteMany({ userId })
+
+        return { message: "All Products In The Cart Updated" }
+
     } catch (err) {
         console.log(err)
     }

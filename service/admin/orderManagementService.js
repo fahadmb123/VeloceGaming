@@ -125,17 +125,17 @@ const returnRequestAccept = async (req) => {
         })
 
         
-            
+        let refund = orderItem?.total - orderItem?.couponDiscount
         await walletModel.updateOne(
             {userId : req.session.user._id},
                 {
-                    $inc : {"balance" : orderItem?.total}
+                    $inc : {"balance" : refund}
                 }
         )
         const transaction = new walletTransactionModel({
             type : "credit",
             userId : req.session.user._id,
-            amount : orderItem?.total,
+            amount : refund,
             reason : "refunded"
         })
         await transaction.save()

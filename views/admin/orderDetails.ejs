@@ -246,13 +246,17 @@
                             <!-- <span>Taxes (8.5%)</span><span>$53.38</span> -->
                         </div>
                         <div class="summary-row text-orange">
-                            <!-- <span>Discount (WELCOME20)</span><span>-$20.00</span> -->
+                            <span>Discound (<%= order?.couponCode %>)</span>
+                            <span>-₹<%= orderItem?.couponDiscount.toLocaleString("en-IN") %></span> 
                         </div>
                     </div>
                     <div class="summary-total border-top">
                         <span class="total-label">Total</span>
                         <div class="total-amount">
-                            <strong>₹ <%= orderItem.total.toLocaleString("en-IN") %></strong>
+                            <strong>
+                                <% let finalAmount = orderItem?.total - orderItem?.couponDiscount %>
+                                ₹ <%= finalAmount.toLocaleString("en-IN") %>
+                            </strong>
                             
                         </div>
                     </div>

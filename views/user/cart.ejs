@@ -1,6 +1,13 @@
 <link rel="stylesheet" href="/css/user/cart.css">
 
+<%
+let outOfStock = false
 
+if (cartItems) {
+  outOfStock = cartItems.items.some(item => item.variantId.stock === 0)
+}
+
+%>
 
 <!-- Header -->
 <header>
@@ -81,6 +88,7 @@
 
     <div class="cart-layout">
         <div class="cart-items">
+            <% if (cartItems.items.length !== 0) { %>
             <% cartItems.items.forEach((item,index) => {  %>
                 <% if (item.variantId && item.variantId.status && !item.variantId.productId.isDeleted && !item.variantId.productId.categoryId.isDeleted) { %>
             <div id="cart-<%= item.variantId._id %>" class="cart-card"   data-price="<%= item.variantId.offeredPrice %>">
@@ -139,7 +147,9 @@
                 </div>
             </div>
             <% } %>
-            <% }) %>
+            <% })} else { %>
+                <h1><pre>         No products Found</pre></h1>
+            <% } %>
         </div>
         <aside class="cart-summary">
             <h2>Cart Total</h2>
@@ -154,7 +164,14 @@
                     <span id="totalInput" class="total-price">₹ <%= total.toLocaleString("en-IN") %></span>
                 </div>
             </div>
-            <a href="/checkout"><button class="btn-checkout">Process to checkout</button></a>
+            <!-- <a href="/checkout"><button  class="btn-checkout">Process to checkout</button></a> -->
+            <% if (!outOfStock) { %>
+                <a href="/checkout">
+                    <button class="btn-checkout">Proceed to checkout</button>
+                </a>
+            <% } else { %>
+                <button class="btn-checkout" disabled>Out of Stock</button>
+            <% } %>
         </aside>
     </div>
 </main>
@@ -243,7 +260,7 @@ async function incQuantity(id) {
             qtyInput.value = data.item.quantity
 
             subtotalEl.innerHTML =
-                `Subtotal : <span>₹ ${data.item.quantity * price}</span>`
+                `Subtotal : <span>₹ ${(data.item.quantity * price).toLocaleString("en-IN")}</span>`
             
             document.getElementById("totalInput").innerHTML = `₹ ${data.total.toLocaleString("en-IN")}`
 

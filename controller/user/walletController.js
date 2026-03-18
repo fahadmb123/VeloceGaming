@@ -10,7 +10,7 @@ const loadWallet = async (req,res) => {
 
         
         const wallet = await walletModel.findOne({userId:req.session.user._id})
-        const walletTransactions = await walletTransactionModel.find({userId:req.session.user._id})
+        const walletTransactions = await walletTransactionModel.find({userId:req.session.user._id}).sort({_id:-1})
         
         
         return res.render("user/wallet",{

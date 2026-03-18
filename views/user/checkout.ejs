@@ -5,7 +5,7 @@
 
 <%
     cart = typeof cart !== "undefined" ? cart : null
-    variant = typeof variant !== "undefined" ? variant : null;
+    variant = typeof variant !== "undefined" ? variant : null
 %>
 
     <div class="header-container">
@@ -111,7 +111,7 @@
                             <h3><%= item.variantId?.productId?.name %></h3>
                             <p>Qty: <%= item.quantity %></p>
                         </div>
-                        <div class="item-price">₹ <%= item.variantId?.offeredPrice %></div>
+                        <div class="item-price">₹ <%= item.variantId?.offeredPrice.toLocaleString("en-IN") %></div>
                     </div>
                     <% }) %>
                     <% } else { %>
@@ -133,7 +133,8 @@
                 </div>
             </section>
         </div>
-
+        <!-- Right Column: Order Summary + Available Coupons -->
+    <div class="right-column">
         <!-- Order Summary -->
         <aside class="order-summary">
             <h2 class="summary-title">Order Summary</h2>
@@ -152,18 +153,18 @@
                         <% } %>
                     </span>
                 </div>
-                <!-- <div class="summary-row">
-                    <span>Tax</span>
-                    <span>₹ <%= tax %></span>
-                </div> -->
+                <div class="summary-row">
+                    <span>Discount</span>
+                    <span>₹<%= (discount ?? 0).toLocaleString("en-IN") %></span>
+                </div>
 
-                <div class="coupon-section">
+                <!-- <div class="coupon-section">
                     <p>Coupon Code</p>
                     <div class="coupon-input">
                         <input type="text" placeholder="Enter coupon code">
                         <button class="btn-apply">Apply</button>
                     </div>
-                </div>
+                </div> -->
 
                 <div class="total-row">
                     <span class="total-amount">₹ <%= total.toLocaleString("en-IN") %></span>
@@ -171,6 +172,64 @@
             </div>
             <button onclick="placeOrder(`<%= variant ? variant._id : ""  %>`)"  id="placeOrder" class="btn-place-order">Place Order</button>
         </aside>
+        <% if (coupon) { %>
+            <div class="applied-coupon-box" id="appliedCouponBox">
+                <div class="applied-coupon-header">
+                    <i class="fa-solid fa-circle-check"></i>
+                    <span>Coupon Applied</span>
+                </div>
+                <div class="applied-coupon-body">
+                    <div class="applied-coupon-info">
+                        <i class="fa-solid fa-tag"></i>
+                        <span id="appliedCouponCode" class="applied-code"><%= coupon.code %></span>
+                        <% if (coupon.type === "percentage") { %>
+                            <span id="appliedCouponSaving" class="applied-saving"><%= coupon.discountValue %>% off Up To ₹<%= coupon.maxDiscount.toLocaleString("en-IN") %></span>
+                        <% } else { %>
+                            <span id="appliedCouponSaving" class="applied-saving">₹<%= coupon.discountValue.toLocaleString("en-IN") %> off</span>
+                        <% } %>
+                    </div>
+                    <button class="btn-remove-coupon" onclick="removeCoupon()">
+                        <i class="fa-solid fa-xmark"></i> Remove
+                    </button>
+                </div>
+            </div>
+        <% } %>
+        <!-- Available Coupons -->
+            <div class="available-coupons-box">
+                <div class="coupons-box-header">
+                    <i class="fa-solid fa-tag"></i>
+                    <h3>Available Coupons</h3>
+                </div>
+                <div class="coupons-list">
+                    <% if (coupons.length !== 0) { 
+                        coupons.forEach((coupon,index)=>{ console.log(coupon) %>
+                    <div class="coupon-card">
+                        <div class="coupon-left">
+                            <span class="coupon-code-tag"><%= coupon.code %></span>
+                            <% if (coupon.type === "percentage") { %>
+                                <p class="coupon-desc">Get <%= coupon.discountValue %>% off on orders With Get Up To ₹<%= coupon.maxDiscount.toLocaleString("en-IN") %></p>
+                            <% } else { %>
+                                <p class="coupon-desc">Get ₹<%= coupon.discountValue.toLocaleString("en-IN") %> off on orders</p>
+                            <% } %>
+                            <p class="coupon-expiry"><%= coupon.expiryDate.toLocaleDateString("en-GB", {
+                                    day: "2-digit",
+                                    month: "short",
+                                    year: "numeric" 
+                                }) %></p>
+                        </div>
+                        <button class="btn-coupon-apply" onclick="applyCoupon('<%= coupon.code %>')">Apply</button>
+                    </div>
+
+                       <% })
+                    } else { %>
+                        <h2><pre>     No Available Coupons</pre> </h2>
+                    <% } %>
+
+                </div>
+            </div>
+            
+
+        </div><!-- end right-column -->
     </div>
 </main>
 
@@ -206,6 +265,7 @@
 <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 <script>
 
+    let variantId = '<%= variant ? variant._id : null %>'
 
     let messageElement = document.getElementById("swalMessage");
 
@@ -310,13 +370,61 @@ function openRazorpay(data,paymentMethod,addressId,variantId){
     }
 
     const rzp = new Razorpay(options)
+    rzp.on('payment.failed', function (response){
+
+        console.log(response.error)
+
+        window.location.href = `/paymentFailure?variantId=${variantId}`
+
+    })
     rzp.open()
 }
 
 
+async function applyCoupon(couponCode) {
+    console.log(couponCode)
+    
+    const response = await fetch ("/applyCoupon",{
+        method : "post",
+        headers : {
+            "content-Type" : "application/json",
+        },
+        body : JSON.stringify({
+            couponCode
+        })
+    })
+
+    const data = await response.json()
+
+    if (data.loginRequired) {
+        return window.location.href = '/login'
+    }
+    if (data.success) {
+        //showToast(data.message,"success")
+        window.location.reload()
+    } else {
+        showToast(data.message,"error")
+    }
+}
 
 
+async function removeCoupon(){
+    const response = await fetch ("/removeCoupon",{
+        method : "post"
+    })
+    const data = await response.json()
 
+    if (data.loginRequired) {
+        return window.location.href = '/login'
+    }
+
+    if (data.success) {
+        //showToast(data.message,"success")
+        window.location.reload()
+    } else {
+        showToast(data.message,"error")
+    }
+}
 
 
 

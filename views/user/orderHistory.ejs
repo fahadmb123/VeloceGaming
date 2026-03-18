@@ -99,7 +99,10 @@
                     </div>
                     <div class="info-block">
                         <label>TOTAL PRICE</label>
-                        <span class="price">₹ <%= item.total.toLocaleString("en-IN") %></span>
+                        <span class="price">
+                            <% let finalAmount = item?.total - item?.couponDiscount %>
+                            ₹ <%= finalAmount.toLocaleString("en-IN") %>
+                        </span>
                     </div>
                     <div class="info-block">
                         <label>ORDER ID</label>

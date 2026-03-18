@@ -4,6 +4,7 @@ const orderModel = require("../model/orderModel")
 const cartModel = require("../model/cartModel")
 const {z} = require("zod")
 const { walletModel, walletTransactionModel } = require("../model/walletModel")
+const couponModel = require("../model/couponModel")
 
 
 
@@ -20,12 +21,31 @@ const calculateAmount = async (req) => {
 
     const variantId = req.query.variantId
     const quantity = parseInt(req.query.quantity)
-    
+    let coupon = null
+    let discount = 0
+    if (req.session.coupon) {
+        coupon = req.session.coupon
+    }
+
+
     if (variantId){
 
         const variant = await variantModel.findById(variantId)
 
-        const total = quantity * variant.offeredPrice
+        let total = quantity * variant.offeredPrice
+
+        if (coupon) {
+            if (coupon.type === "percentage") {
+                discount = total * (coupon.discountValue/100)
+                if (coupon.maxDiscount && discount > coupon.maxDiscount) {
+                    discount = coupon.maxDiscount
+                }
+            } else {
+                discount = coupon.discountValue
+            }
+        }
+        total = total - discount
+
 
         return {amount:total}
     }
@@ -38,10 +58,45 @@ const calculateAmount = async (req) => {
     cart.items.forEach(item=>{
         subtotal += item.quantity * item.variantId.offeredPrice
     })
+    
+    if (coupon) {
+        if (coupon.type === "percentage") {
+            discount = subtotal * (coupon.discountValue/100)
+            if (coupon.maxDiscount && discount > coupon.maxDiscount) {
+                discount = coupon.maxDiscount
+            }
+        } else {
+            discount = coupon.discountValue
+        }
+    }
+    subtotal = subtotal - discount
 
+    
     return {amount: subtotal}
 }
 
+const  walletPayment = async (amount,req) => {
+    const  wallet = await walletModel.findOne({userId:req.session.user._id})
+    if (amount > wallet.balance){
+        return {failMessage:"Inefficient Balance"}
+    }
+
+    await walletModel.updateOne(
+        {userId:req.session.user._id},
+        {
+            $inc : {"balance" : -amount}
+        }
+    )
+    const transaction = new walletTransactionModel({
+        type : "debit",
+        userId : req.session.user._id,
+        amount : amount,
+        reason : "orderpayment"
+    })
+    await transaction.save()
+
+    return {success : true}
+}
 
 
 
@@ -56,6 +111,10 @@ const placeOrder = async (req) => {
         req.session.quantity = null
         req.session.variantId = null
         const {paymentMethod,addressId} = req.body
+        let coupon = null
+        if (req.session.coupon) {
+            coupon = req.session.coupon
+        }
         
 
         const user = await userModel.findOne({_id:req.session.user._id})
@@ -106,12 +165,51 @@ const placeOrder = async (req) => {
 
             let discount = 0
 
+            if (coupon) {
+                const originalCoupon = await couponModel.findOne({
+                    minPurchase : {$lte : totalAmount },
+                    expiryDate : {$gte : new Date()},
+                    $expr: {
+                        $gt: ["$maxUsage", "$usedCount"]
+                    },
+                    status : true,
+                    code : coupon.code
+                })
+
+                if (!originalCoupon) {
+                    return {failMessage : "Coupon Not Availbale"}
+                }
+                const isUsed = await orderModel.findOne({userId : req.session.user._id,couponCode : coupon.code})
+
+                if (isUsed) {
+                    return {failMessage : "Coupon is Already Used"}
+                }
+
+                if (coupon.type === "percentage") {
+                    discount = totalAmount * (coupon.discountValue/100)
+                    if (coupon.maxDiscount && discount > coupon.maxDiscount) {
+                        discount = coupon.maxDiscount
+                    }
+                } else {
+                    discount = coupon.discountValue
+                }
+            }
+            
+            
             let finalAmount = totalAmount - discount
+
 
             let paymentStatus = "pending"
             if (paymentMethod != "cod") {
                 paymentStatus = "paid"
             }
+            if (paymentMethod === "Wallet") {
+                const {failMessage , success} = await walletPayment(finalAmount,req)
+                if (failMessage) {
+                    return {failMessage}
+                }
+            }
+            itemCouponShare = (totalAmount / totalAmount) * discount
             const order = new orderModel ({
                 userId : req.session.user._id,
                 items : [
@@ -123,7 +221,8 @@ const placeOrder = async (req) => {
                         quantity : quantity,
                         price : variant.offeredPrice,
                         total : total,
-                        paymentStatus : paymentStatus
+                        paymentStatus : paymentStatus,
+                        couponDiscount : itemCouponShare
                     }
                 ],
                 subtotal : subtotal,
@@ -132,7 +231,8 @@ const placeOrder = async (req) => {
                 discountAmount : discount,
                 finalAmount : finalAmount,
                 shippingAddress : currentAddress,
-                paymentMethod : paymentMethod
+                paymentMethod : paymentMethod,
+                couponCode : coupon?.code || null
             })
             await order.save()
             await variantModel.updateOne(
@@ -141,9 +241,16 @@ const placeOrder = async (req) => {
                     $inc : {"stock":-1}
                 }
             )
-            
 
-            
+            if (coupon) {
+                await couponModel.updateOne(
+                    {code:coupon.code},
+                    {
+                        $inc : {"usedCount" : 1}
+                    }
+                )
+            }
+            req.session.coupon = null
             return {message : true,orderObjectId : order._id}
 
         } else {
@@ -156,6 +263,45 @@ const placeOrder = async (req) => {
             let subtotal = 0
             let shipping = 0
             let discount = 0
+
+            
+            subtotal = items.reduce((acc,item) => {
+                let total = item.quantity * item.variantId.offeredPrice
+                acc = acc + total
+                return acc
+            },0)
+
+            let totalAmount = subtotal + shipping
+
+            if (coupon) {
+                const originalCoupon = await couponModel.findOne({
+                    minPurchase : {$lte : totalAmount },
+                    expiryDate : {$gte : new Date()},
+                    $expr: {
+                        $gt: ["$maxUsage", "$usedCount"]
+                    },
+                    status : true,
+                    code : coupon.code
+                })
+
+                if (!originalCoupon) {
+                    return {failMessage : "Coupon Not Availbale"}
+                }
+                const isUsed = await orderModel.findOne({userId : req.session.user._id,couponCode : coupon.code})
+
+                if (isUsed) {
+                    return {failMessage : "Coupon is Already Used"}
+                }
+
+                if (coupon.type === "percentage") {
+                    discount = totalAmount * (coupon.discountValue/100)
+                    if (coupon.maxDiscount && discount > coupon.maxDiscount) {
+                        discount = coupon.maxDiscount
+                    }
+                } else {
+                    discount = coupon.discountValue
+                }
+            }
 
             for (let item of items) {
 
@@ -172,8 +318,9 @@ const placeOrder = async (req) => {
 
                 let total = quantity * variant.offeredPrice
 
-                subtotal += total
-                
+                //subtotal += total
+                itemCouponShare = (total / totalAmount) * discount
+
                 let product = {
                     variantId : variant._id,
                     productName : variant.productId.name,
@@ -181,7 +328,8 @@ const placeOrder = async (req) => {
                     attributes : variant.attributes,
                     quantity : quantity,
                     price : variant.offeredPrice,
-                    total : total
+                    total : total,
+                    couponDiscount : itemCouponShare
                 }
                 if (paymentMethod != "cod") {
                     product.paymentStatus = "paid"
@@ -190,9 +338,15 @@ const placeOrder = async (req) => {
                 products.push(product)
             }
 
-            let totalAmount = subtotal + shipping
-
             let finalAmount = totalAmount - discount
+
+            if (paymentMethod === "Wallet") {
+                const {failMessage , success} = await walletPayment(finalAmount,req)
+                if (failMessage) {
+                    return {failMessage}
+                }
+            }
+
             const order = new orderModel ({
                 userId : req.session.user._id,
                 items : products,
@@ -202,7 +356,8 @@ const placeOrder = async (req) => {
                 discountAmount : discount,
                 finalAmount : finalAmount,
                 shippingAddress : currentAddress,
-                paymentMethod : paymentMethod
+                paymentMethod : paymentMethod,
+                couponCode : coupon?.code || null
             })
             
             for (let item of items) {
@@ -215,12 +370,21 @@ const placeOrder = async (req) => {
                     }
                 )
             }
-            
+            if (coupon) {
+                await couponModel.updateOne(
+                    {code:coupon.code},
+                    {
+                        $inc : {"usedCount" : 1}
+                    }
+                )
+            }
+            req.session.coupon = null
             await cartModel.deleteOne({userId:req.session.user._id})
             await order.save()
             console.log("ordered Successfully")
             return {message : true,orderObjectId : order._id}
         }
+
     } catch (err) {
         console.log(err)
     }
@@ -249,16 +413,17 @@ const cancelOrder = async (req) => {
         let paymentStatus = "closed"
         if (order.paymentMethod != "cod") {
             paymentStatus = "refunded"
+            let refund = orderItem?.total - orderItem?.couponDiscount
             await walletModel.updateOne(
                 {userId : req.session.user._id},
                 {
-                    $inc : {"balance" : orderItem?.total}
+                    $inc : {"balance" : refund}
                 }
             )
             const transaction = new walletTransactionModel({
                 type : "credit",
                 userId : req.session.user._id,
-                amount : orderItem?.total,
+                amount : refund,
                 reason : "refunded"
             })
             await transaction.save()

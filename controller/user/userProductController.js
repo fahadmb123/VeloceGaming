@@ -325,11 +325,21 @@ const loadProduct = async (req,res) => {
             wishlistVariant = await wishlistModel.findOne({userId:req.session.user._id,variantId:variant._id})
         }
 
+        const relatedProducts = await variantModel.find()
+            .populate({
+                path: "productId",
+                match: { categoryId: variant.productId.categoryId },
+                populate: {
+                    path: "categoryId"
+                }
+            })
+
         return res.render("user/productDetails",{
             variant,
             colorVariants,
             wishlistVariant,
-            relatedVariants
+            relatedVariants,
+            relatedProducts
         })
     } catch (err) {
         console.log(err)

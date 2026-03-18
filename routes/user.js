@@ -53,6 +53,7 @@ router.get("/checkout",isLogged,userCheckoutController.loadCheckout)
 
 router.get("/orderSuccessPage",isLogged,userOrderController.loadOrderSuccessPage)
 
+router.get("/paymentFailure",isLogged,userCheckoutController.loadPaymentFailure)
 
 router.get("/wallet",isLogged,walletController.loadWallet)
 
@@ -119,6 +120,9 @@ router.post("/verifyRazorpayPayment", userOrderController.verifyRazorpayPayment)
 
 router.post("/orderDetails/cancel",userOrderController.cancelOrder)
 router.post("/orderDetails/return",userOrderController.returnOrder)
+
+router.post("/applyCoupon",userCheckoutController.applyCoupon)
+router.post("/removeCoupon",userCheckoutController.removeCoupon)
 
 
 module.exports = router

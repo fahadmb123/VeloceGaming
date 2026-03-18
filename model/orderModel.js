@@ -22,6 +22,9 @@ const orderItemSchema = mongoose.Schema({
          type : String
       }
    }],
+   couponDiscount : {
+      type : Number
+   },
    quantity : {
       type : Number
    },

@@ -1,8 +1,8 @@
 const cartModel = require("../../model/cartModel")
 const { variantModel } = require("../../model/productModel")
 const userModel = require("../../model/userModel")
-
-
+const couponModel = require("../../model/couponModel")
+const orderModel = require("../../model/orderModel")
 
 
 
@@ -17,6 +17,15 @@ try {
     if (!req.session.user){
         return res.redirect("/login")
     }
+    let coupon = null
+    if (req.session.coupon) {
+        coupon = req.session.coupon
+    }
+    const usedCouponCode = await orderModel.distinct("couponCode", {
+        userId: req.session.user._id,
+        couponCode: { $ne: null }
+    })
+
 
     if (variantId && quantity) {
 
@@ -45,12 +54,35 @@ try {
 
         let subtotal = 0
         let shipping = 0
-        let tax = 0
+
 
         subtotal = quantity * Number(variant.offeredPrice)
 
-        const total = subtotal + shipping + tax
+        let total = subtotal + shipping
+        let discount = 0
+        if (coupon) {
+            if (coupon.type === "percentage") {
+                discount = total * (coupon.discountValue/100)
+                if (coupon.maxDiscount && discount > coupon.maxDiscount) {
+                    discount = coupon.maxDiscount
+                }
+            } else {
+                discount = coupon.discountValue
+            }
+        }
+        total = total - discount
 
+        
+        const coupons = await couponModel.find({
+            minPurchase : {$lte : total },
+            expiryDate : {$gte : new Date()},
+            $expr: {
+                $gt: ["$maxUsage", "$usedCount"]
+            },
+            status : true,
+            code : {$nin : usedCouponCode}
+        })
+        
         return res.render ("user/checkout",{
             variant,
             quantity,
@@ -58,8 +90,10 @@ try {
             swalMessage,
             subtotal,
             shipping,
-            tax,
-            total
+            total,
+            coupons,
+            discount,
+            coupon
         })
 
     } else {
@@ -101,7 +135,7 @@ try {
 
         let subtotal = 0
         let shipping = 0
-        let tax = 0
+        
 
         for (let item of cart.items) {
             let variant = item.variantId
@@ -109,8 +143,30 @@ try {
             subtotal += price * item.quantity
         }
 
-        const total = subtotal + shipping + tax
+        let total = subtotal + shipping
 
+        let discount = 0
+        if (coupon) {
+            if (coupon.type === "percentage") {
+                discount = total * (coupon.discountValue/100)
+                if (coupon.maxDiscount && discount > coupon.maxDiscount) {
+                    discount = coupon.maxDiscount
+                }
+            } else {
+                discount = coupon.discountValue
+            }
+        }
+        total = total - discount
+
+        const coupons = await couponModel.find({
+            minPurchase : {$lte : total },
+            expiryDate : {$gte : new Date()},
+            $expr: {
+                $gt: ["$maxUsage", "$usedCount"]
+            },
+            status : true,
+            code : {$nin : usedCouponCode}
+        })
 
 
         return res.render ("user/checkout",{
@@ -119,8 +175,10 @@ try {
             swalMessage,
             subtotal,
             shipping,
-            tax,
-            total
+            total,
+            coupons,
+            discount,
+            coupon
         })
     }
 } catch (err) {
@@ -128,7 +186,71 @@ try {
 }
 }
 
+const loadPaymentFailure = async (req,res) => {
+    try {
+
+        const variantId = req.query.variantId
+        
+        return res.render("user/paymentFailure",{
+            variantId
+    })
+    } catch (err) {
+        console.log(err)
+    }
+}
+
+const applyCoupon = async (req,res) => {
+    try {
+        if (!req.session.user){
+            return res.json({
+                loginRequired:true
+            })
+        }
+        const {couponCode} = req.body
+        
+        const coupon = await couponModel.findOne({code:couponCode})
+        if (!coupon) {
+            return res.json({
+                success : false,
+                message : "The Coupon Doesn't Exist"
+            })
+        }
+
+        req.session.coupon = coupon
+
+        return res.json({
+            success : true,
+            message : "Coupon Applied Successfully"
+        })
+
+    } catch (err) {
+        console.log(err)
+    }
+}
+
+const removeCoupon = async (req,res) => {
+    try {
+        if (!req.session.user){
+            return res.json({
+                loginRequired:true
+            })
+        }
+
+        req.session.coupon = null
+
+        return res.json({
+            success : true,
+            message : "Coupon Removed"
+        })
+    } catch (err) {
+        console.log(err)
+    }
+}
+
 
 module.exports = {
-    loadCheckout
+    loadCheckout,
+    loadPaymentFailure,
+    applyCoupon,
+    removeCoupon
 }
