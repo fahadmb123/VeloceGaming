@@ -1,5 +1,6 @@
 const userOrderService = require("../../service/userOrderService")
 const orderModel = require("../../model/orderModel")
+const cartModel = require("../../model/cartModel")
 const {z} = require("zod")
 const html_to_pdf = require("html-pdf-node")
 const ejs = require("ejs")
@@ -22,9 +23,14 @@ const loadOrderSuccessPage = async (req,res) => {
         }
 
         const order = await orderModel.findOne({_id:orderObjectId})
-        
+        let cartCount = 0
+        if (req.session.user){
+            const cart = await cartModel.findOne({userId:req.session.user._id})
+            cartCount = cart?.items.length
+        }
         return res.render("user/orderSuccessPage",{
-            order
+            order,
+            cartCount
         })
     } catch (err) {
         console.log(err)
@@ -64,10 +70,15 @@ const loadOrderDetails = async (req,res) => {
         let orderItem = order?.items.find(item => {
             return item._id.toString() === id.toString()
         })
-
+        let cartCount = 0
+                if (req.session.user){
+                    const cart = await cartModel.findOne({userId:req.session.user._id})
+                    cartCount = cart?.items.length
+                }
         return res.render("user/orderDetails",{
             order,
-            orderItem
+            orderItem,
+            cartCount
         })
     } catch (err) {
         console.log(err)
@@ -149,13 +160,18 @@ const loadOrderHistory = async (req,res) => {
         const totalPages = Math.ceil(totalOrder / limit)
 
         let paginatedItems = orderItems.slice(skip, skip + limit)
-
+        let cartCount = 0
+                if (req.session.user){
+                    const cart = await cartModel.findOne({userId:req.session.user._id})
+                    cartCount = cart?.items.length
+                }
         return res.render("user/orderHistory",{
             orders:paginatedItems,
             totalPages,
             currentPage: page,
             search:inputSearch,
-            filter: statusFilter
+            filter: statusFilter,
+            cartCount
         })
     } catch (err) {
         console.log(err)

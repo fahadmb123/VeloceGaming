@@ -5,7 +5,7 @@ const {isLogged,isLoggedOut} = require("../middleware/adminAuth")
 const { uploadSingle,uploadMultiple , uploadAny } = require("../middleware/multer")
 const orderManagement = require("../controller/admin/orderManagement")
 const couponManagement = require ("../controller/admin/couponManagement.js")
-
+const salesManagement = require("../controller/admin/salesManagement.js")
 
 
 router.get("/login",isLoggedOut,adminController.loadLogin)
@@ -30,6 +30,11 @@ router.get("/orderDetails",isLogged,orderManagement.loadOrderDetails)
 
 
 router.get("/couponManagement",isLogged,couponManagement.loadCouponManagement)
+
+
+router.get("/salesManagement",isLogged,salesManagement.loadSales)
+router.get("/exportToPdf",isLogged,salesManagement.exportPDF)
+router.get("/exportExcel",isLogged,salesManagement.exportExcel)
 
 
 router.patch("/categoryManagement/categoryStatus/:id",isLogged,adminController.categoryStatus)

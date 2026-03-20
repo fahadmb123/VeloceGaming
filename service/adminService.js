@@ -15,8 +15,6 @@ function generateSlug (name) {
     .replace(/[^\w-]+/g,"")
 }
 
-
-
 const login = async (req) => {
     try {
 
@@ -45,7 +43,6 @@ const login = async (req) => {
     }
 }
 
-
 const userStatus = async (req) => {
     try {
 
@@ -62,7 +59,6 @@ const userStatus = async (req) => {
         console.log(err)
     }
 }
-
 
 const addCategory = async (req) => {
     try {
@@ -227,17 +223,17 @@ const addProduct = async (req) => {
             variants[index].imagesId.push(result.public_id)
 
         }
-        
 
 
+        let mainOffer = Math.max(productCategory.offer || 0 , offer || 0)
         for (let  i=0 ; i<variants.length ; i++){
             let obj = variants[i]
             //let offeredPrice = obj.price * (1 - offer / 100)
             let offeredPrice
-            if (!offer) {
+            if (!mainOffer) {
                 offeredPrice = obj.price
             } else {
-                offeredPrice = obj.price * (1 - offer / 100)
+                offeredPrice = obj.price * (1 - mainOffer / 100)
             }
             let toAddVariant = {
                 productId : obj.productId,
@@ -414,6 +410,7 @@ const addProduct = async (req) => {
     }
 }*/
 
+
 const editProduct = async (req) => {
     try {
 
@@ -504,11 +501,11 @@ const editProduct = async (req) => {
             }
 
             let offeredPrice
-
+            let mainOffer = Math.max(productCategory.offer || 0 , offer || 0)
             if (!offer) {
                 offeredPrice = variant.price
             } else {
-                offeredPrice = variant.price * (1 - offer / 100)
+                offeredPrice = variant.price * (1 - mainOffer / 100)
             }
 
 

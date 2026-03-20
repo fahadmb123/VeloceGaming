@@ -34,6 +34,9 @@ const orderItemSchema = mongoose.Schema({
    total : {
       type : Number
    },
+   finalAmount : {
+      type : Number
+   },
    returnReason : {
       type : String
    },

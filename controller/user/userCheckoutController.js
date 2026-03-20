@@ -82,7 +82,11 @@ try {
             status : true,
             code : {$nin : usedCouponCode}
         })
-        
+        let cartCount = 0
+        if (req.session.user){
+            const cart = await cartModel.findOne({userId:req.session.user._id})
+            cartCount = cart?.items.length
+        }
         return res.render ("user/checkout",{
             variant,
             quantity,
@@ -93,7 +97,8 @@ try {
             total,
             coupons,
             discount,
-            coupon
+            coupon,
+            cartCount
         })
 
     } else {
@@ -168,7 +173,11 @@ try {
             code : {$nin : usedCouponCode}
         })
 
-
+        let cartCount = 0
+        if (req.session.user){
+            const cart = await cartModel.findOne({userId:req.session.user._id})
+            cartCount = cart?.items.length
+        }
         return res.render ("user/checkout",{
             cart,
             address,
@@ -178,7 +187,8 @@ try {
             total,
             coupons,
             discount,
-            coupon
+            coupon,
+            cartCount
         })
     }
 } catch (err) {

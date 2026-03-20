@@ -447,15 +447,16 @@
         }
 
         
-        if (!offer || isNaN(offer)) {
+        if (offer) {
+            if (isNaN(offer)) {
             offerDiv.querySelector('input').style.border = '1px solid red';
             offerDiv.querySelector('p').style.display = 'block';
             isValid = false;
-        } else {
+            } else {
             offerDiv.querySelector('input').style.border = '1px solid gray';
             offerDiv.querySelector('p').style.display = 'none';
+            }
         }
-
         
         if (currentMode === "add" && imageInput.files.length === 0) {
             imageDiv.querySelector('p').style.display = 'block';

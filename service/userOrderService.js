@@ -222,7 +222,8 @@ const placeOrder = async (req) => {
                         price : variant.offeredPrice,
                         total : total,
                         paymentStatus : paymentStatus,
-                        couponDiscount : itemCouponShare
+                        couponDiscount : itemCouponShare,
+                        finalAmount : finalAmount
                     }
                 ],
                 subtotal : subtotal,
@@ -320,7 +321,7 @@ const placeOrder = async (req) => {
 
                 //subtotal += total
                 itemCouponShare = (total / totalAmount) * discount
-
+                let itemFinalPrice = total - itemCouponShare
                 let product = {
                     variantId : variant._id,
                     productName : variant.productId.name,
@@ -329,7 +330,8 @@ const placeOrder = async (req) => {
                     quantity : quantity,
                     price : variant.offeredPrice,
                     total : total,
-                    couponDiscount : itemCouponShare
+                    couponDiscount : itemCouponShare,
+                    finalAmount : itemFinalPrice
                 }
                 if (paymentMethod != "cod") {
                     product.paymentStatus = "paid"

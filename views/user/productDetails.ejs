@@ -51,7 +51,11 @@
         <div class="header-icons">
             <% if (user) { %>
                 <a href="/wishlist"><i class="fa-regular fa-heart"></i></a>
-                <a href="/cart"><i class="fa-solid fa-cart-shopping"></i></a>
+                <a href="/cart" class="cart-icon-wrapper">
+                    <i class="fa-solid fa-cart-shopping"></i>
+                    <% if (cartCount != 0) { %>
+                        <span class="cart-badge"><%= cartCount %></span>
+                    <% } %></a>
             <% } %>
             <div class="user-menu">
                 <% if (user) { %>
@@ -128,9 +132,10 @@
                 </div>
                 <div class="product-price">
                     <span class="current-price">₹ <%= variant.offeredPrice.toLocaleString("en-IN") %></span>
-                    <% if (variant.productId.offer != 0){ %>
+                    <% if (variant.productId.offer != 0 || variant.productId.categoryId.offer != 0){ %>
                             <span class="discount">
-                            -<%= variant.productId.offer %>% OFF
+                            <% let offer = Math.max(variant.productId.offer , variant.productId.categoryId.offer ) %>
+                            -<%= offer %>% OFF
                             </span>
                         <% } %>
                         

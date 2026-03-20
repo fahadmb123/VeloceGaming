@@ -18,7 +18,11 @@
 
         <div class="header-icons">
             <a href="/wishlist"><i class="fa-regular fa-heart"></i></a>
-            <a href="/cart"><i class="fa-solid fa-cart-shopping"></i></a>
+            <a style="text-decoration: none;" href="/cart" class="cart-icon-wrapper">
+                    <i class="fa-solid fa-cart-shopping"></i>
+                    <% if (cartCount != 0) { %>
+                        <span class="cart-badge"><%= cartCount %></span>
+                    <% } %></a>
             <div class="user-menu">
                 <% if (user) { %>
                     

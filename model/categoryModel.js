@@ -18,7 +18,7 @@ const categorySchema = mongoose.Schema({
         default : true
     },*/
     offer : {
-        type : String
+        type : Number
     },
     image : {
         type : String,

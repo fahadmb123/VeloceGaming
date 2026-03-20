@@ -4,6 +4,8 @@ const cloudinary = require("../../helpers/cloudinary.js")
 const categoryModel = require("../../model/categoryModel.js")
 const { variantModel, productModel } = require("../../model/productModel.js")
 const wishlistModel = require("../../model/wishlistModel.js")
+const cartModel = require("../../model/cartModel.js")
+
 
 
 const loadEmailEntry = async (req,res) => {
@@ -98,12 +100,17 @@ const loadHome = async (req,res) => {
 
         const variants = await variantModel.find({productId:{$in:productIds}}).populate({path:"productId",populate:{path:"categoryId"}}).sort({updatedAt:-1}).limit(8)
 
-        
+        let cartCount = 0
+        if (req.session.user){
+            const cart = await cartModel.findOne({userId:req.session.user._id})
+            cartCount = cart?.items.length
+        }
         res.render("user/home",{
             swalMessage,
             categories,
             variants,
-            wishlistVariantIds
+            wishlistVariantIds,
+            cartCount
         })
     } catch (error) {
         console.log(error)
@@ -115,7 +122,12 @@ const loadProfile = async (req,res) => {
     try {
         const swalMessage = req.session.swalMessage
         req.session.swalMessage = null
-        res.render("user/profile",{swalMessage})
+        let cartCount = 0
+        if (req.session.user){
+            const cart = await cartModel.findOne({userId:req.session.user._id})
+            cartCount = cart?.items.length
+        }
+        res.render("user/profile",{swalMessage,cartCount})
     } catch (err) {
         console.log(err)
     }

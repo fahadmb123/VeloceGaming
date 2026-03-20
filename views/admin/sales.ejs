@@ -1,0 +1,391 @@
+<link rel="stylesheet" href="/css/admin/sales.css">
+
+</head>
+
+<body>
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <div class="logo-circle">
+                        <i class="fa-solid fa-check"></i>
+                    </div>
+                    <div class="logo-text">
+                        <span class="brand">VELOCE</span>
+                        <span class="sub-brand">GAMING</span>
+                    </div>
+                </div>
+            </div>
+
+            <nav class="sidebar-nav">
+                <ul>
+                    <li><a href="#"><span>DashBoard</span></a></li>
+                    <li><a href="/admin/userManagement"><span>Users</span></a></li>
+                    <li><a href="/admin/categoryManagement"><span>Category</span></a></li>
+                    <li><a href="/admin/orderManagement"><span>Order</span></a></li>
+                    <li><a href="/admin/productManagement"><span>Product</span></a></li>
+                    <li><a href="/admin/couponManagement"><span>Coupon</span></a></li>
+                    <li class="active"><a href="#"><span>Report</span></a></li>
+                    <li><a href="#"><span>Banner</span></a></li>
+                </ul>
+            </nav>
+
+            <div class="sidebar-footer">
+                <button class="btn-logout">Log out</button>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="main-header">
+                <h1>Sales Report</h1>
+            </header>
+
+            <section class="content-card">
+                <div class="summary-cards">
+                    <div class="summary-card">
+                        <h3>Overall Sales Count</h3>
+                        <p class="summary-value"><%= totalOrders %></p>
+                    </div>
+                    <div class="summary-card">
+                        <h3>Total Order Amount</h3>
+                        <p class="summary-value">₹ <%= totalAmount.toLocaleString("en-IN") %></p>
+                    </div>
+                    <div class="summary-card">
+                        <h3>Coupon/Discounts</h3>
+                        <p class="summary-value text-red" style="color: #FF0000;">₹ <%= totalDiscount.toLocaleString("en-IN") %></p>
+                    </div>
+                    <div class="summary-card">
+                        <h3>Final Revenue</h3>
+                        <p class="summary-value">₹ <%= finalRevenue.toLocaleString("en-IN") %></p>
+                    </div>
+                </div>
+
+                <!-- Sales Chart -->
+                <!-- <div class="chart-container">
+                    <canvas id="salesChart"></canvas>
+                </div> -->
+
+                <div class="table-controls">
+                    <div class="search-box">
+                        <form action="/admin/salesManagement" method="GET" id="searchForm">
+                        <input type="hidden" name="filter" value="<%= filter %>">
+                        <div class="search-content">
+                            <div class="search-wrapper">
+                                <i class="fa-solid fa-magnifying-glass search-icon"></i>
+                                <input name="search" value="<%= search %>" type="text" id="reportSearchInput" placeholder="Search report"
+                                    autocomplete="off">
+                                <i class="fa-solid fa-xmark clear-icon" id="clearSearch" style="display: none;"></i>
+                            </div>
+                            <button type="submit" class="search-btn">Search</button>
+                        </div>
+                        </form>
+                    </div>
+
+                    <div class="action-filters-box">
+                        <button class="add-btn" id="exportPdfBtn"><i class="fa-solid fa-file-pdf"></i> Export
+                            PDF</button>
+                        <button class="add-btn excel-btn" id="exportExcelBtn"><i class="fa-solid fa-file-excel"></i>
+                            Export Excel</button>
+
+                        <div class="custom-date-box" style="display: <%= filter === 'custom' ? '' : 'none' %>;" id="customDateFilter">
+                            <input type="date" value="<%= startTo %>" class="date-input" id="startDate" >
+                            <span style="color:#5E6278; font-weight:600; font-size: 0.9rem;">to</span>
+                            <input value="<%= endTo %>" type="date" class="date-input" id="endDate">
+                        </div>
+
+                        <select class="filter-select" id="dateFilterSelect">
+                            <option value="daily" <%= filter === 'daily' ? 'selected' : '' %>>Daily</option>
+                            <option value="weekly" <%= filter === 'weekly' ? 'selected' : '' %>>Weekly</option>
+                            <option value="yearly" <%= filter === 'yearly' ? 'selected' : '' %>>Yearly</option>
+                            <option value="custom" <%= filter === 'custom' ? 'selected' : '' %>>Custom Range</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="table-container">
+                    <table class="report-table">
+                        <thead>
+                            
+                            <tr>
+                                <th>Order ID</th>
+                                <th>Date</th>
+                                <th>Customer</th>
+                                <th>Payment Method</th>
+                                <th>Order Amount</th>
+                                <th>Coupon/Discount</th>
+                                <th>Status</th>
+                                <th class="text-right">Final Amount</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <% if (orders.length != 0) { 
+                                orders.forEach ((order,index) => { %>
+                            <tr>
+                                <td class="code-val"><%= order.orderId %></td>
+                                <td>
+                                    <%= new Date(order.createdAt).toLocaleDateString("en-US",{
+                                    year : "numeric",
+                                    month : "long",
+                                    day : "numeric"
+                                    }) %>
+                                </td>
+                                <td><%= order?.shippingAddress?.fullName.toUpperCase() %></td>
+                                <td><%= order?.paymentMethod.toUpperCase() %></td>
+                                <td>₹ <%= order?.items?.total.toLocaleString("en-IN") %></td>
+                                <td style="color: #FF0000; font-weight: 600;">
+                                    <% if (order.couponCode) { %>
+                                        -₹ <%= order?.items.couponDiscount.toLocaleString("en-IN") %> ( <%= order?.couponCode %> )
+                                    <% } else { %>
+                                        No Coupon Applied
+                                    <% } %>
+                                </td>
+                                <td><span class="status-badge <%= order?.items.status %>"><%= order?.items.status %></span></td>
+                                <td class="text-right amount-val">₹ <%= order?.items?.finalAmount.toLocaleString("en-IN") %></td>
+                            </tr>
+                            <% })} %>
+                        </tbody>
+                    </table>
+                    <% if (orders.length === 0) { %>
+                        <br><br>
+                        <h1><pre>    No Lists</pre></h1>
+                    <% } %>
+                </div>
+
+                <div class="pagination">
+                    <div class="pagination">
+
+
+                        <% if (currentPage > 1) { %>
+                            <a style="text-decoration: none;" href="/admin/salesManagement?page=<%= currentPage - 1 %>
+
+                                <% if (typeof search !== 'undefined') { %>&search=<%= search %><% } %>
+                                <% if (typeof filter !== 'undefined') { %>&filter=<%= filter %><% } %>">
+
+                                <button class="page-arrow">
+                                    <i class="fa-solid fa-chevron-left"></i>
+                                </button>
+
+                            </a>
+                        <% } %>
+
+                        <%
+                            const visiblePages = 3;
+                            let start = currentPage;
+                            let end = currentPage + visiblePages - 1;
+
+                            if (end > totalPages) {
+                                end = totalPages;
+                                start = Math.max(1, totalPages - visiblePages + 1);
+                            }
+                        %>
+
+
+                        <% for(let i = start; i <= end; i++) { %>
+                            <a style="text-decoration: none;"  href="/admin/salesManagement?page=<%= i %>
+
+                                <% if (typeof search !== 'undefined') { %>&search=<%= search %><% } %>
+                                <% if (typeof filter !== 'undefined') { %>&filter=<%= filter %><% } %>">
+
+                                <button class="page-num <%= currentPage === i ? 'active' : '' %>">
+                                    <%= i %>
+                                </button>
+                            </a>
+                        <% } %>
+
+
+                        <% if (end < totalPages) { %>
+                            <span>...</span>
+                        <% } %>
+
+
+                        <% if (currentPage < totalPages) { %>
+                            <a style="text-decoration: none;" href="/admin/salesManagement?page=<%= currentPage + 1 %>
+
+                                <% if (typeof search !== 'undefined') { %>&search=<%= search %><% } %>
+                                <% if (typeof filter !== 'undefined') { %>&filter=<%= filter %><% } %>">
+
+                                <button class="page-arrow">
+                                    <i class="fa-solid fa-chevron-right"></i>
+                                </button>
+                            </a>
+                        <% } %>
+
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Search Clear Button Logic
+            const reportSearchInput = document.getElementById('reportSearchInput');
+            const clearSearch = document.getElementById('clearSearch');
+
+            /*if (reportSearchInput && clearSearch) {
+                reportSearchInput.addEventListener('input', () => {
+                    if (reportSearchInput.value.length > 0) {
+                        clearSearch.style.display = 'block';
+                    } else {
+                        clearSearch.style.display = 'none';
+                    }
+                });
+
+                clearSearch.addEventListener('click', () => {
+                    reportSearchInput.value = '';
+                    clearSearch.style.display = 'none';
+                    reportSearchInput.focus();
+                });
+            }*/
+
+
+            if (reportSearchInput && clearSearch) {
+            reportSearchInput.addEventListener('input', () => {
+                if (reportSearchInput.value.length > 0) {
+                    clearSearch.style.display = 'block';
+                } else {
+                    clearSearch.style.display = 'none';
+                }
+            });
+
+            clearSearch.addEventListener('click', () => {
+                reportSearchInput.value = '';
+                clearSearch.style.display = 'none';
+                reportSearchInput.focus();
+                window.location.href = "/admin/salesManagement?filter=<%= filter %>"
+            });
+        }
+        reportSearchInput.addEventListener("input", () => {
+            clearSearch.style.display = reportSearchInput.value ? "block" : "none";
+        });
+        if (reportSearchInput.value.trim() !== "") {
+            clearSearch.style.display = "block";
+        }
+        reportSearchInput.addEventListener("input", () => {
+            clearSearch.style.display = reportSearchInput.value.trim() !== "" ? "block" : "none";
+        })
+
+        clearSearch.addEventListener("click", () => {
+            searchInput.value = "";
+            clearSearch.style.display = "none";
+            searchInput.focus();
+            window.location.href = "/admin/salesManagement?filter=<%= filter %>"
+        })
+
+            // Custom Date Toggle Logic
+            /*const dateFilterSelect = document.getElementById('dateFilterSelect')
+            const customDateFilter = document.getElementById('customDateFilter')*/
+            const today = new Date().toLocaleDateString('en-CA')
+            const filterSelect = document.getElementById("dateFilterSelect")
+            const customBox = document.getElementById("customDateFilter")
+            const startDate = document.getElementById("startDate").max = today
+            const endDate = document.getElementById("endDate").max = today
+
+            filterSelect.addEventListener("change",function (){
+                const value = this.value
+
+                if (value === "custom") {
+                    customBox.style.display = "flex"
+                } else {
+                    customBox.style.display = "none"
+                    window.location.href = `/admin/salesManagement?filter=${value}&search=<%= search %>`
+                }
+            }) 
+
+            endDate.addEventListener("change",()=>{
+                
+                if (startDate.value && endDate.value) {
+                    customBox.style.display = "flex"
+                    window.location.href = `/admin/salesManagement?filter=custom&start=${startDate.value}&end=${endDate.value}&search=<%= search %>`
+                }
+            })
+            /*
+            if (dateFilterSelect && customDateFilter) {
+                dateFilterSelect.addEventListener('change', (e) => {
+                    if (e.target.value === 'custom') {
+                        customDateFilter.style.display = 'flex';
+                    } else {
+                        customDateFilter.style.display = 'none';
+                    }
+                });
+            }
+            */
+            // Sales Chart Initialization
+           /* const ctx = document.getElementById('salesChart');
+            if (ctx) {
+                new Chart(ctx.getContext('2d'), {
+                    type: 'bar',
+                    data: {
+                        labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+                        datasets: [{
+                            label: 'Sales Revenue (₹)',
+                            data: [65000, 59000, 80000, 81000, 56000, 55000, 40000, 65000, 75000, 92000, 105000, 125000],
+                            backgroundColor: '#FF0000',
+                            borderRadius: 6,
+                            barPercentage: 0.6
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                display: false
+                            },
+                            tooltip: {
+                                backgroundColor: '#000B33',
+                                titleFont: { family: 'Inter', size: 13 },
+                                bodyFont: { family: 'Inter', size: 14, weight: 'bold' },
+                                padding: 12,
+                                cornerRadius: 8,
+                                displayColors: false,
+                                callbacks: {
+                                    label: function (context) {
+                                        return '₹ ' + context.parsed.y.toLocaleString('en-IN');
+                                    }
+                                }
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                border: { display: false },
+                                grid: {
+                                    color: '#E1E9F8',
+                                    drawTicks: false
+                                },
+                                ticks: {
+                                    color: '#7987A1',
+                                    font: { family: 'Inter', size: 12 },
+                                    padding: 10,
+                                    callback: function (value) {
+                                        return value >= 1000 ? (value / 1000) + 'k' : value;
+                                    }
+                                }
+                            },
+                            x: {
+                                border: { display: false },
+                                grid: { display: false },
+                                ticks: {
+                                    color: '#7987A1',
+                                    font: { family: 'Inter', size: 12 }
+                                }
+                            }
+                        }
+                    }
+                });
+            }*/
+        })
+
+    document.getElementById("exportPdfBtn").addEventListener("click",()=>{
+        window.location.href = '/admin/exportToPdf'
+    })
+    document.getElementById("exportExcelBtn").addEventListener("click",()=>{
+        window.location.href = '/admin/exportExcel'
+    })
+    </script>
+</body>
+
+</html>

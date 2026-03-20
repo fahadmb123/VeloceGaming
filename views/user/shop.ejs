@@ -183,9 +183,10 @@
                 <% } %>
                     <div class="product-price-row">
                         <span class="current-price">₹ <%= variant.offeredPrice.toLocaleString("en-IN") %></span>
-                        <% if (variant.productId.offer != 0){ %>
+                        <% if (variant.productId.offer != 0 || variant.productId.categoryId.offer != 0){ %>
                             <span class="discount">
-                            -<%= variant.productId.offer %>% OFF
+                            <% let offer = Math.max(variant.productId.offer , variant.productId.categoryId.offer ) %>
+                            -<%= offer %>% OFF
                             </span>
                         <% } %>
                         <span class="old-price">₹ <%= variant.price.toLocaleString("en-IN") %></span>

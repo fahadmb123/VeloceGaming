@@ -333,13 +333,18 @@ const loadProduct = async (req,res) => {
                     path: "categoryId"
                 }
             })
-
+        let cartCount = 0
+        if (req.session.user){
+            const cart = await cartModel.findOne({userId:req.session.user._id})
+            cartCount = cart?.items.length
+        }
         return res.render("user/productDetails",{
             variant,
             colorVariants,
             wishlistVariant,
             relatedVariants,
-            relatedProducts
+            relatedProducts,
+            cartCount
         })
     } catch (err) {
         console.log(err)
@@ -383,10 +388,15 @@ const loadWishlist = async (req,res) => {
                 item.variantId.colorHex = parsedColor.hex
             }
         })
-
+        let cartCount = 0
+        if (req.session.user){
+            const cart = await cartModel.findOne({userId:req.session.user._id})
+            cartCount = cart?.items.length
+        }
 
         return res.render ("user/wishlist",{
-            wishlistItems
+            wishlistItems,
+            cartCount
         })
     } catch (err) {
         console.log(err)
