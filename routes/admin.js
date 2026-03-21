@@ -6,6 +6,9 @@ const { uploadSingle,uploadMultiple , uploadAny } = require("../middleware/multe
 const orderManagement = require("../controller/admin/orderManagement")
 const couponManagement = require ("../controller/admin/couponManagement.js")
 const salesManagement = require("../controller/admin/salesManagement.js")
+const dashboardManagement = require("../controller/admin/dashboard.js")
+
+
 
 
 router.get("/login",isLoggedOut,adminController.loadLogin)
@@ -36,6 +39,8 @@ router.get("/salesManagement",isLogged,salesManagement.loadSales)
 router.get("/exportToPdf",isLogged,salesManagement.exportPDF)
 router.get("/exportExcel",isLogged,salesManagement.exportExcel)
 
+
+router.get("/dashboard",isLogged,dashboardManagement.loadDashboard)
 
 router.patch("/categoryManagement/categoryStatus/:id",isLogged,adminController.categoryStatus)
 

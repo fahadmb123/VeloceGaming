@@ -127,9 +127,9 @@
             <h1> <%= variant.productId.name %> </h1>
 
             <div class="price-rating-row">
-                <div class="rating-badge-large">
+                <!-- <div class="rating-badge-large">
                     4.6 <i class="fa-solid fa-star"></i>
-                </div>
+                </div> -->
                 <div class="product-price">
                     <span class="current-price">₹ <%= variant.offeredPrice.toLocaleString("en-IN") %></span>
                     <% if (variant.productId.offer != 0 || variant.productId.categoryId.offer != 0){ %>
@@ -259,11 +259,11 @@
                             
                         </div>
                         <span class="discount">-<%= variant.productId.offer %>% OFF</span><br>
-                        <div class="card-bottom">
+                        <!-- <div class="card-bottom">
                             <div class="card-rating">
                                 4.8 <i class="fa-solid fa-star"></i>
                             </div>
-                        </div>
+                        </div> -->
                     </div>
                 </a>
                 <% })
@@ -271,7 +271,7 @@
             </div>
         </section>
 
-    <section class="product-reviews">
+    <!-- <section class="product-reviews">
         <div class="reviews-header">
             <h3>Customer Reviews</h3>
         </div>
@@ -308,7 +308,7 @@
                     though.</p>
             </div>
         </div>
-    </section>
+    </section> -->
     
 </main>
 

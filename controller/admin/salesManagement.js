@@ -3,9 +3,9 @@ const PDFDocument = require("pdfkit")
 const ExcelJS = require("exceljs")
 
 
-function getNestedValue(obj, path) {
+/*function getNestedValue(obj, path) {
   return path.split(".").reduce((acc, part) => acc && acc[part], obj)
-}
+}*/
 const getOrderList = async (matchStage) => {
     const totalOrdersList = await orderModel.aggregate([
         {$match : matchStage},
