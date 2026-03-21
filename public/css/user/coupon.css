@@ -141,6 +141,8 @@ nav a {
     flex-direction: column;
     align-items: center;
     margin-bottom: 2rem;
+    width: 120px;
+    height: 160px;
 }
 
 .user-avatar {
@@ -149,6 +151,32 @@ nav a {
     border-radius: 50%;
     background-color: var(--primary-color);
     margin-bottom: 1rem;
+}
+.user-avatar-section {
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+.user-avatar-container {
+    position: relative;
+    width: 120px;
+    height: 120px;
+    margin: 0 auto 15px;
+}
+
+.user-avatar {
+    width: 100%;
+    height: 100%;
+    background-color: var(--primary-color);
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: white;
+    font-size: 64px;
+    font-weight: 700;
+    overflow: hidden;
+    box-shadow: 0 8px 25px rgba(255, 30, 30, 0.15);
 }
 
 .user-name {

@@ -200,9 +200,14 @@ const loadPaymentFailure = async (req,res) => {
     try {
 
         const variantId = req.query.variantId
-        
+        let cartCount = 0
+        if (req.session.user){
+            const cart = await cartModel.findOne({userId:req.session.user._id})
+            cartCount = cart?.items.length
+        }
         return res.render("user/paymentFailure",{
-            variantId
+            variantId,
+            cartCount
     })
     } catch (err) {
         console.log(err)
