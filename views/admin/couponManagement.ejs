@@ -20,7 +20,7 @@
 
             <nav class="sidebar-nav">
                 <ul>
-                    <li><a href="#"><span>DashBoard</span></a></li>
+                    <li><a href="/admin/dashboard"><span>DashBoard</span></a></li>
                     <li><a href="/admin/userManagement"><span>Users</span></a></li>
                     <li><a href="/admin/categoryManagement"><span>Category</span></a></li>
                     <li><a href="/admin/orderManagement"><span>Order</span></a></li>
@@ -238,7 +238,8 @@
                 </div>
                 <div id="expDateDiv" class="form-group">
                     <label for="expDate">Exp , Date</label>
-                    <input type="date" id="expDate" class="form-control">
+                    <input type="date" id="expDate" class="form-control" min=""
+                        onfocus="this.min = new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Kolkata' })">
                     <p style="color: red;font-size: 13px;font-weight: normal;margin-top: 2px !important;display: none;">Exp Date Required</p>
                 </div>
                 
@@ -325,6 +326,9 @@
                     submitBtn.textContent = 'Save';
                     
                     // Simple demo: populate one field from the row
+                    const today = new Date().toLocaleDateString("en-CA", {
+                        timeZone: "Asia/Kolkata"
+                    })
                     const row = btn.closest('tr');
                     const code = row.querySelector('.code-val').textContent;
                     document.getElementById('couponCode').value = coupon?.code
@@ -332,6 +336,7 @@
                     document.getElementById("discountValue").value = coupon?.discountValue
                     document.getElementById("minPurchase").value = coupon?.minPurchase
                     document.getElementById("maxDiscount").value = coupon?.maxDiscount
+                    document.getElementById("expDate").min = today
                     document.getElementById("expDate").value = coupon?.expiryDate.split("T")[0]
                     document.getElementById("maxUsage").value = coupon?.maxUsage 
                     currentMode = 'edit'

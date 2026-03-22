@@ -5,8 +5,10 @@ const orderModel = require("../../model/orderModel")
 const loadDashboard = async (req,res) => {
     try {
 
-        const {filter,chartFilter} = req.query
-
+        let {filter,chartFilter} = req.query
+        if (!chartFilter) {
+            chartFilter = "today"
+        }
         let startDate
         let endDate
 
@@ -174,9 +176,44 @@ const loadDashboard = async (req,res) => {
         let chartStage = {
                 _id : {$hour : "$createdAt"}
             }
+        let chartMatchStage
         if (chartFilter === "today") {
+            /*chartStage = {
+                _id: {
+                    $hour: {
+                        date: "$createdAt",
+                        timezone: "Asia/Kolkata"
+                    }
+                }
+            } */
+            const now = new Date();
+
+            const startOfDayIST = new Date(
+                now.toLocaleString("en-US", { timeZone: "Asia/Kolkata" })
+            )
+            startOfDayIST.setHours(0, 0, 0, 0)
+
+            const endOfDayIST = new Date(
+            now.toLocaleString("en-US", { timeZone: "Asia/Kolkata" })
+            )
+            endOfDayIST.setHours(23, 59, 59, 999)
+            chartMatchStage = {
+                "items.status": "delivered"
+            }
+
+            chartMatchStage = {
+                createdAt: {
+                    $gte: startOfDayIST,
+                    $lte: endOfDayIST
+                }
+            }
             chartStage = {
-                _id : {$hour : "$createdAt"}
+                _id: {
+                    $hour: {
+                        date: "$createdAt",
+                        timezone: "Asia/Kolkata"
+                    }
+                }
             }
         }
         else if (chartFilter === "week") {
@@ -195,9 +232,23 @@ const loadDashboard = async (req,res) => {
             }
         }
 
+        let revenue
 
+        if (chartFilter === "today") {
+            revenue = await orderModel.aggregate([
+            { $match : chartMatchStage},
+            {$unwind : "$items"},
+            {
+                $group : {
+                    ...chartStage,
+                    totalRevenue : { $sum : "$items.finalAmount"}
+                }
+            },
+            { $sort : {_id : 1}}
+           ])
+        } else {
 
-        const revenue = await orderModel.aggregate([
+        revenue = await orderModel.aggregate([
             { $match : { "items.status" : "delivered"}},
             {$unwind : "$items"},
             {
@@ -208,7 +259,9 @@ const loadDashboard = async (req,res) => {
             },
             { $sort : {_id : 1}}
         ])
-        console.log(chartFilter)
+        }
+
+        console.log(revenue)
         return res.render ("admin/dashboard",{
             topSellingCategory,
             topSellingProduct,
