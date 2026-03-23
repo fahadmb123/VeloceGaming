@@ -933,7 +933,7 @@ productForm.onsubmit = async function (e) {
         
 
         if (photoPreviews.length < 3) {
-            alert(`Variant ${i + 1} must have at least 3 photos.`);
+            showToast(`Variant ${i + 1} must have at least 3 photos.`,"error");
             return;
         }
 
@@ -1050,7 +1050,7 @@ productForm.onsubmit = async function (e) {
 
     } catch (error) {
         console.log(error);
-        alert("Server error");
+        showToast("Server error","error");
     }
 };
 

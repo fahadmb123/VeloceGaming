@@ -287,7 +287,7 @@ const otpVarification = async (req,res) => {
 
 const checkRefferal = async (req,res) => {
     try {
-        console.log(req.body)
+        
         let {refferalCode} = req.body
 
         let isExist = await userModel.findOne({refferalCode})

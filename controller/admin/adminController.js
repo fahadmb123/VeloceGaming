@@ -403,7 +403,7 @@ const productStatus = async (req,res) => {
                 message : "Product Not Found"
             })
         }
-console.log("Hello")
+
 
 
         await productModel.updateOne(

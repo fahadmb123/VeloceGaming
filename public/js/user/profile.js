@@ -262,7 +262,7 @@ function togglePassword(inputId, el) {
                     const data = await response.json()
 
                     if (data.success){
-                        //console.log(data.message)
+                        
                         showToast(data.message)
                         window.location.reload();
                     }

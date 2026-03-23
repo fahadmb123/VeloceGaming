@@ -383,7 +383,7 @@ const placeOrder = async (req) => {
             req.session.coupon = null
             await cartModel.deleteOne({userId:req.session.user._id})
             await order.save()
-            console.log("ordered Successfully")
+            
             return {message : true,orderObjectId : order._id}
         }
 

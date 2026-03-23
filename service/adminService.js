@@ -230,6 +230,7 @@ const addProduct = async (req) => {
             let obj = variants[i]
             //let offeredPrice = obj.price * (1 - offer / 100)
             let offeredPrice
+            
             if (!mainOffer) {
                 offeredPrice = obj.price
             } else {
@@ -502,12 +503,12 @@ const editProduct = async (req) => {
 
             let offeredPrice
             let mainOffer = Math.max(productCategory.offer || 0 , offer || 0)
-            if (!offer) {
+            
+            if (!mainOffer) {
                 offeredPrice = variant.price
             } else {
                 offeredPrice = variant.price * (1 - mainOffer / 100)
             }
-
 
             // UPDATE EXISTING VARIANT
             if (variant._id) {

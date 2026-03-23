@@ -19,7 +19,7 @@ const validateBody = z.object({
 const updateOrderStatus = async (req) => {
     try {
 
-        console.log(req.body)
+        
         const validatedBody = validateBody.safeParse(req.body)
 
         if (!validatedBody.success) {

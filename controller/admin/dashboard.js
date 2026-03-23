@@ -197,11 +197,10 @@ const loadDashboard = async (req,res) => {
             now.toLocaleString("en-US", { timeZone: "Asia/Kolkata" })
             )
             endOfDayIST.setHours(23, 59, 59, 999)
-            chartMatchStage = {
-                "items.status": "delivered"
-            }
+            
 
             chartMatchStage = {
+                "items.status": "delivered",
                 createdAt: {
                     $gte: startOfDayIST,
                     $lte: endOfDayIST
@@ -261,7 +260,7 @@ const loadDashboard = async (req,res) => {
         ])
         }
 
-        console.log(revenue)
+        
         return res.render ("admin/dashboard",{
             topSellingCategory,
             topSellingProduct,

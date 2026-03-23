@@ -26,7 +26,7 @@ const sendMail = async (email,subject,html) => {
             if (err) {
                 console.log(err)
             }
-            //console.log("message Send: "+info.messageId)
+            
         })
 
     } catch (err) {
