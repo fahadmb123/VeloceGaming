@@ -368,7 +368,7 @@
     const modalOverlay = document.getElementById('pickupModalOverlay')
     document.addEventListener('DOMContentLoaded', () => {
         const scheduleBtn = document.getElementById('schedulePickupBtn');
-        //const modalOverlay = document.getElementById('pickupModalOverlay');
+        
         const closeBtn = document.getElementById('closeModalBtn');
 
         if (scheduleBtn && modalOverlay) {
@@ -383,13 +383,7 @@
             });
         }
 
-        /*if (modalOverlay) {
-            modalOverlay.addEventListener('click', (e) => {
-                if (e.target === modalOverlay) {
-                    modalOverlay.classList.remove('active');
-                }
-            });
-        }*/
+        
 
         const dateInput = document.getElementById('pickupDate');
         if (dateInput) {

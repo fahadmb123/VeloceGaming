@@ -7,44 +7,6 @@ const cartModel = require("../../model/cartModel.js")
 
 
 
-/*const loadShop = async (req,res) => {
-    try {
-
-        const categories = await categoryModel.find()
-        const variants = await variantModel.find().populate({
-                                                        path: "productId",
-                                                        populate: {
-                                                             path: "categoryId"
-                                                        }
-                                                    });
-        
-        variants.forEach ((variant,index)=>{
-
-            const colorAttr = variant.attributes.find(a => a.key === "color");
-
-            let parsedColor = {name : "" , hex: "#000000"}
-
-            if (colorAttr) {
-                try {
-                    parsedColor = JSON.parse(colorAttr.value)
-                } catch {
-                    parsedColor = { name: colorAttr.value, hex: "#000000" };
-                }
-            }
-
-            variant.colorName = parsedColor.name
-            variant.colorHex = parsedColor.hex
-        })
-
-        return res.render("user/shop",{
-            categories,
-            variants
-        })
-    } catch (err) {
-        console.log(err)
-    }
-}*/
-
 
 
 const loadShop = async (req, res) => {
@@ -190,16 +152,7 @@ const loadShop = async (req, res) => {
             variants.sort((a,b)=> b.productId.name.localeCompare(a.productId.name)) 
         }
 
-        /*let wishlistVariantIds = [];
-
-        if (req.session.user) {
-            const wishlistItems = await wishlistModel.find({
-                userId: req.session.user._id
-            });
-            wishlistVariantIds = wishlistItems.map(item =>
-                item.variantId.toString()
-            );
-        }*/
+        
 
         const totalPages = Math.ceil(total / limit);
 
@@ -458,14 +411,7 @@ const loadCart = async (req,res) => {
                 },0)
                 
             }
-            /*
-        if (cart && cart.items) {
-            total = cart.items.reduce((acc, item) => {
-                const price = item.variantId?.offeredPrice || 0; // safely access
-                const qty = item.quantity || 0;
-                return acc + price * qty;
-            }, 0);
-        }*/
+           
         
         return res.render ("user/cart",{
             cartItems,
@@ -584,9 +530,7 @@ const addToCart = async (req,res) => {
 
         const {loginRequired,message,valid,failMessage} = await userProductService.addToCart(req)
 
-        /*if (!valid) {
-            return res.redirect("/shop")
-        }*/
+        
         if (loginRequired) {
             return res.json({loginRequired : true})
         }
@@ -619,12 +563,7 @@ const cartInc = async (req,res) => {
             })
         }
 
-        /*const cartItems = await cartModel.findOne({userId:req.session.user._id}).populate({path:"items.variantId",populate:{path:"productId"}})
-        cartItems.items.forEach ((item,index)=>{
-
-            let subtotal = item.quantity * item.variantId.offeredPrice
-            item.subtotal = subtotal
-        })*/
+        
 
         if (message) {
             let variantId = req.query.variantId
@@ -677,12 +616,7 @@ const cartDec = async (req,res) => {
             })
         }
 
-        /*const cartItems = await cartModel.findOne({userId:req.session.user._id}).populate({path:"items.variantId",populate:{path:"productId"}})
-        cartItems.items.forEach ((item,index)=>{
-
-            let subtotal = item.quantity * item.variantId.offeredPrice
-            item.subtotal = subtotal
-        })*/
+        
 
         if (message) {
             let variantId = req.query.variantId

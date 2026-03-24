@@ -2,7 +2,7 @@ const couponModel = require("../../model/couponModel")
 const couponManagementService = require("../../service/admin/couponManagement")
 const {couponStatusSchema} = require("../../helpers/validators")
 
-const loadCouponManagement = async (req,res) => {
+const loadCouponManagement = async (req,res,next) => {
     try {
         let page = parseInt(req.query.page) || 1
         let limit = 10
@@ -41,7 +41,7 @@ const loadCouponManagement = async (req,res) => {
             filter: statusFilter
         })
     } catch (err) {
-        console.log(err)
+        next(err)
     }
 }
 
@@ -49,7 +49,7 @@ const loadCouponManagement = async (req,res) => {
 
 
 
-const addCoupon = async (req,res) => {
+const addCoupon = async (req,res,next) => {
     try {
         if (!req.session.admin) {
             return {loginRequired : true}
@@ -77,11 +77,11 @@ const addCoupon = async (req,res) => {
             })
         }
     } catch (err) {
-        console.log(err)
+        next(err)
     }
 }
 
-const editCoupon = async (req,res) => {
+const editCoupon = async (req,res,next) => {
     try {
         if (!req.session.admin) {
             return {loginRequired : true}
@@ -109,11 +109,11 @@ const editCoupon = async (req,res) => {
             })
         }
     } catch (err) {
-        console.log(err)
+        next(err)
     }
 }
 
-const couponStatus = async (req,res) => {
+const couponStatus = async (req,res,next) => {
     try {
         
         if (!req.session.admin){
@@ -154,7 +154,7 @@ const couponStatus = async (req,res) => {
             message : "Updated"
         })
     } catch (err) {
-        console.log(err)
+        next(err)
     }
 }
 

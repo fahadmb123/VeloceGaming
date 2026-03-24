@@ -22,7 +22,7 @@ const validateQuery = z.object({
 
 
 
-const loadOrderManagement = async (req,res) => {
+const loadOrderManagement = async (req,res,next) => {
     try {
 
         if (!req.session.admin) {
@@ -60,8 +60,7 @@ const loadOrderManagement = async (req,res) => {
 
         
 
-        /*const totalOrder = await orderModel.countDocuments(filter)
-        const totalPages = Math.ceil(totalOrder / limit)*/
+        
 
         orders?.forEach ((order,index) => {
             order?.items.forEach(item=>{
@@ -122,13 +121,13 @@ const loadOrderManagement = async (req,res) => {
         })
 
     } catch (err) {
-        console.log(err)
+        next(err)
     }
 }
 
 
 
-const loadOrderDetails = async (req,res) => {
+const loadOrderDetails = async (req,res,next) => {
     try {
 
         if (!req.session.admin) {
@@ -170,14 +169,14 @@ const loadOrderDetails = async (req,res) => {
         })
 
     } catch (err) {
-        console.log(err)
+        next(err)
     }
 }
 
 
 
 
-const updateOrderStatus = async (req,res) => {
+const updateOrderStatus = async (req,res,next) => {
     try {
         if (!req.session.admin){
             return {loginRequuired : true}
@@ -200,11 +199,11 @@ const updateOrderStatus = async (req,res) => {
             })
         }
     } catch (err) {
-        console.log(err)
+        next(err)
     }
 }
 
-const returnRequestAccept = async (req,res) => {
+const returnRequestAccept = async (req,res,next) => {
     try {
 
         if (!req.session.admin) {
@@ -228,11 +227,11 @@ const returnRequestAccept = async (req,res) => {
         }
 
     } catch (err) {
-        console.log(err)
+        next(err)
     }    
 }
 
-const rejectReturnRequest = async (req,res) => {
+const rejectReturnRequest = async (req,res,next) => {
     try {
         if (!req.session.admin) {
             return {loginRequuired : true}
@@ -255,7 +254,7 @@ const rejectReturnRequest = async (req,res) => {
         }
 
     } catch (err) {
-        console.log(err)
+        next(err)
     }
 }
 

@@ -475,6 +475,7 @@
                 if (isValid) {
                   
                     let url
+                    
                     if (currentMode === 'edit') {
                         url = `/admin/editCoupon?id=${couponId}`
                     } else if (currentMode === "add"){
@@ -483,7 +484,7 @@
 
 
                     const response = await fetch(url,{
-                        method : "post",
+                        method : 'post',
                         headers : {
                             "content-Type" : "application/json"
                         },

@@ -54,9 +54,6 @@ const productSchema = mongoose.Schema({
         type : Number,
         default : 0
     },
-    /*variantCount : {
-        type : Number
-    }*/
 
 },{timestamps:true})
 

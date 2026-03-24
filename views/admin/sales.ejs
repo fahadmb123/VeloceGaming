@@ -224,21 +224,7 @@
             const reportSearchInput = document.getElementById('reportSearchInput');
             const clearSearch = document.getElementById('clearSearch');
 
-            /*if (reportSearchInput && clearSearch) {
-                reportSearchInput.addEventListener('input', () => {
-                    if (reportSearchInput.value.length > 0) {
-                        clearSearch.style.display = 'block';
-                    } else {
-                        clearSearch.style.display = 'none';
-                    }
-                });
-
-                clearSearch.addEventListener('click', () => {
-                    reportSearchInput.value = '';
-                    clearSearch.style.display = 'none';
-                    reportSearchInput.focus();
-                });
-            }*/
+            
 
 
             if (reportSearchInput && clearSearch) {
@@ -275,8 +261,7 @@
         })
 
             // Custom Date Toggle Logic
-            /*const dateFilterSelect = document.getElementById('dateFilterSelect')
-            const customDateFilter = document.getElementById('customDateFilter')*/
+            
             const today = new Date().toLocaleDateString('en-CA')
             const filterSelect = document.getElementById("dateFilterSelect")
             const customBox = document.getElementById("customDateFilter")
@@ -301,82 +286,9 @@
                     window.location.href = `/admin/salesManagement?filter=custom&start=${startDate.value}&end=${endDate.value}&search=<%= search %>`
                 }
             })
-            /*
-            if (dateFilterSelect && customDateFilter) {
-                dateFilterSelect.addEventListener('change', (e) => {
-                    if (e.target.value === 'custom') {
-                        customDateFilter.style.display = 'flex';
-                    } else {
-                        customDateFilter.style.display = 'none';
-                    }
-                });
-            }
-            */
+            
             // Sales Chart Initialization
-           /* const ctx = document.getElementById('salesChart');
-            if (ctx) {
-                new Chart(ctx.getContext('2d'), {
-                    type: 'bar',
-                    data: {
-                        labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
-                        datasets: [{
-                            label: 'Sales Revenue (₹)',
-                            data: [65000, 59000, 80000, 81000, 56000, 55000, 40000, 65000, 75000, 92000, 105000, 125000],
-                            backgroundColor: '#FF0000',
-                            borderRadius: 6,
-                            barPercentage: 0.6
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: {
-                            legend: {
-                                display: false
-                            },
-                            tooltip: {
-                                backgroundColor: '#000B33',
-                                titleFont: { family: 'Inter', size: 13 },
-                                bodyFont: { family: 'Inter', size: 14, weight: 'bold' },
-                                padding: 12,
-                                cornerRadius: 8,
-                                displayColors: false,
-                                callbacks: {
-                                    label: function (context) {
-                                        return '₹ ' + context.parsed.y.toLocaleString('en-IN');
-                                    }
-                                }
-                            }
-                        },
-                        scales: {
-                            y: {
-                                beginAtZero: true,
-                                border: { display: false },
-                                grid: {
-                                    color: '#E1E9F8',
-                                    drawTicks: false
-                                },
-                                ticks: {
-                                    color: '#7987A1',
-                                    font: { family: 'Inter', size: 12 },
-                                    padding: 10,
-                                    callback: function (value) {
-                                        return value >= 1000 ? (value / 1000) + 'k' : value;
-                                    }
-                                }
-                            },
-                            x: {
-                                border: { display: false },
-                                grid: { display: false },
-                                ticks: {
-                                    color: '#7987A1',
-                                    font: { family: 'Inter', size: 12 }
-                                }
-                            }
-                        }
-                    }
-                });
-            }*/
+           
         })
 
     document.getElementById("exportPdfBtn").addEventListener("click",()=>{

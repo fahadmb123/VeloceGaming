@@ -11,6 +11,7 @@ const path = require("path")
 const expressLayouts = require("express-ejs-layouts");
 const { url } = require("inspector")
 const noCache = require("nocache")
+const {errorHandler} = require('./middleware/errorHandler.js')
 require("./cron/cleanupJob.js")
 
 
@@ -69,13 +70,13 @@ app.use("/",userRouter)
 app.use("/admin",adminRouter)
 
 
-
 app.use((req,res)=>{
     res.status(404).render("404")
 })
 
+app.use(errorHandler)
 
-dbConnect();
+dbConnect()
 
 
 

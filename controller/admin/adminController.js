@@ -69,11 +69,7 @@ const loadUserManagement = async (req,res) => {
 
 
 const loadCategoryManagement = async (req,res) => {
-        /*const categories = await categoryModel.find()
-
-        res.render("admin/categoryManagement",{
-            categories
-        })*/
+    
        try {
 
         let page = parseInt(req.query.page) || 1

@@ -202,77 +202,7 @@ const cartDec = async (req) => {
         console.log(err)
     }
 }
-/*
-const allToCart = async (req) => {
-    try {
 
-        if (!req.session.user) {
-            return {loginRequired : true}
-        }
-        const userId = req.session.user._id
-        const wishlistItems = await wishlistModel.find({userId:req.session.user._id}).populate("variantId")
-        
-        if (wishlistItems.length === 0){
-            return {failMessage : "Products Not Found"}
-        }
-
-        let variants = wishlistItems.map(variant => {
-            return variant.variantId
-        })
-
-
-        let returnMessage = null
-        for (let variant of variants) {
-            if (variant.stock < 1) {
-                returnMessage = "Some Product Don't Have Much Stock"
-                break;
-            }
-        }
-        if (returnMessage) {
-            return {failMessage:returnMessage}
-        }
-
-
-        variants.forEach(variant => {
-            async function work() {
-                let variantId = variant._id
-                
-                
-
-                const result = await cartModel.updateOne(
-                    {
-                        userId,
-                        "items.variantId": variantId
-                    },
-                    {
-                        $inc: { "items.$.quantity": 1 }
-                    }
-                )
-
-                if (result.modifiedCount === 0) {
-                    await cartModel.updateOne(
-                        { userId },
-                        {
-                            $push: {
-                                items: {
-                                    variantId:variantId,
-                                    quantity: 1
-                                }
-                            }
-                        },
-                        { upsert: true }
-                    )
-                }
-                await wishlistModel.deleteOne({userId})   
-            }
-            work()
-        });
-
-        return {message : "All Products In The Cart Updated"}
-    } catch (err) {
-        console.log(err)
-    }
-}*/
 const allToCart = async (req) => {
     try {
 

@@ -2,7 +2,7 @@ const userModel = require("../../model/userModel")
 const orderModel = require("../../model/orderModel")
 
 
-const loadDashboard = async (req,res) => {
+const loadDashboard = async (req,res,next) => {
     try {
 
         let {filter,chartFilter} = req.query
@@ -178,14 +178,7 @@ const loadDashboard = async (req,res) => {
             }
         let chartMatchStage
         if (chartFilter === "today") {
-            /*chartStage = {
-                _id: {
-                    $hour: {
-                        date: "$createdAt",
-                        timezone: "Asia/Kolkata"
-                    }
-                }
-            } */
+            
             const now = new Date();
 
             const startOfDayIST = new Date(
@@ -272,7 +265,7 @@ const loadDashboard = async (req,res) => {
             chartFilter
         })
     } catch (err) {
-        console.log(err)
+        next(err)
     }
 }
 

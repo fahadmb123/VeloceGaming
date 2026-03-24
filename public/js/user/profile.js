@@ -213,8 +213,7 @@ function togglePassword(inputId, el) {
 
         confirmBtn.addEventListener('click', async () => {
             
-            /*avatarDisplay.innerHTML = `<img src="${previewImg.src}" style="width:100%; height:100%; object-fit:cover; border-radius:50%;">`;
-            closeModal();*/
+            
             const spinner = document.getElementById("admin-spinner");
             spinner.style.display = "flex"
             if (!cropper ) return 

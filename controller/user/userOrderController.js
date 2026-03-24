@@ -202,13 +202,7 @@ const verifyRazorpayPayment = async (req,res)=>{
 
         if(expectedSignature === razorpay_signature){
 
-            /*const {message,orderObjectId} = await userOrderService.placeOrder(req)
-
-            res.json({
-                success:true,
-                orderObjectId
-            })*/
-           //console.log(req.body.variantId)
+           
            req.session.variantId = req.body.variantId
            req.session.quantity = req.body.quantity
            const {failMessage,message,orderObjectId} = await userOrderService.placeOrder(req)

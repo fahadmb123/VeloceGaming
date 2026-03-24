@@ -13,10 +13,6 @@ const categorySchema = mongoose.Schema({
         unique : true,
         lowercase : true
     },
-    /*status : {
-        type : Boolean,
-        default : true
-    },*/
     offer : {
         type : Number
     },
