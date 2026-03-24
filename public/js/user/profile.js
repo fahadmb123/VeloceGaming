@@ -14,7 +14,7 @@ function togglePassword(inputId, el) {
     const text = document.getElementById("referralText").innerText;
 
     navigator.clipboard.writeText(text)
-        .then(() => alert("Copied!"));
+        .then(() => showToast("Copied!","success"));
     }
 
     let messageElement = document.getElementById("swalMessage");
