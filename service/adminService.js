@@ -63,7 +63,7 @@ const userStatus = async (req) => {
 const addCategory = async (req) => {
     try {
 
-        //let failMessage
+        
         const {offer,name,} = req.body
 
         const slug = await generateSlug(name)
@@ -76,7 +76,7 @@ const addCategory = async (req) => {
         }
 
         const image = await cloudinary.uploader.upload(req.file.path,{folder:"category-image"}) 
-        console.log(image)
+        
         const newCategory = new categoryModel({
             name,
             slug,

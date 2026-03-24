@@ -163,13 +163,7 @@
                     <span>₹<%= (discount ?? 0).toLocaleString("en-IN") %></span>
                 </div>
 
-                <!-- <div class="coupon-section">
-                    <p>Coupon Code</p>
-                    <div class="coupon-input">
-                        <input type="text" placeholder="Enter coupon code">
-                        <button class="btn-apply">Apply</button>
-                    </div>
-                </div> -->
+                
 
                 <div class="total-row">
                     <span class="total-amount">₹ <%= total.toLocaleString("en-IN") %></span>
@@ -207,7 +201,7 @@
                 </div>
                 <div class="coupons-list">
                     <% if (coupons.length !== 0) { 
-                        coupons.forEach((coupon,index)=>{ console.log(coupon) %>
+                        coupons.forEach((coupon,index)=>{  %>
                     <div class="coupon-card">
                         <div class="coupon-left">
                             <span class="coupon-code-tag"><%= coupon.code %></span>

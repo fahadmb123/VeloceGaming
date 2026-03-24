@@ -7,7 +7,7 @@ const cartModel = require("../../model/cartModel")
 const loadCoupon = async (req,res) => {
     try {
 
-        //const coupons = await couponModel.find()
+        
 
         const usedCouponCode = await orderModel.distinct("couponCode", {
             userId: req.session.user._id,
