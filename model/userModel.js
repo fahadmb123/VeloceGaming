@@ -6,6 +6,10 @@ function generateReferralCode() {
 }
 
 const userSchema = mongoose.Schema({
+    refferedBy : {
+        type : mongoose.Schema.Types.ObjectId,
+        ref : "user"
+    },
     name : {
         type : String,
         required : true

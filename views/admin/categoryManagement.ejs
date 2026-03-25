@@ -1,7 +1,9 @@
 <link rel="stylesheet" href="/css/admin/categoryManagement.css">
 
 
-
+<div id="admin-spinner" class="spinner-overlay" style="display:none;">
+    <div class="spinner"></div>
+</div>
 <div class="dashboard-container">
     <!-- Sidebar -->
     <aside class="sidebar">
@@ -19,14 +21,14 @@
 
         <nav class="sidebar-nav">
             <ul>
-                <li><a href="#"><span>DashBoard</span></a></li>
+                <li><a href="/admin/dashboard"><span>DashBoard</span></a></li>
                 <li><a href="/admin/userManagement"><span>Users</span></a></li>
                 <li class="active"><a href="#"><span>Category</span></a></li>
-                <li><a href="#"><span>Order</span></a></li>
+                <li><a href="/admin/orderManagement"><span>Order</span></a></li>
                 <li><a href="/admin/productManagement"><span>Product</span></a></li>
-                <li><a href="#"><span>Coupon</span></a></li>
-                <li><a href="#"><span>Report</span></a></li>
-                <li><a href="#"><span>Banner</span></a></li>
+                <li><a href="/admin/couponManagement"><span>Coupon</span></a></li>
+                <li><a href="/admin/salesManagement"><span>Report</span></a></li>
+                <!-- <li><a href="/admin/bannerManagement"><span>Banner</span></a></li> -->
             </ul>
         </nav>
 
@@ -123,7 +125,6 @@
             <div class="pagination">
                     <div class="pagination">
 
-
                         <% if (currentPage > 1) { %>
                             <a style="text-decoration: none;" href="/admin/categoryManagement?page=<%= currentPage - 1 %>
 
@@ -138,13 +139,13 @@
                         <% } %>
 
                         <%
-                            const visiblePages = 3;
-                            let start = currentPage;
-                            let end = currentPage + visiblePages - 1;
+                            const visiblePages = 3
+                            let start = currentPage
+                            let end = currentPage + visiblePages - 1
 
                             if (end > totalPages) {
-                                end = totalPages;
-                                start = Math.max(1, totalPages - visiblePages + 1);
+                                end = totalPages
+                                start = Math.max(1, totalPages - visiblePages + 1)
                             }
                         %>
 
@@ -178,7 +179,6 @@
                                 </button>
                             </a>
                         <% } %>
-
                     </div>      
                 </div>
         </section>
@@ -235,7 +235,7 @@
     let currentCategoryId = null;
     let cropper = null
 
-    // ================= SEARCH =================
+   
     if (searchInput) {
         if (searchInput.value) clearSearch.style.display = 'block';
 
@@ -252,7 +252,7 @@
         });
     }
 
-    // ================= MODAL =================
+    
     function openCategoryModal(mode, row = null) {
         if (cropper) {
             cropper.destroy()
@@ -290,14 +290,14 @@
                     }
 
                     cropper = new Cropper(preview, {
-                        viewMode: 1,            // restrict crop area
-                        dragMode: 'move',       // move image inside crop
-                        aspectRatio: 1,         // square crop
-                        cropBoxResizable: false, // fix crop box size
-                        cropBoxMovable: false,   // crop box doesn't move
-                        zoomable: true,          // allow zoom
-                        background: true,        // gray overlay outside
-                        guides: true             // show grid
+                        viewMode: 1,            
+                        dragMode: 'move',       
+                        aspectRatio: 1,         
+                        cropBoxResizable: false, 
+                        cropBoxMovable: false,   
+                        zoomable: true,          
+                        background: true,        
+                        guides: true             
                     });
                 }
             }
@@ -324,41 +324,68 @@
     }
 
     function previewCategoryImage(input) {
-        const preview = document.getElementById('catImagePreview');
 
-        if (input.files && input.files[0]) {
+    const preview = document.getElementById('catImagePreview');
 
-            const reader = new FileReader();
+    if (!input.files || !input.files[0]) return;
 
-            reader.onload = function (e) {
+    const file = input.files[0];
 
-            preview.src = e.target.result;
-            preview.style.display = 'block';
+    const allowedTypes = [
+        "image/jpeg",
+        "image/png",
+        "image/webp",
+        "image/jpg"
+    ];
 
-            // VERY IMPORTANT: wait for image to render
-            setTimeout(() => {
+    
+    if (!allowedTypes.includes(file.type)) {
+        showToast("Only JPG, JPEG, PNG, WEBP images allowed", "error");
+        input.value = "";
+        preview.style.display = "none";
+        return;
+    }
 
-                if (cropper) {
-                    cropper.destroy();
-                }
+    
+    if (file.size > 2 * 1024 * 1024) {
+        showToast("Image must be less than 2MB", "error");
+        input.value = "";
+        preview.style.display = "none";
+        return;
+    }
 
-                cropper = new Cropper(preview, {
-                        viewMode: 1,            // restrict crop area
-                        dragMode: 'move',       // move image inside crop
-                        aspectRatio: 1,         // square crop
-                        cropBoxResizable: false, // fix crop box size
-                        cropBoxMovable: false,   // crop box doesn't move
-                        zoomable: true,          // allow zoom
-                        background: true,        // gray overlay outside
-                        guides: true             // show grid
-                    })
+    const reader = new FileReader();
 
-            }, 100); // small delay fixes modal rendering issue
-        };
+    reader.onload = function (e) {
 
-        reader.readAsDataURL(input.files[0]);
-        } 
-    } 
+        preview.src = e.target.result;
+        preview.style.display = "block";
+
+        setTimeout(() => {
+
+            if (cropper) {
+                cropper.destroy();
+            }
+
+            cropper = new Cropper(preview, {
+                viewMode: 1,
+                dragMode: 'move',
+                aspectRatio: 1,
+                cropBoxResizable: false,
+                cropBoxMovable: false,
+                zoomable: true,
+                background: true,
+                guides: true
+            });
+
+        }, 100);
+
+    };
+
+    reader.readAsDataURL(file);
+}
+
+
 
     window.onclick = function (event) {
         if (event.target == modal) {
@@ -369,8 +396,7 @@
 
     async function deleteCategory(id,status) {
         if (confirm("Are You Sure ?")) {
-            /*window.location.href =
-                `/admin/categoryManagement/categoryStatus/${id}?status=${status}`;*/
+            
             const response = await fetch (`/admin/categoryManagement/categoryStatus/${id}?status=${status}`,{
                 method: "PATCH"
             })
@@ -420,15 +446,16 @@
         }
 
         
-        if (!offer || isNaN(offer)) {
+        if (offer) {
+            if (isNaN(offer)) {
             offerDiv.querySelector('input').style.border = '1px solid red';
             offerDiv.querySelector('p').style.display = 'block';
             isValid = false;
-        } else {
+            } else {
             offerDiv.querySelector('input').style.border = '1px solid gray';
             offerDiv.querySelector('p').style.display = 'none';
+            }
         }
-
         
         if (currentMode === "add" && imageInput.files.length === 0) {
             imageDiv.querySelector('p').style.display = 'block';
@@ -464,6 +491,9 @@
         formData.append("categoryImage", blob, "cropped.jpg");
         }
 
+        const spinner = document.getElementById("admin-spinner");
+        spinner.style.display = "flex"
+
         try {
 
             const url = currentMode === "add"
@@ -474,6 +504,7 @@
                 method: "POST",
                 body: formData
             });
+            spinner.style.display = "none";
 
             const data = await response.json();
 
@@ -491,7 +522,7 @@
 
         } catch (error) {
             console.error(error);
-            alert("Something went wrong");
+            showToast("Something went wrong","error");
         }
     });
 

@@ -231,3 +231,45 @@ main {
         margin-top: 10px;
     }
 }
+
+
+
+
+
+
+/* Base Toast Style */
+.toast {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    padding: 12px 20px;
+    border-radius: 6px;
+    color: #fff;
+    font-weight: 500;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    z-index: 100005;
+    display: flex;
+    opacity: 0;
+    transform: translateX(100%);
+    transition: all 0.3s ease;
+}
+
+/* Show Animation */
+.toast.show {
+    opacity: 1;
+    transform: translateX(0);
+}
+
+/* Success */
+.toast-success {
+    background-color: #28a745;
+}
+
+/* Error */
+.toast-error {
+    background-color: #dc3545;
+}
+.toast {
+    min-width: 250px;
+    max-width: 350px;
+}

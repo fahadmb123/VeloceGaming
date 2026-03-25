@@ -41,17 +41,22 @@
         </nav>
 
         <div class="search-bar">
-            <input type="text" id="desktopSearchInput" placeholder="Search for products, brands and more...">
+            <input type="text" id="desktopSearchInput" placeholder="What are you looking for?">
             <div class="search-icons">
                 <i class="fa-solid fa-circle-xmark clear-search" id="clearDesktopSearchBtn"></i>
-                <i class="fa-solid fa-magnifying-glass"></i>
+                <i class="fa-solid fa-magnifying-glass" id="searchIconDesktop"></i>
             </div>
         </div>
 
         <div class="header-icons">
             <% if (user) { %>
                 <a href="/wishlist"><i class="fa-regular fa-heart"></i></a>
-                <a href="/cart"><i class="fa-solid fa-cart-shopping"></i></a>
+                <a style="text-decoration: none;" href="/cart" class="cart-icon-wrapper">
+                <i class="fa-solid fa-cart-shopping"></i>
+                <% if (Number(cartCount) > 0) { %>
+                    <span class="cart-badge"><%= cartCount %></span>
+                <% } %>
+               </a>
             <% } %>
             <div class="user-menu">
                 <% if (user) { %>
@@ -85,11 +90,28 @@
         </div>
     </div>
 
+    <nav class="breadcrumb">
+        <a href="/">Home</a>
+        <span>/</span>
+
+        <a href="/shop">Shop</a>
+        <span>/</span>
+
+        <a href="/shop?category=<%= variant.productId.categoryId._id %>">
+            <%= variant.productId.categoryId.name %>
+        </a>
+        <span>/</span>
+
+        <span class="product-name" >
+            <%= variant.productId.name %>
+        </span>
+    </nav><br>
+
     <section class="product-main">
         
         <div class="product-gallery">                
             <div class="main-image" id="mainImageBox">
-                    <img src="<%= variant.images[0] %>" id="mainProductImg">
+                    <img  src="<%= variant.images[0] %>" id="mainProductImg">
                     <div class="zoom-pane" id="zoomPane"></div>
             </div>
             <div class="thumbnail-list">
@@ -106,18 +128,19 @@
             <h1> <%= variant.productId.name %> </h1>
 
             <div class="price-rating-row">
-                <div class="rating-badge-large">
+                <!-- <div class="rating-badge-large">
                     4.6 <i class="fa-solid fa-star"></i>
-                </div>
+                </div> -->
                 <div class="product-price">
-                    <span class="current-price">₹ <%= variant.offeredPrice %></span>
-                    <% if (variant.productId.offer != 0){ %>
+                    <span class="current-price">₹ <%= variant.offeredPrice.toLocaleString("en-IN") %></span>
+                    <% if (variant.productId.offer != 0 || variant.productId.categoryId.offer != 0){ %>
                             <span class="discount">
-                            -<%= variant.productId.offer %>% OFF
+                            <% let offer = Math.max(variant.productId.offer , variant.productId.categoryId.offer ) %>
+                            -<%= offer %>% OFF
                             </span>
                         <% } %>
                         
-                    <p class="old-price">₹ <%= variant.price %></p><br>
+                    <p class="old-price">₹ <%= variant.price.toLocaleString("en-IN") %></p><br>
                 </div>
                 <p class="product-color">
                         <% variant.attributes.forEach ( (attr,index) => { %>
@@ -207,7 +230,49 @@
             </div>
         </div>
     </section>
-    <section class="product-reviews">
+
+
+    <!-- Related Products Section -->
+        <section class="related-products">
+            <h3>Related Products</h3>
+            <div class="products-grid">
+                <!-- Product 1 -->
+                 <% if (relatedProducts) { 
+                    relatedVariants.forEach((variant,index)=>{ %>
+                <a href="/product/<%= variant._id %>" class="product-card out-of-stock">
+                    <div class="card-image">
+                        <img  src="<%= variant.images[0] %>" alt="Related Product 1">
+                    </div>
+                    <div class="card-info">
+                        <h4 class="card-title"><%= variant.productId.name %></h4>
+                        <% if (variant.stock <= 5) {  %>
+                        <span class="card-out-of-stock">
+                            <% if (variant.stock == 0) { %>
+                               Out of Stock
+                            <% } else { %>
+                                <%= variant.stock %> Left
+                            <% } %>
+                        </span>
+                        <% } %>
+                        <div class="card-price-row">
+                            <span class="card-current-price">₹ <%= variant.offeredPrice.toLocaleString("en-IN") %></span>
+                            <span class="card-old-price">₹ <%= variant.price.toLocaleString("en-IN") %></span>
+                            
+                        </div>
+                        <span class="discount">-<%= variant.productId.offer %>% OFF</span><br>
+                        <!-- <div class="card-bottom">
+                            <div class="card-rating">
+                                4.8 <i class="fa-solid fa-star"></i>
+                            </div>
+                        </div> -->
+                    </div>
+                </a>
+                <% })
+                 } %>                 
+            </div>
+        </section>
+
+    <!-- <section class="product-reviews">
         <div class="reviews-header">
             <h3>Customer Reviews</h3>
         </div>
@@ -244,7 +309,8 @@
                     though.</p>
             </div>
         </div>
-    </section>
+    </section> -->
+    
 </main>
 
 
@@ -285,6 +351,17 @@
     showToast(successMessageElement.innerText,"error");
     }
 
+
+document.getElementById("searchIconDesktop").addEventListener("click", function () {
+
+    const value = document.getElementById("desktopSearchInput").value.trim();
+
+    if (value) {
+        window.location.href = `/shop?search=${encodeURIComponent(value)}`;
+    }
+
+});
+    
 
     
     const searchInputs = document.querySelectorAll('#desktopSearchInput, #shopSearchInput');
@@ -420,13 +497,13 @@ async function addToCart (id) {
         const data = await response.json()
 
         if (data.loginRequired) {
-            window.location.href = "/login"
+            return window.location.href = "/login"
         }
 
         if (data.success) {
-            showToast(data.message,"success")
+            return showToast(data.message,"success")
         }else {
-            showToast("error","error")
+            return showToast(data.message,"error")
         }
     } catch (err) {
         console.log(err)

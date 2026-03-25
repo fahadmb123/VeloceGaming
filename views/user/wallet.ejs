@@ -1,0 +1,121 @@
+<link rel="stylesheet" href="/css/user/wallet.css">
+
+
+<!-- Header -->
+<header>
+    <div class="header-container">
+        <div class="logo">
+            <div class="logo-icon"><i class="fa-solid fa-check"></i></div>
+            <div class="logo-text">
+                <span class="brand">VELOCE</span>
+                <span class="sub-brand">GAMING</span>
+            </div>
+        </div>
+        <nav>
+            <a href="/">Home</a>
+            <a href="/shop">Shop</a>
+        </nav>
+        <div class="header-icons">
+            <a href="/wishlist"><i class="fa-regular fa-heart"></i></a>
+            <a style="text-decoration: none;" href="/cart" class="cart-icon-wrapper">
+                <i class="fa-solid fa-cart-shopping"></i>
+                <% if (Number(cartCount) > 0) { %>
+                    <span class="cart-badge"><%= cartCount %></span>
+                <% } %>
+               </a>
+            <div class="user-menu">
+                <% if (user) { %>
+                    <a style="text-decoration: none;" href="/profile">
+                        <div class="profile-circle">
+                        <% if (user.profileImage){ %>
+                        <img src="<%= user.profileImage %>" 
+                           style="width:100%; height:100%; object-fit:cover; border-radius:50%;">
+                    <% }  else { %>
+                    <%= user.name.charAt(0).toUpperCase() %> 
+                    <% } %> 
+                    </div>
+                </a>
+                <% } else { %>
+                    <div style="display: none;" class="profile-circle"></div>
+                <% } %>
+            </div>
+        </div>
+    </div>
+</header>
+
+<main class="container">
+    <!-- Sidebar -->
+    <aside class="profile-sidebar">
+        <div class="user-avatar-section">
+
+            <div class="user-avatar-container">
+                <div class="user-avatar" id="profileAvatarDisplay">
+                    <% if (user.profileImage){ %>
+                        <img src="<%= user.profileImage %>" 
+                           style="width:100%; height:100%; object-fit:cover; border-radius:50%;">
+                    <% }  else { %>
+                    <%= user.name.charAt(0).toUpperCase() %> 
+                    <% } %> 
+                    <!-- <%= user.name.charAt(0).toUpperCase() %> -->
+                </div>
+            </div>
+            <h3><%= user.name.toUpperCase() %></h3>
+        </div>
+        <ul class="profile-nav">
+            <li><a href="/profile"><i class="fa-regular fa-user"></i> My Profile</a></li>
+            <li><a href="/orderHistory"><i class="fa-solid fa-box-open"></i> My Orders</a></li>
+            <li><a href="/wishlist"><i class="fa-regular fa-heart"></i> My Wishlist</a></li>
+            <li><a href="/coupon"><i class="fa-solid fa-gift"></i> Coupon</a></li>
+            <li class="active"><a href="/wallet"><i class="fa-solid fa-wallet"></i> Wallet</a></li>
+        </ul>
+        <button class="logout-btn">
+            <i class="fa-solid fa-arrow-right-from-bracket"></i> Logout
+        </button>
+    </aside>
+
+    <!-- Main Content -->
+    <div class="profile-content">
+        <h1 class="page-title">Wallet</h1>
+
+        <div class="wallet-balance-card">
+            <h3>Wallet Balance</h3>
+            <div class="balance-amount">₹ <%= wallet.balance.toLocaleString("en-IN") %></div>
+        </div>
+
+        <div class="transaction-history">
+            <h3 class="section-title">Transaction History</h3>
+            <div class="transaction-table-wrapper">
+                <table class="transaction-table">
+                    <thead>
+                        <tr>
+                            <th>Amount</th>
+                            <th>Date</th>
+                            <th>Reason</th>
+                            <th>Type</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% if (walletTransactions.length !== 0) { %>
+                            <% walletTransactions.forEach ((transaction,index)=> { %>
+                        <tr>
+                            <td class="amount">₹ <%= transaction?.amount.toLocaleString("en-IN") %></td>
+                            <td class="date">
+                                <%= transaction?.createdAt.toLocaleDateString("en-GB", {
+                                    day: "2-digit",
+                                    month: "short",
+                                    year: "numeric"
+                                }) %>
+                            </td>
+                            <td class="date"><%= transaction?.reason.toUpperCase() %></td>
+                            <td><span class="status-badge <%= transaction?.type %>"><%= transaction?.type.toUpperCase() %></span></td>
+                        </tr>
+                        <% }) %>
+                        <% } else { %>
+                            <td><pre> No Transactions Found</pre></t>
+                        <% } %>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</main>

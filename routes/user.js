@@ -1,10 +1,13 @@
 const express = require("express")
 const router = express.Router()
-const userController = require("../controller/userController")
-const userProductController = require("../controller/userProductController")
-const userCheckoutController = require("../controller/userCheckoutController")
+const userController = require("../controller/user/userController")
+const userProductController = require("../controller/user/userProductController")
+const userCheckoutController = require("../controller/user/userCheckoutController")
+const userOrderController = require("../controller/user/userOrderController")
+const walletController = require("../controller/user/walletController")
+const couponController = require("../controller/user/coupon")
 const {isLogged,isLoggedOut} = require("../middleware/userAuth")
-const upload = require("../middleware/multer")
+const {uploadSingle} = require("../middleware/multer")
 
 
 
@@ -27,6 +30,8 @@ router.get("/login",isLoggedOut,userController.loadLogin)
 
 router.get("/signup",isLoggedOut,userController.loadSignup)
 
+
+
 router.get("/",userController.loadHome )
 
 router.get("/profile",isLogged,userController.loadProfile)
@@ -47,6 +52,15 @@ router.get("/cart",isLogged,userProductController.loadCart)
 
 router.get("/checkout",isLogged,userCheckoutController.loadCheckout)
 
+router.get("/orderSuccessPage",isLogged,userOrderController.loadOrderSuccessPage)
+
+router.get("/paymentFailure",isLogged,userCheckoutController.loadPaymentFailure)
+
+router.get("/wallet",isLogged,walletController.loadWallet)
+
+
+router.get("/downloadInvoice",isLogged,userOrderController.downloadInvoice)
+
 
 
 router.get("/shop",userProductController.loadShop)
@@ -56,10 +70,20 @@ router.get("/product/:id",userProductController.loadProduct)
 
 
 
+router.get("/orderDetails",isLogged,userOrderController.loadOrderDetails)
+
+router.get("/orderHistory",isLogged,userOrderController.loadOrderHistory)
+
+router.get("/coupon",isLogged,couponController.loadCoupon)
+
+
+
 router.post("/wishlist/remove/:id",isLogged,userProductController.wishlistRemove)
 
 router.post("/cart/remove/:id",isLogged,userProductController.cartRemove)
 
+
+router.post("/checkRefferal",isLoggedOut,userController.checkRefferal)
 
 router.post("/signup",userController.signup)
 
@@ -77,7 +101,7 @@ router.post("/addAddress",userController.addAddress)
 
 router.post("/editAddress",userController.editAddress)
 
-router.post("/profile-upload",upload.single("profileImage"),userController.uploadProfile)
+router.post("/profile-upload",uploadSingle("profileImage"),userController.uploadProfile)
 
 router.post("/profile-remove",userController.removeProfile)
 
@@ -89,6 +113,18 @@ router.post("/cart/inc",userProductController.cartInc)
 
 router.post("/cart/dec",userProductController.cartDec)
 
-
 router.post("/wishlist/allToCart",userProductController.allToCart)
+
+router.post("/placeOrder",userOrderController.placeOrder)
+
+router.post("/verifyRazorpayPayment", userOrderController.verifyRazorpayPayment)
+
+
+router.post("/orderDetails/cancel",userOrderController.cancelOrder)
+router.post("/orderDetails/return",userOrderController.returnOrder)
+
+router.post("/applyCoupon",userCheckoutController.applyCoupon)
+router.post("/removeCoupon",userCheckoutController.removeCoupon)
+
+
 module.exports = router

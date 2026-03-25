@@ -1,8 +1,13 @@
 const express = require("express")
 const router = express.Router()
-const adminController = require("../controller/adminController")
+const adminController = require("../controller/admin/adminController")
 const {isLogged,isLoggedOut} = require("../middleware/adminAuth")
-const upload = require("../middleware/multer")
+const { uploadSingle,uploadMultiple , uploadAny } = require("../middleware/multer")
+const orderManagement = require("../controller/admin/orderManagement")
+const couponManagement = require ("../controller/admin/couponManagement.js")
+const salesManagement = require("../controller/admin/salesManagement.js")
+const dashboardManagement = require("../controller/admin/dashboard.js")
+
 
 
 
@@ -22,6 +27,20 @@ router.get("/productManagement/:id",isLogged,adminController.productManagement)
 
 
 
+router.get("/orderManagement",isLogged,orderManagement.loadOrderManagement)
+
+router.get("/orderDetails",isLogged,orderManagement.loadOrderDetails)
+
+
+router.get("/couponManagement",isLogged,couponManagement.loadCouponManagement)
+
+
+router.get("/salesManagement",isLogged,salesManagement.loadSales)
+router.get("/exportToPdf",isLogged,salesManagement.exportPDF)
+router.get("/exportExcel",isLogged,salesManagement.exportExcel)
+
+
+router.get("/dashboard",isLogged,dashboardManagement.loadDashboard)
 
 router.patch("/categoryManagement/categoryStatus/:id",isLogged,adminController.categoryStatus)
 
@@ -36,13 +55,26 @@ router.delete("/productManagement/deleteVariant/:id", adminController.deleteVari
 
 router.post("/login",adminController.login)
 
-router.post("/addCategory",upload.single("categoryImage"),adminController.addCategory)
+router.post("/addCategory",uploadSingle("categoryImage"),adminController.addCategory)
 
-router.post("/editCategory/:id",upload.single("categoryImage"),adminController.editCategory)
+router.post("/editCategory/:id",uploadSingle("categoryImage"),adminController.editCategory)
 
-router.post("/productManagement/add",upload.any(),adminController.addProduct)
+router.post("/productManagement/add",uploadAny(),adminController.addProduct)
 
-router.post("/productManagement/edit/:id",upload.any(),adminController.editProduct)
+router.post("/productManagement/edit/:id",uploadAny(),adminController.editProduct)
+
+router.post("/orderManagement/updateOrderStatus",orderManagement.updateOrderStatus)
+
+
+router.post("/orderManagement/returnRequestAccept",orderManagement.returnRequestAccept)
+
+router.post('/orderManagement/rejectReturnRequest',orderManagement.rejectReturnRequest)
+
+
+router.post("/addCoupon",couponManagement.addCoupon)
+router.post("/editCoupon",couponManagement.editCoupon)
+
+router.post("/couponStatus",couponManagement.couponStatus)
 
 
 

@@ -4,7 +4,7 @@ const cartModel = require("../model/cartModel")
 const {variantModel} = require("../model/productModel")
 
 
-cron.schedule("*/5 * * * *",async () => {
+cron.schedule("0 0 * * *",async () => {
     try {
         console.log("🧹🧹🧹 Running Cleaning Job At : ",new Date())
         console.log("🧹🧹🧹 We Will Clean In Every 5 Minutes 🧹🧹🧹")
@@ -40,7 +40,7 @@ cron.schedule("*/5 * * * *",async () => {
                     })
 
                     if (variant && variant.status && !variant.productId.isDeleted && !variant.productId.categoryId.isDeleted){
-                        validItems.push(item)
+                        validItems.unshift(item)
                     }
                 }
                 cart.items = validItems

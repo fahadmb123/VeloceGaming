@@ -1,0 +1,105 @@
+<link rel="stylesheet" href="/css/user/paymentFailure.css">
+
+
+<header>
+    <div class="header-container">
+        <div class="logo">
+            <div class="logo-icon"><i class="fa-solid fa-check"></i></div>
+            <div class="logo-text">
+                <span class="brand">VELOCE</span>
+                <span class="sub-brand">GAMING</span>
+            </div>
+        </div>
+
+        <nav>
+            <a href="/">Home</a>
+            <a href="/shop">Shop</a>
+        </nav>
+
+        <div class="search-bar">
+            <input type="text" placeholder="What are you looking for?">
+            <i class="fa-solid fa-magnifying-glass"></i>
+        </div>
+
+        <div class="header-icons">
+            <a href="/wishlist"><i class="fa-regular fa-heart"></i></a>
+            <a style="text-decoration: none;" href="/cart" class="cart-icon-wrapper">
+                <i class="fa-solid fa-cart-shopping"></i>
+                <% if (Number(cartCount) > 0) { %>
+                    <span class="cart-badge"><%= cartCount %></span>
+                <% } %>
+               </a>
+            <div class="user-menu">
+                <div class="profile-circle">
+                    <i class="fa-solid fa-user"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<main class="failure-main">
+    <div class="failure-card">
+        <div class="crossmark-wrapper">
+            <svg class="crossmark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52">
+                <circle class="crossmark__circle" cx="26" cy="26" r="25" fill="none" />
+                <path class="crossmark__check" fill="none" d="M16 16 36 36 M36 16 16 36" />
+            </svg>
+        </div>
+
+        <h1 class="failure-title">Payment Failed!</h1>
+        <p class="failure-message">We couldn't process your payment. Please try again or use a different payment method.
+        </p>
+
+        <div class="order-info">
+            <div class="info-row">
+                <span>Order ID:</span>
+                <span class="info-value">#VG-882910</span>
+            </div>
+            <div class="info-row">
+                <span>Date:</span>
+                <span class="info-value">March 17, 2026</span>
+            </div>
+        </div>
+
+        <div class="action-buttons">
+            <a id="tryAgain" class="btn-primary">Try Again</a>
+            <a href="/shopl" class="btn-secondary">Return to Shop</a>
+        </div>
+    </div>
+</main>
+
+<!-- Mobile Bottom Navbar -->
+<div class="mobile-bottom-nav">
+    <a href="../home/index.html" class="nav-item">
+        <i class="fa-solid fa-house"></i>
+        <span>Home</span>
+    </a>
+    <a href="../shop/index.html" class="nav-item">
+        <i class="fa-solid fa-bag-shopping"></i>
+        <span>Shop</span>
+    </a>
+    <a href="../cart/index.html" class="nav-item">
+        <i class="fa-solid fa-cart-shopping"></i>
+        <span>Cart</span>
+    </a>
+    <a href="../wishlist/index.html" class="nav-item">
+        <i class="fa-solid fa-heart"></i>
+        <span>Wishlist</span>
+    </a>
+    <a href="../profile/index.html" class="nav-item">
+        <i class="fa-solid fa-user"></i>
+        <span>Profile</span>
+    </a>
+</div>
+<script>
+    
+    let variantId = '<%= variantId ? variantId : null %>'
+    document.getElementById("tryAgain").addEventListener("click",()=>{
+        if (variantId){
+            return window.location.href = `/checkout?variantId=${variantId}&quantity=1`
+        } else {
+            return window.location.href = '/checkout'
+        }
+    })
+</script>

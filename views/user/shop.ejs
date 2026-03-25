@@ -34,7 +34,12 @@
         <div class="header-icons"> 
             <% if (user) { %>
                 <a href="/wishlist"><i class="fa-regular fa-heart"></i></a>
-                <a href="/cart"><i class="fa-solid fa-cart-shopping"></i></a>
+                <a style="text-decoration: none;" href="/cart" class="cart-icon-wrapper">
+                <i class="fa-solid fa-cart-shopping"></i>
+                <% if (Number(cartCount) > 0) { %>
+                    <span class="cart-badge"><%= cartCount %></span>
+                <% } %>
+               </a>
             <% } %>
             <div class="user-menu">
                 <% if (user) { %>
@@ -67,7 +72,11 @@
             </div>
         </div>
     </div>
-
+    <nav class="breadcrumb">
+        <a href="/">Home</a>
+        <span>/</span>
+        <a href="/shop">Shop</a>
+    </nav><br><br>
     <!-- Mobile Filter Toggle Button -->
     <div class="mobile-filter-toggle">
         <button id="toggleFilterBtn">
@@ -85,7 +94,7 @@
         <aside class="filter-sidebar" id="filterSidebar">
                 <div class="filter-section">
                     <div class="filter-header">
-                        <h3>Filter</h3>
+                        <h3>Filter</h3> <a style="text-decoration: none;" href="/shop"><h5>Clear</h5></a>
                         <button class="close-filter" id="closeFilterBtn">
                             <i class="fa-solid fa-xmark"></i>
                         </button>
@@ -115,17 +124,13 @@
                             <span class="checkmark radio"></span>
                             High to Low
                         </label>
-                    </div>
-
-                    <div class="filter-group">
-                        <h4>Name</h4>
                         <label class="checkbox-container">
-                            <input class="sortOption" value="nameAZ" type="radio" name="sort-name">
+                            <input class="sortOption" value="nameAZ" type="radio" name="sort-price">
                             <span class="checkmark radio"></span>
                             A to Z
                         </label>
                         <label class="checkbox-container">
-                            <input class="sortOption" value="nameZA" type="radio" name="sort-name">
+                            <input class="sortOption" value="nameZA" type="radio" name="sort-price">
                             <span class="checkmark radio"></span>
                             Z to A
                         </label>
@@ -147,13 +152,15 @@
                         ? 'fa-solid fa-heart' 
                         : 'fa-regular fa-heart' %>">
                     </i></button>
-                    <img src="<%= variant.images[0] %>" style="width:100%; height:100%; object-fit:cover; ;" >
+                    <div>
+                        <img  src="<%= variant.images[0] %>" style="width:100%; height:100%; object-fit:cover; ;" >
+                    </div>
                 </div>
                 <div class="product-details">
                     <h3><%= variant.productId.name %></h3>
-                    <div class="product-rating">
+                    <!-- <div class="product-rating">
                         <span class="rating-badge">4.6 <i class="fa-solid fa-star"></i></span>
-                    </div>
+                    </div> -->
                     <p class="product-color">
                         <% variant.attributes.forEach ( (attr,index) => { %>
                             <% if (attr.value) { %>
@@ -165,14 +172,24 @@
                             <% } %>
                         <% }) %>
                     </p>
+                    <% if (variant.stock <= 5) {  %>
+                        <span class="out-of-stock-badge">
+                    <% if (variant.stock == 0) { %>
+                        Out of Stock
+                    <% } else { %>
+                        <%= variant.stock %> Left
+                    <% } %>
+                    </span>
+                <% } %>
                     <div class="product-price-row">
-                        <span class="current-price">₹ <%= variant.offeredPrice %></span>
-                        <% if (variant.productId.offer != 0){ %>
+                        <span class="current-price">₹ <%= variant.offeredPrice.toLocaleString("en-IN") %></span>
+                        <% if (variant.productId.offer != 0 || variant.productId.categoryId.offer != 0){ %>
                             <span class="discount">
-                            -<%= variant.productId.offer %>% OFF
+                            <% let offer = Math.max(variant.productId.offer , variant.productId.categoryId.offer ) %>
+                            -<%= offer %>% OFF
                             </span>
                         <% } %>
-                        <span class="old-price">₹ <%= variant.price %></span>
+                        <span class="old-price">₹ <%= variant.price.toLocaleString("en-IN") %></span>
                     </div>
                 </div>
             </div>
@@ -230,7 +247,25 @@ window.addEventListener("DOMContentLoaded", () => {
         currentSearch = searchValue;
     }
 
+
+
+    const category = urlParams.get("category");
+
+    if (category) {
+        currentCategories = [category];
+
+        document.querySelectorAll(".categoryFilter").forEach(cb => {
+            if (cb.value === category) {
+                cb.checked = true;
+            }
+        });
+
+        fetchProducts();
+    }
+
+
     renderPagination(<%= totalPages %>, <%= currentPage %>);
+
 });
 </script>
 
@@ -358,6 +393,17 @@ document.getElementById("searchBtn").addEventListener("click", function () {
 
     fetchProducts();
 });
+document.getElementById("clearDesktopSearchBtn").addEventListener("click", function () {
+
+    //const desktopValue = document.getElementById("desktopSearchInput").value.trim();
+    //const mobileValue = document.getElementById("shopSearchInput").value.trim();
+
+    currentSearch = ''
+
+    currentPage = 1;
+
+    fetchProducts();
+});
 
 
 
@@ -378,7 +424,7 @@ async function fetchProducts() {
 
     const data = await response.json();
 
-    renderProducts(data.variants);
+    renderProducts(data.variants,data.wishlistVariantIds);
     renderPagination(data.totalPages, data.currentPage)
 }
 
@@ -416,6 +462,25 @@ function renderProducts(variants, wishlistVariantIds = []) {
 
         });
     }
+let stock = "";
+
+if (variant.stock <= 5) {
+
+    if (variant.stock === 0) {
+        stock = `
+        <span class="out-of-stock-badge">
+            Out of Stock
+        </span>
+        `;
+    } else {
+        stock = `
+        <span class="out-of-stock-badge">
+            ${variant.stock} Left
+        </span>
+        `;
+    }
+
+}
 
     container.innerHTML += `
         <a style="text-decoration: none;" href="/product/${variant._id}">
@@ -443,10 +508,10 @@ function renderProducts(variants, wishlistVariantIds = []) {
                     <p class="product-color">
                         ${attributesHTML}
                     </p>
-
+                    ${stock}
                     <div class="product-price-row">
                         <span class="current-price">
-                            ₹ ${variant.offeredPrice}
+                            ₹ ${variant.offeredPrice.toLocaleString("en-IN")}
                         </span>
 
                         ${
@@ -456,7 +521,7 @@ function renderProducts(variants, wishlistVariantIds = []) {
                         }
 
                         <span class="old-price">
-                            ₹ ${variant.price}
+                            ₹ ${variant.price.toLocaleString("en-IN")}
                         </span>
                     </div>
                 </div>
@@ -465,7 +530,6 @@ function renderProducts(variants, wishlistVariantIds = []) {
     `;
 });
 }
-
 
 function showToast(message, type = "success") {
 
@@ -542,8 +606,5 @@ function renderPagination(totalPages, currentPage) {
 }
 
 
-/*
-window.addEventListener("DOMContentLoaded", () => {
-    fetchProducts();
-})*/
+
 </script>

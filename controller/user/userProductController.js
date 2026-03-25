@@ -1,49 +1,11 @@
-const {productModel, variantModel} = require ("../model/productModel.js")
-const categoryModel = require("../model/categoryModel")
-const userProductService = require("../service/userProductService")
-const wishlistModel = require ("../model/wishlistModel.js")
+const {productModel, variantModel} = require ("../../model/productModel.js")
+const categoryModel = require("../../model/categoryModel")
+const userProductService = require("../../service/userProductService")
+const wishlistModel = require ("../../model/wishlistModel.js")
 const { populate } = require("dotenv")
-const cartModel = require("../model/cartModel.js")
+const cartModel = require("../../model/cartModel.js")
 
 
-
-/*const loadShop = async (req,res) => {
-    try {
-
-        const categories = await categoryModel.find()
-        const variants = await variantModel.find().populate({
-                                                        path: "productId",
-                                                        populate: {
-                                                             path: "categoryId"
-                                                        }
-                                                    });
-        
-        variants.forEach ((variant,index)=>{
-
-            const colorAttr = variant.attributes.find(a => a.key === "color");
-
-            let parsedColor = {name : "" , hex: "#000000"}
-
-            if (colorAttr) {
-                try {
-                    parsedColor = JSON.parse(colorAttr.value)
-                } catch {
-                    parsedColor = { name: colorAttr.value, hex: "#000000" };
-                }
-            }
-
-            variant.colorName = parsedColor.name
-            variant.colorHex = parsedColor.hex
-        })
-
-        return res.render("user/shop",{
-            categories,
-            variants
-        })
-    } catch (err) {
-        console.log(err)
-    }
-}*/
 
 
 
@@ -52,14 +14,17 @@ const loadShop = async (req, res) => {
 
 
         let wishlistVariantIds = [];
+        let cartCount = 0
 
         if (req.session.user) {
             const wishlistItems = await wishlistModel.find({
                 userId: req.session.user._id
-            });
+            })
             wishlistVariantIds = wishlistItems.map(item =>
                 item.variantId.toString()
-            );
+            )
+            const cart = await cartModel.findOne({userId:req.session.user._id})
+            cartCount = cart?.items.length
         }
 
         const categories = await categoryModel.find();
@@ -71,7 +36,7 @@ const loadShop = async (req, res) => {
         const sort = req.query.sort || "";
         const page = parseInt(req.query.page) || 1;
 
-        const limit = 10 
+        const limit = 10
         const skip = (page - 1) * limit;
 
         
@@ -149,9 +114,9 @@ const loadShop = async (req, res) => {
             ]
         }
 
-if (!cleanedSearch) {
-    variantFilter.productId = { $in: productIds };
-}
+        if (!cleanedSearch) {
+             variantFilter.productId = { $in: productIds };
+        }
     
         if (maxPrice) {
             variantFilter.$expr = {
@@ -165,8 +130,6 @@ if (!cleanedSearch) {
         let sortOption = {};
         if (sort === "priceLow") sortOption.offeredPrice = 1;
         if (sort === "priceHigh") sortOption.offeredPrice = -1;
-        if (sort === "nameAZ") sortOption["productId.name"] = 1;
-        if (sort === "nameZA") sortOption["productId.name"] = -1;
 
         const total = await variantModel.countDocuments(variantFilter);
 
@@ -179,19 +142,17 @@ if (!cleanedSearch) {
         .sort(sortOption)
         .skip(skip)
         .limit(limit);
-
         variants = variants.map(v => v.toObject());
 
-        /*let wishlistVariantIds = [];
+        if (sort === "nameAZ") {
+            variants.sort((a,b)=> a.productId.name.localeCompare(b.productId.name))
+        }
 
-        if (req.session.user) {
-            const wishlistItems = await wishlistModel.find({
-                userId: req.session.user._id
-            });
-            wishlistVariantIds = wishlistItems.map(item =>
-                item.variantId.toString()
-            );
-        }*/
+        if (sort === "nameZA") {
+            variants.sort((a,b)=> b.productId.name.localeCompare(a.productId.name)) 
+        }
+
+        
 
         const totalPages = Math.ceil(total / limit);
 
@@ -210,17 +171,18 @@ if (!cleanedSearch) {
 
             variant.colorName = parsedColor.name;
             variant.colorHex = parsedColor.hex;
-        });         
+        });
 
-
+        
         
         if (req.headers.accept.includes("application/json")) {
             return res.json({
                 variants,
                 totalPages,
                 currentPage: page,
-                wishlistVariantIds
-            });
+                wishlistVariantIds,
+                cartCount
+            })
         }
 
         return res.render("user/shop", {
@@ -228,8 +190,9 @@ if (!cleanedSearch) {
             variants,
             wishlistVariantIds,
             currentPage: page,
-            totalPages
-        });
+            totalPages,
+            cartCount
+        })
 
     } catch (err) {
         console.log(err);
@@ -241,7 +204,14 @@ const loadProduct = async (req,res) => {
 
         const variantId = req.params.id.trim()
 
-        const variant = await variantModel.findOne ({_id:variantId}).populate("productId")
+        const variant = await variantModel.findOne ({_id:variantId}).populate({
+            path : "productId",
+            populate : {
+                path : "categoryId"
+            }
+        })
+
+        //const relatedVariants = await variantModel.find({productId:variant.productId._id})
 
         if (!variant) {
             return res.redirect("/shop")
@@ -259,11 +229,17 @@ const loadProduct = async (req,res) => {
         }
 
 
-        const productVariants = await variantModel.find({productId:variant.productId._id})
+        const relatedVariants = await variantModel.find({productId:variant.productId._id}).
+        populate({
+            path : "productId",
+            populate : {
+                path : "categoryId"
+            }
+        })
 
         let colorVariants = []
 
-        productVariants.forEach( (obj,index) => {
+        relatedVariants.forEach( (obj,index) => {
             const colorAttr = obj.attributes.find(a => a.key === "color");
 
             let parsedColor = {name : "" , hex: "#000000"}
@@ -280,7 +256,6 @@ const loadProduct = async (req,res) => {
                 colorHex : parsedColor.hex,
                 variantId : obj._id
             })
-
         })
 
         const colorAttr = variant.attributes.find(a => a.key === "color");
@@ -303,10 +278,26 @@ const loadProduct = async (req,res) => {
             wishlistVariant = await wishlistModel.findOne({userId:req.session.user._id,variantId:variant._id})
         }
 
+        const relatedProducts = await variantModel.find()
+            .populate({
+                path: "productId",
+                match: { categoryId: variant.productId.categoryId },
+                populate: {
+                    path: "categoryId"
+                }
+            })
+        let cartCount = 0
+        if (req.session.user){
+            const cart = await cartModel.findOne({userId:req.session.user._id})
+            cartCount = cart?.items.length
+        }
         return res.render("user/productDetails",{
             variant,
             colorVariants,
-            wishlistVariant
+            wishlistVariant,
+            relatedVariants,
+            relatedProducts,
+            cartCount
         })
     } catch (err) {
         console.log(err)
@@ -350,10 +341,15 @@ const loadWishlist = async (req,res) => {
                 item.variantId.colorHex = parsedColor.hex
             }
         })
-
+        let cartCount = 0
+        if (req.session.user){
+            const cart = await cartModel.findOne({userId:req.session.user._id})
+            cartCount = cart?.items.length
+        }
 
         return res.render ("user/wishlist",{
-            wishlistItems
+            wishlistItems,
+            cartCount
         })
     } catch (err) {
         console.log(err)
@@ -415,14 +411,7 @@ const loadCart = async (req,res) => {
                 },0)
                 
             }
-            /*
-        if (cart && cart.items) {
-            total = cart.items.reduce((acc, item) => {
-                const price = item.variantId?.offeredPrice || 0; // safely access
-                const qty = item.quantity || 0;
-                return acc + price * qty;
-            }, 0);
-        }*/
+           
         
         return res.render ("user/cart",{
             cartItems,
@@ -539,15 +528,18 @@ const wishlistToggle = async (req,res) => {
 const addToCart = async (req,res) => {
     try {
 
-        const {loginRequired,message,valid} = await userProductService.addToCart(req)
+        const {loginRequired,message,valid,failMessage} = await userProductService.addToCart(req)
 
-        /*if (!valid) {
-            return res.redirect("/shop")
-        }*/
+        
         if (loginRequired) {
             return res.json({loginRequired : true})
         }
-
+        if (failMessage) {
+            return res.json({
+                success : false,
+                message : failMessage
+            })
+        }
 
         return res.json({
             success : true,
@@ -565,15 +557,13 @@ const cartInc = async (req,res) => {
         const  {failMessage,message,loginRequired} = await userProductService.cartInc(req)
 
         if (failMessage) {
-            return {failMessage}
+            return res.json({
+                success:false,
+                message : failMessage
+            })
         }
 
-        /*const cartItems = await cartModel.findOne({userId:req.session.user._id}).populate({path:"items.variantId",populate:{path:"productId"}})
-        cartItems.items.forEach ((item,index)=>{
-
-            let subtotal = item.quantity * item.variantId.offeredPrice
-            item.subtotal = subtotal
-        })*/
+        
 
         if (message) {
             let variantId = req.query.variantId
@@ -626,12 +616,7 @@ const cartDec = async (req,res) => {
             })
         }
 
-        /*const cartItems = await cartModel.findOne({userId:req.session.user._id}).populate({path:"items.variantId",populate:{path:"productId"}})
-        cartItems.items.forEach ((item,index)=>{
-
-            let subtotal = item.quantity * item.variantId.offeredPrice
-            item.subtotal = subtotal
-        })*/
+        
 
         if (message) {
             let variantId = req.query.variantId

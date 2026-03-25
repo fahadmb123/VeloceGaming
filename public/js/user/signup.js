@@ -10,7 +10,7 @@ function togglePassword(inputId, el) {
     }
 
 
-    document.getElementById("registerForm").addEventListener("submit", function (event) {
+    document.getElementById("registerForm").addEventListener("submit",async function (event) {
 
 
         
@@ -20,6 +20,7 @@ function togglePassword(inputId, el) {
         let email = document.getElementById("email").value.trim()
         let password = document.getElementById("password").value.trim()
         let confirmPassword = document.getElementById("confirmPassword").value.trim()
+        let refferalCode = document.getElementById("refferalCode").value.trim()
 
         const nameDiv=document.getElementById('nameDiv');
         const passwordDiv=document.getElementById('passwordDiv');
@@ -70,7 +71,59 @@ function togglePassword(inputId, el) {
             confirmPasswordDiv.querySelector('p').style.display='none'
         }
 
+        if (refferalCode) {
+
+            const response = await fetch("/checkRefferal",{
+                method : "post",
+                headers : {
+                    "content-Type" : "application/json"
+                },
+                body : JSON.stringify({
+                    refferalCode
+                })
+            })
+            const data = await response.json()
+
+            if (!data.success) {
+                showToast(data.message,"error")
+                isValid = false
+            }
+        }
+
+
         if (isValid) {
             event.target.submit()
         }
     })
+
+
+
+    
+function showToast(message, type = "success") {
+
+    const toast = document.createElement("div");
+    toast.innerText = message;
+
+    toast.style.position = "fixed";
+    toast.style.top = "20px";
+    toast.style.right = "20px";
+    toast.style.padding = "12px 20px";
+    toast.style.borderRadius = "6px";
+    toast.style.color = "white";
+    toast.style.zIndex = "9999";
+    toast.style.fontWeight = "500";
+    toast.style.boxShadow = "0 5px 15px rgba(0,0,0,0.2)";
+    toast.style.transition = "all 0.3s ease";
+
+    if (type === "success") {
+        toast.style.backgroundColor = "#28a745";
+    } else {
+        toast.style.backgroundColor = "#dc3545";
+    }
+
+    document.body.appendChild(toast);
+
+    setTimeout(() => {
+        toast.remove();
+    }, 3000);
+}

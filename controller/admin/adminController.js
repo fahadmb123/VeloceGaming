@@ -1,7 +1,7 @@
-const adminService = require("../service/adminService")
-const userModel = require("../model/userModel")
-const categoryModel = require("../model/categoryModel")
-const {productModel, variantModel} = require ("../model/productModel.js")
+const adminService = require("../../service/adminService.js")
+const userModel = require("../../model/userModel.js")
+const categoryModel = require("../../model/categoryModel.js")
+const {productModel, variantModel} = require ("../../model/productModel.js")
 
 
 
@@ -69,11 +69,7 @@ const loadUserManagement = async (req,res) => {
 
 
 const loadCategoryManagement = async (req,res) => {
-        /*const categories = await categoryModel.find()
-
-        res.render("admin/categoryManagement",{
-            categories
-        })*/
+    
        try {
 
         let page = parseInt(req.query.page) || 1
@@ -403,7 +399,7 @@ const productStatus = async (req,res) => {
                 message : "Product Not Found"
             })
         }
-console.log("Hello")
+
 
 
         await productModel.updateOne(

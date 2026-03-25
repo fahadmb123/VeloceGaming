@@ -1,0 +1,130 @@
+<link rel="stylesheet" href="/css/user/coupon.css">
+
+<!-- Header -->
+<header>
+    <div class="header-container">
+        <div class="logo">
+            <div class="logo-icon"><i class="fa-solid fa-check"></i></div>
+            <div class="logo-text">
+                <span class="brand">VELOCE</span>
+                <span class="sub-brand">GAMING</span>
+            </div>
+        </div>
+        <nav>
+            <a href="../home/index.html">Home</a>
+            <a href="../shop/index.html">Shop</a>
+        </nav>
+        <div class="header-icons">
+            <a href="/wishlist"><i class="fa-regular fa-heart"></i></a>
+            <a href="/cart" class="cart-icon-wrapper">
+                <i class="fa-solid fa-cart-shopping"></i>
+                <% if (Number(cartCount) > 0) { %>
+                    <span class="cart-badge"><%= cartCount %></span>
+                <% } %>
+            </a>
+            <div class="user-menu">
+                <a style="text-decoration: none;" href="/profile">
+                <div class="profile-circle">
+                    <% if (user.profileImage){ %>
+                        <img src="<%= user.profileImage %>"  style="width:100%; height:100%; object-fit:cover; border-radius:50%;">
+                    <% }  else { %>
+                    <%= user.name.charAt(0).toUpperCase() %> 
+                    <% } %> 
+                </div>
+                </a>
+            </div>
+        </div>
+    </div>
+</header>
+
+<main class="container">
+    <!-- Sidebar -->
+    <aside class="profile-sidebar">
+        <div class="profile-header">
+            <div class="user-avatar" id="profileAvatarDisplay">
+                    <% if (user.profileImage){ %>
+                        <img src="<%= user.profileImage %>" 
+                           style="width:100%; height:100%; object-fit:cover; border-radius:50%;">
+                    <% }  else { %>
+                    <%= user.name.charAt(0).toUpperCase() %> 
+                    <% } %> 
+                    <!-- <%= user.name.charAt(0).toUpperCase() %> -->
+                </div>
+            <h2 class="user-name"><%= user.name.toUpperCase() %></h2>
+        </div>
+        <ul class="profile-nav">
+            <li><a href="/profile"><i class="fa-regular fa-user"></i> My Profile</a></li>
+            <li><a href="/orderHistory"><i class="fa-solid fa-box-open"></i> My Orders</a></li>
+            <li><a href="/wishlist"><i class="fa-regular fa-heart"></i> My Wishlist</a></li>
+            <li class="active"><a href="#"><i class="fa-solid fa-gift"></i> Coupon</a></li>
+            <li><a href="/wallet"><i class="fa-solid fa-wallet"></i> Wallet</a></li>
+        </ul>
+        <button class="logout-btn">
+            <i class="fa-solid fa-arrow-right-from-bracket"></i> Logout
+        </button>
+    </aside>
+
+    <!-- Main Content -->
+    <div class="profile-content">
+        <h1 class="page-title">Available Coupons</h1>
+
+        <div class="coupon-grid">
+            
+             <% if (coupons.lenght !== 0) { 
+                coupons.forEach ((coupon,index)=> { %>
+            <div class="coupon-card">
+                <div class="coupon-top">
+                    <div class="discount-badge">
+                        <% if (coupon.type === "percentage") { %>
+                            <%= coupon.discountValue %>% OFF
+                        <% } else { %>
+                            ₹ <%= coupon.discountValue %> OFF %>
+                        <% } %>
+                    </div>
+                    <div class="min-purchase">Min.Purchase <%= coupon.minPurchase %> ₹</div>
+                </div>
+                <div class="coupon-bottom">
+                    <div class="coupon-label">COUPON CODE</div>
+                    <div class="code-container">
+                        <span class="code-text"><%= coupon.code.toUpperCase() %></span>
+                    </div>
+                    <% if (coupon.type === "percentage") { %>
+                        <div class="max-discount">Max. Discount <%= coupon.maxDiscount %> ₹</div>
+                    <% } %>
+                    <div class="expiry-date">Exp: 
+                        <%= coupon.createdAt.toLocaleDateString('en-GB', {
+                            day: '2-digit',
+                            month: 'short',
+                            year: 'numeric'
+                        }) %>
+                    </div>
+                    <button class="copy-btn">Copy Code <i class="fa-solid fa-link"></i></button>
+                </div>
+            </div>
+            <% })} else { %>
+                <h1> <pre>     No Coupons Available  </pre></h1>
+            <% } %>
+           
+        </div>
+    </div>
+</main>
+
+<script>
+    document.querySelectorAll('.copy-btn').forEach(button => {
+        button.addEventListener('click', () => {
+            const codeText = button.parentElement.querySelector('.code-text').textContent;
+            navigator.clipboard.writeText(codeText).then(() => {
+                const originalText = button.innerHTML;
+                button.innerHTML = 'Copied! <i class="fa-solid fa-check"></i>';
+                button.classList.add('copied');
+                setTimeout(() => {
+                    button.innerHTML = originalText;
+                    button.classList.remove('copied');
+                }, 2000);
+            });
+        });
+    });
+</script>
+</body>
+
+</html>

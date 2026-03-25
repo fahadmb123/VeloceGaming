@@ -1,0 +1,469 @@
+<link rel="stylesheet" href="/css/admin/orderManagement.css">
+
+
+<div class="dashboard-container">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <div class="logo">
+                <div class="logo-circle">
+                    <i class="fa-solid fa-check"></i>
+                </div>
+                <div class="logo-text">
+                    <span class="brand">VELOCE</span>
+                    <span class="sub-brand">GAMING</span>
+                </div>
+            </div>
+        </div>
+
+        <nav class="sidebar-nav">
+            <ul>
+                <li><a href="/admin/dashboard"><span>DashBoard</span></a></li>
+                <li><a href="/admin/userManagement"><span>Users</span></a></li>
+                <li><a href="/admin/categoryManagement"><span>Category</span></a></li>
+                <li class="active"><a href="#"><span>Order</span></a></li>
+                <li><a href="/admin/productManagement"><span>Product</span></a></li>
+                <li><a href="/admin/couponManagement"><span>Coupon</span></a></li>
+                <li><a href="/admin/salesManagement"><span>Report</span></a></li>
+                <!-- <li><a href="#"><span>Banner</span></a></li> -->
+            </ul>
+        </nav>
+
+        <div class="sidebar-footer">
+            <button class="btn-logout">Log out</button>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <header class="main-header">
+            <h1>Order Management</h1>
+            <div class="header-icons">
+                <!-- Notification Wrapper (Position Relative) -->
+                <div class="notification-wrapper">
+                    <!-- Clickable Icon -->
+                    <div class="notification-trigger" id="notificationBtn">
+                        <i class="far fa-bell notification-icon"></i>
+                        <% if (notificationsCount != 0){ %>
+                            <span class="notification-badge"><%= notificationsCount %></span>
+                        <% } %>
+                    </div>
+
+                    <!-- Notification Modal Dropdown -->
+                    <div class="notification-dropdown" id="notificationDropdown">
+                        <div class="dropdown-header">
+                            <h3>Return Request Notifications</h3>
+                            <!-- <span class="mark-read">Mark all as read</span> -->
+                        </div>
+                        <div class="dropdown-content">
+                            <% if (notifications.length != 0) { 
+                                notifications.forEach ((notification,index) => { 
+                                 if (notification.status === 'pending')  {  %>
+                                    <a style="text-decoration: none;" href="/admin/orderDetails?orderId=<%= notification?.orderId %>&orderItemId=<%= notification?.itemId %>">
+                                    <div class="notification-item unread">
+                                        <div class="icon-circle bg-blue">
+                                            <i class="fas fa-box"></i>
+                                        </div>
+                                        <div class="notification-info">
+                                            <h4><%= notification?.reason.toUpperCase() %></h4>
+                                            <p>OrderID : <%= notification?.showOrderId %>  </p>
+                                            <p>From : <%= notification?.name.toUpperCase() %> </p>
+                                            <span class="time"><%= notification?.time %></span>
+                                        </div>
+                                    </div></a>
+                            <% }})
+                                } else { %>
+                                <br>
+                                <h3><pre>      No Requests</pre></h3>
+                                <br>
+                            <% } %>
+                        </div>
+                        <div class="dropdown-footer">
+                            <a id="closeNotification" href="#">Close</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <section class="content-card">
+            <div class="table-controls">
+                <div class="search-box">
+                    <form action="/admin/orderManagement" method="GET">
+                        <input type="hidden" name="filter" value="<%= filter %>">
+                    <div class="search-content">
+                        <div class="search-wrapper">
+                            <i class="fa-solid fa-magnifying-glass search-icon"></i>
+                            <input name="search" value="<%= search %>" type="text" id="orderSearchInput" placeholder="Search..." autocomplete="off">
+                            <i class="fa-solid fa-xmark clear-icon" id="clearSearch" style="display: none;"></i>
+                        </div>
+                        <button type="submit" class="search-btn">Search</button>
+                    </div>
+                    </form>
+                </div>
+
+                <div class="filter-box">
+                    <select onchange="window.location.href='/admin/orderManagement?filter=' + this.value + '&search=<%= search %>'" class="filter-select">
+                        <option value="all" <%= filter === 'all' ? 'selected' : '' %>>All Status</option>
+                        <option  value="placed" <%= filter === 'placed' ? 'selected' : '' %>>placed</option>
+                        <option  value="ofd" <%= filter === 'ofd' ? 'selected' : '' %>>Out For Delivary</option>
+                        <option  value="delivered" <%= filter === 'delivered' ? 'selected' : '' %>>Delivered</option>
+                        <option  value="cancelled" <%= filter === 'cancelled' ? 'selected' : '' %>>Cancelled</option>
+                        <option  value="returned" <%= filter === 'returned' ? 'selected' : '' %>>Returned</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="table-container">
+                <table class="order-table">
+                    <thead>
+                        <tr>
+                            <th>Image</th>
+                            <th>Order ID</th>
+                            <th>Product Name</th>
+                            <th>User Name</th>
+                            <th>Date</th>
+                            <th>Payment Method</th>
+                            <th>Status</th>
+                            <th class="text-right">Action</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        <% if (orders.length != 0) { 
+                            orders.forEach ( (order,index) => {
+                                let item = order.item %>
+                        <tr>
+                            <td><div style="width: 50px;height:50px ;"><img src="<%= item?.productImage %>"  style="width:100%; height:100%; object-fit:cover; " class="order-img"></div></td>
+                            <td class="order-id"><%= order.orderId %></td>
+                            <td class="order-id"><%= item.productName.substring(0,20) %>...</td>
+                            <td class="user-name"><%= order?.shippingAddress?.fullName.toUpperCase() %></td>
+                            <td class="order-date">
+                                <%= new Date(order.createdAt).toLocaleDateString("en-US",{
+                                    year : "numeric",
+                                    month : "long",
+                                    day : "numeric"
+                                }) %>
+                            </td>
+                            <td class="payment-method">
+                                <%= order.paymentMethod === "cod" ? 'CASH ON DELIVARY' : order.paymentMethod.toUpperCase() %>
+                            </td>
+                            <td class="status-val"><span class="status-badge <%= item.status ? item.status : 'val' %>"><%= item.status === 'ofd' ? 'OUT FOR DELIVERY' : item.status.toUpperCase() %></span></td>
+                            <td class="text-right">
+                                <div class="actions-column">
+                                    <button onclick="viewDetails('<%= order._id %>','<%= item._id %>')" class="icon-btn"><i class="fa-regular fa-eye"></i></button>
+                                    <% if (item.status === 'delivered' || item.status === 'cancelled' || item.status === 'returned'){ %>
+                                        <button style="cursor:not-allowed" class="icon-btn "><i
+                                        class="fa-regular fa-pen-to-square"></i></button>
+                                    <% } else { %>
+                                        <button  onclick="openEditModal('<%= item.status %>','<%= order._id %>','<%= item._id %>')" class="icon-btn edit-btn"><i
+                                        class="fa-regular fa-pen-to-square"></i></button>
+                                    <% } %>
+                                </div>
+                            </td>
+                        </tr>
+                        <% 
+                           }) 
+                         } %>
+                    </tbody>
+                    
+                </table>
+                <% if (orders.length === 0) { %>
+                    <br><br>
+                    <h1><pre>     No Orders Found</pre></h1>
+                <% } %>
+            </div>
+
+            <div class="pagination">
+                <div class="pagination">
+
+                        <% if (currentPage > 1) { %>
+                            <a style="text-decoration: none;" href="/admin/orderManagement?page=<%= currentPage - 1 %>
+
+                                <% if (typeof search !== 'undefined') { %>&search=<%= search %><% } %>
+                                <% if (typeof filter !== 'undefined') { %>&filter=<%= filter %><% } %>">
+
+                                <button class="page-arrow">
+                                    <i class="fa-solid fa-chevron-left"></i>
+                                </button>
+
+                            </a>
+                        <% } %>
+
+                        <%
+                            const visiblePages = 3
+                            let start = currentPage
+                            let end = currentPage + visiblePages - 1
+
+                            if (end > totalPages) {
+                                end = totalPages
+                                start = Math.max(1, totalPages - visiblePages + 1)
+                            }
+                        %>
+
+
+                        <% for(let i = start; i <= end; i++) { %>
+                            <a style="text-decoration: none;"  href="/admin/orderManagement?page=<%= i %>
+
+                                <% if (typeof search !== 'undefined') { %>&search=<%= search %><% } %>
+                                <% if (typeof filter !== 'undefined') { %>&filter=<%= filter %><% } %>">
+
+                                <button class="page-num <%= currentPage === i ? 'active' : '' %>">
+                                    <%= i %>
+                                </button>
+                            </a>
+                        <% } %>
+
+
+                        <% if (end < totalPages) { %>
+                            <span>...</span>
+                        <% } %>
+
+
+                        <% if (currentPage < totalPages) { %>
+                            <a style="text-decoration: none;" href="/admin/orderManagement?page=<%= currentPage + 1 %>
+
+                                <% if (typeof search !== 'undefined') { %>&search=<%= search %><% } %>
+                                <% if (typeof filter !== 'undefined') { %>&filter=<%= filter %><% } %>">
+
+                                <button class="page-arrow">
+                                    <i class="fa-solid fa-chevron-right"></i>
+                                </button>
+                            </a>
+                        <% } %>
+                    </div>    
+            </div>
+        </section>
+    </main>
+</div>
+
+
+<!-- Edit Status Modal -->
+    <div id="editStatusModal" class="modal">
+        <input type="hidden" id="orderId">
+        <input type="hidden" id="itemId">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <div class="modal-header">
+                <h2>Change Order Status</h2>
+            </div>
+            <form id="editStatusForm">
+                <div class="form-group">
+                    <label for="orderStatus">Status</label>
+                    <select id="orderStatus" class="form-control">
+                        <option value="arriving">Arriving</option>
+                        <option value="delivered">Delivered</option>
+                        <option value="cancelled">Cancelled</option>
+                    </select>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn-cancel" id="cancelEditStatus">Close</button>
+                    <button type="submit" class="btn-submit">Submit</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const notificationBtn = document.getElementById('notificationBtn');
+        const notificationDropdown = document.getElementById('notificationDropdown');
+
+        notificationBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            notificationDropdown.classList.toggle('show');
+        });
+        const closeNotification = document.getElementById('closeNotification')
+        // Close dropdown when clicking outside
+        closeNotification.addEventListener('click', (e) => {
+            notificationDropdown.classList.remove('show');
+        });
+
+        // Search Clear Button Logic
+        const orderSearchInput = document.getElementById('orderSearchInput');
+        const clearSearch = document.getElementById('clearSearch');
+
+        if (orderSearchInput && clearSearch) {
+            orderSearchInput.addEventListener('input', () => {
+                if (orderSearchInput.value.length > 0) {
+                    clearSearch.style.display = 'block';
+                } else {
+                    clearSearch.style.display = 'none';
+                }
+            });
+
+            clearSearch.addEventListener('click', () => {
+                orderSearchInput.value = '';
+                clearSearch.style.display = 'none';
+                orderSearchInput.focus();
+                window.location.href = "/admin/orderManagement?filter=<%= filter %>"
+            });
+        }
+        orderSearchInput.addEventListener("input", () => {
+            clearSearch.style.display = orderSearchInput.value ? "block" : "none";
+        });
+        if (orderSearchInput.value.trim() !== "") {
+            clearSearch.style.display = "block";
+        }
+        orderSearchInput.addEventListener("input", () => {
+            clearSearch.style.display = orderSearchInput.value.trim() !== "" ? "block" : "none";
+        })
+
+        clearSearch.addEventListener("click", () => {
+            searchInput.value = "";
+            clearSearch.style.display = "none";
+            searchInput.focus();
+            window.location.href = "/admin/orderManagement?filter=<%= filter %>"
+        })
+    })
+
+
+
+    // Edit Status Modal Logic
+            const editButtons = document.querySelectorAll('.edit-btn');
+            const editModal = document.getElementById('editStatusModal');
+            const closeModal = document.querySelector('.close-modal');
+            const cancelEditStatus = document.getElementById('cancelEditStatus');
+            const editStatusForm = document.getElementById('editStatusForm');
+
+            
+const statusSelect = document.getElementById("orderStatus")
+
+            function openEditModal(currentStatus,orderId,orderItemId){
+                editModal.classList.add('show')
+
+                document.getElementById("orderId").value = orderId
+                document.getElementById("itemId").value = orderItemId
+                
+                statusSelect.innerHTML = ""
+
+                let statuses = []
+                
+                if(currentStatus === "placed"){
+                    statuses = ["placed","shipped","cancelled"]
+                }
+                else if(currentStatus === "shipped"){
+                    statuses = ["shipped","outForDelivery"]
+                }
+                else if(currentStatus == "ofd"){
+                    statuses = ["outForDelivery","delivered"]
+                }
+                else if(currentStatus === "delivered"){
+                    statuses = ["delivered","returned"]
+                }
+                else{
+                    statuses = [currentStatus]
+                }
+
+                statuses.forEach(status=>{
+                    const option = document.createElement("option")
+                    option.value = status
+                    option.textContent = status
+                    statusSelect.appendChild(option)
+                })
+
+                if (currentStatus == 'ofd') {
+                    currentStatus = "outForDelivery"
+                }
+                statusSelect.value = currentStatus
+
+                //document.getElementById("editStatusModal").style.display = "block"
+            }
+
+
+            closeModal.addEventListener('click', () => {
+                editModal.classList.remove('show');
+
+                
+            });
+
+            cancelEditStatus.addEventListener('click', () => {
+                editModal.classList.remove('show');
+            });
+
+            window.addEventListener('click', (e) => {
+                if (e.target === editModal) {
+                    editModal.classList.remove('show');
+                }
+            });
+
+            editStatusForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                // Logic to handle status update goes here
+
+                let status = statusSelect.value
+                const orderId = document.getElementById("orderId").value
+                const orderItemId = document.getElementById("itemId").value
+                if (status == 'outForDelivery'){
+                    status = 'ofd'
+                }
+                const response = await fetch(`/admin/orderManagement/updateOrderStatus`,{
+                    method : 'post',
+                    headers : {
+                        "Content-Type" : "application/json"
+                    },
+                    body : JSON.stringify({
+                        orderStatus : status,
+                        orderId : orderId,
+                        orderItemId : orderItemId
+                    })
+                })
+
+                const data = await response.json()
+
+                if (data.loginRequired) {
+                    return window.location.href = '/admin/login'
+                }
+
+                if (data.success) {
+                    showToast (data.message,"success")
+                    setTimeout(()=>{window.location.reload()},500)
+                } else {
+                    showToast (data.message,"error")
+                    setTimeout(()=>{window.location.reload()},500)
+                }
+
+                editModal.classList.remove('show');
+            });
+
+
+
+    async function viewDetails (orderId,orderItemId){
+        try {
+            window.location.href = `/admin/orderDetails?orderId=${orderId}&orderItemId=${orderItemId}`
+        } catch (err) {
+            console.log(err)
+        }
+    }
+
+
+function showToast(message, type = "success") {
+
+    const toast = document.createElement("div");
+    toast.innerText = message;
+
+    toast.style.position = "fixed";
+    toast.style.top = "20px";
+    toast.style.right = "20px";
+    toast.style.padding = "12px 20px";
+    toast.style.borderRadius = "6px";
+    toast.style.color = "white";
+    toast.style.zIndex = "9999";
+    toast.style.fontWeight = "500";
+    toast.style.boxShadow = "0 5px 15px rgba(0,0,0,0.2)";
+    toast.style.transition = "all 0.3s ease";
+
+    if (type === "success") {
+        toast.style.backgroundColor = "#28a745";
+    } else {
+        toast.style.backgroundColor = "#dc3545";
+    }
+
+    document.body.appendChild(toast);
+
+    setTimeout(() => {
+        toast.remove();
+    }, 3000);
+}
+</script>

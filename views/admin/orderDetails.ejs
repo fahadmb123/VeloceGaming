@@ -1,0 +1,526 @@
+<link rel="stylesheet" href="/css/admin/orderDetails.css">
+
+<div class="page-wrapper">
+    <header class="top-nav">
+        <div class="nav-left">
+            <div class="logo-icon"><i class="fa-solid fa-shopping-bag"></i></div>
+            <h1 class="nav-title">Order Details</h1>
+        </div>
+        <!-- <div class="nav-right">
+                <button class="icon-btn"><i class="fa-solid fa-magnifying-glass"></i></button>
+                <button class="icon-btn"><i class="fa-solid fa-ellipsis-vertical"></i></button>
+            </div> -->
+    </header>
+
+    <main class="main-content">
+        <div class="order-header">
+            <div class="order-info-left">
+                <div class="order-title-row">
+                    <h2 class="order-id"><%= order.orderId %></h2>
+                    <!-- <span class="badge badge-paid"><span class="badge-lbl">PAYMENT:</span> Paid</span>
+                        <span class="badge badge-progress"><span class="badge-lbl">ORDER:</span> In Progress</span> -->
+                </div>
+                 <p class="order-date">Placed on 
+                    <%= new Date(order.createdAt).toLocaleDateString("en-US",{
+                        year : "numeric",
+                        month : "long",
+                        day : "numeric"
+                    }) %>
+                </p> 
+            </div>
+             <div class="order-info-right">
+                <!-- <button class="btn btn-outline">Download Invoice</button> -->
+                <button onclick="redirectOrders()" class="btn btn-primary"><-- Orders</button>
+            </div>
+        </div>
+
+
+
+
+
+
+        <% if ( orderItem.status === 'cancelled' ) { %>
+        <div class="return-alert">
+            <div class="alert-icon">
+                <i class="fa-solid fa-arrow-turn-down fa-rotate-90"></i>
+            </div>
+            <% if(orderItem.cancelReason){ %>
+                <div class="alert-content">
+                    <h3>Cancellation Details</h3>
+                    <h5><%= orderItem.cancelReason.replace(/-/g, " ").replace(/^./, c => c.toUpperCase()) %></h5>
+                    <p><%= orderItem.cancelDescription.replace(/-/g, " ").replace(/^./, c => c.toUpperCase()) %></p>
+                    <!-- <a href="#" class="alert-link">View Return Policy <i class="fa-solid fa-arrow-right"></i></a> -->
+                </div>
+            <% } else { %>
+                <div class="alert-content">
+                    <h3>Cancellation Details</h3>
+                    <h5>Cancelled By Admin .. There Will Be No Details</h5>
+                    <!-- <a href="#" class="alert-link">View Return Policy <i class="fa-solid fa-arrow-right"></i></a> -->
+                </div>
+            <% } %>
+        </div>
+
+
+        <% } else if (orderItem.returnRequest.status) { %>
+            <div class="return-alert">
+            <div class="alert-icon">
+                <i class="fa-solid fa-arrow-turn-down fa-rotate-90"></i>
+            </div>
+            <% if (orderItem.returnRequest.status === 'pending') { %>
+                <div class="alert-content">
+                    <h3>Requested For Return</h3>
+                    <h5><%= orderItem.returnRequest.reason.replace(/-/g, " ").replace(/^./, c => c.toUpperCase()) %></h5>
+                    <p><%= orderItem.returnRequest.description %></p>
+                </div>
+                <div class="alert-actions">
+                    <button class="btn btn-primary" id="schedulePickupBtn"><i class="fa-solid fa-truck"></i> Schedule
+                         Pickup</button>
+                    <button onclick="rejectReturnRequest('<%= order._id %>','<%= orderItem._id %>')" class="btn btn-white"><i class="fa-solid fa-xmark"></i> Reject Return</button>
+                </div>
+
+
+            <% } else if (orderItem.returnRequest.status === 'approved') { %>
+                <div class="alert-content">
+                    <h3>Approved Return Details  .. <%= orderItem.returnRequest.pickUpDate ? orderItem.returnRequest.pickUpDate.toLocaleString("en-IN") : "Date Is Pending.." %></h3>
+                    <h5><%= orderItem.returnRequest.reason.replace(/-/g, " ").replace(/^./, c => c.toUpperCase()) %></h5>
+                    <p><%= orderItem.returnRequest.description %></p>
+                    
+                </div>
+
+            <% } else if (orderItem.returnRequest.status === 'rejected') { %>
+                <div class="alert-content">
+                    <h3>Rejected Return Details  ..</h3>
+                    <h5><%= orderItem.returnRequest.reason.replace(/-/g, " ").replace(/^./, c => c.toUpperCase()) %></h5>
+                    <p><%= orderItem.returnRequest.description %></p>
+                    
+                </div>
+            <% } else if (orderItem.returnRequest.status === 'sheduled') {  %>
+                <div class="alert-content">
+                    <h3> Pick Up Sheduled For <%= orderItem.returnRequest.pickUpTime %></h3>
+                    <h5><%= orderItem.returnRequest.reason.replace(/-/g, " ").replace(/^./, c => c.toUpperCase()) %></h5>
+                    <!-- <p><%= orderItem.returnRequest.description %></p> -->
+                    
+                </div>
+            <% } %>
+
+        </div>
+        <% } %>
+
+
+
+
+
+
+        <div class="content-grid">
+            <div class="left-column">
+                <div class="card items-card">
+                    <div class="card-header">
+                        <h3>Order Item</h3>
+                    </div>
+                    <div class="item-list">
+                    
+                        <div class="item">
+                            <div class="item-img-box">
+                                <!-- <div class="item-img img-red">
+                                    <i class="fa-solid fa-shoe-prints"></i>
+                                </div> -->
+                                <img src="<%= orderItem.productImage %>" style="width:100%; height:100%; object-fit:cover; ;">
+                            </div>
+                            <div class="item-details">
+                                <h4><%= orderItem.productName %></h4>
+                                <% orderItem.attributes.forEach ( (attr,index) => { %>
+                                <% if (attr.value) { %>
+                                    <p class="specs"><% if (attr.key == "color") { %>
+                                    <%= attr.key %> : <%= orderItem.colorName %>
+                                <% } else { %>
+                                    <%= attr.key.toUpperCase() %> : <%= attr.value %>
+                                <% } %>
+                                </p>
+                                <% } %>
+                                <% }) %>
+                                <br>
+                            </div>
+                            <div class="item-price-qty">
+                                <span class="price text-orange">₹ <%= orderItem.total.toLocaleString("en-IN") %></span>
+                                <span class="qty">Qty: <%= orderItem.quantity %></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row-cards">
+                    <div class="card info-card">
+                        <div class="card-header-small">
+                            <i class="fa-solid fa-location-dot text-orange"></i>
+                            <span>Shipping Address</span>
+                        </div>
+                        <div class="card-body">
+                            <strong class="person-name"><%= order?.shippingAddress?.fullName.toUpperCase() %></strong>
+                            <p class="address-lines"><%= order?.shippingAddress.address.toUpperCase() %>
+                                <br>
+                                <br>
+                                <%= order?.shippingAddress.state.toUpperCase() %>, <%= order?.shippingAddress.city.toUpperCase() %> <%= order?.shippingAddress.pincode %>
+                                <br>
+                                <br>
+                                INDIA
+                            </p>
+                            <p class="phone"><i class="fa-solid fa-phone"></i>+91 <%= order?.shippingAddress.phone %></p>
+
+                            
+
+
+                        </div>
+                    </div>
+
+                    <div class="card info-card payment-card">
+                        <div class="card-header-small">
+                            <i class="fa-solid fa-money-bill text-orange"></i>
+                            <span>Payment Method</span>
+                        </div>
+                        <div class="card-body">
+                            <div>
+                                <% if(order.paymentMethod === "cod") { %>
+
+                                <div class="visa-row">
+                                    <i class="fa-solid fa-money-bill-wave"></i>
+                                    <div>
+                                        <strong>Cash On Delivery</strong>
+                                
+                                    </div>
+                                </div>
+
+                                <% } else if(order.paymentMethod === "razorpay") { %>
+
+                                <div class="visa-row">
+                                    <img src="/images/razorpay-logo.png" width="40">
+                                    <div>
+                                        <strong>Razorpay</strong>
+                                        <p>Online Payment</p>
+                                    </div>
+                                </div>
+
+                                <% } else if(order.paymentMethod === "wallet") { %>
+
+                                <div class="visa-row">
+                                    <i class="fa-solid fa-wallet"></i>
+                                    <div>
+                                        <strong>Wallet</strong>
+                                        <p>Paid using wallet balance</p>
+                                    </div>
+                                </div>
+
+                                <% } %>
+                            </div>
+                            <div class="status-rows">
+                                <div class="status-row">
+                                    <span class="status-lbl">PAYMENT STATUS</span>
+                                    <span class="badge badge-<%= orderItem.paymentStatus %>-small"><%= orderItem.paymentStatus %></span>
+                                </div>
+                                <div class="status-row">
+                                    <span class="status-lbl">ORDER STATUS</span>
+                                    <span class="badge badge-<%= orderItem.status %>-small"><%= orderItem.status === 'ofd' ? 'OUT FOR DELIVERY' : orderItem.status.toUpperCase() %></span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="billing-section">
+                            <span class="billing-title">BILLING ADDRESS</span>
+                            <p class="billing-desc">Same as shipping address</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="right-column">
+                <div class="card summary-card">
+                    <h3>Financial Summary</h3>
+                    <div class="summary-rows">
+                        <div class="summary-row"><span>Subtotal</span><span>₹ <%= orderItem.total.toLocaleString("en-IN") %></span></div>
+                        <div class="summary-row"><span>Shipping</span><span>
+                            <% if(order.shippingCharge === 0) { %>
+                            Free
+                            <% } else { %>
+                                ₹ <%= order.shippingCharge.toLocaleString("en-IN") %>
+                            <% } %>
+                        </span></div>
+                         <div class="summary-row">
+                            <!-- <span>Taxes (8.5%)</span><span>$53.38</span> -->
+                        </div>
+                        <div class="summary-row text-orange">
+                            <span>Discound (<%= order?.couponCode %>)</span>
+                            <span>-₹<%= orderItem?.couponDiscount.toLocaleString("en-IN") %></span> 
+                        </div>
+                    </div>
+                    <div class="summary-total border-top">
+                        <span class="total-label">Total</span>
+                        <div class="total-amount">
+                            <strong>
+                                <% let finalAmount = orderItem?.total - orderItem?.couponDiscount %>
+                                ₹ <%= finalAmount.toLocaleString("en-IN") %>
+                            </strong>
+                            
+                        </div>
+                    </div>
+                </div>
+
+                <!-- <div class="card timeline-card">
+                        <h3 class="timeline-title">ORDER TIMELINE</h3>
+                        <div class="timeline">
+                            <div class="timeline-item">
+                                <div class="timeline-icon">
+                                    <div class="timeline-dot dot-green"></div>
+                                    <div class="timeline-line bg-green"></div>
+                                </div>
+                                <div class="timeline-content">
+                                    <strong>Payment Confirmed</strong>
+                                    <p>Oct 24, 2:48 PM</p>
+                                </div>
+                            </div>
+                            <div class="timeline-item">
+                                <div class="timeline-icon">
+                                    <div class="timeline-dot dot-green"></div>
+                                    <div class="timeline-line bg-gray"></div>
+                                </div>
+                                <div class="timeline-content">
+                                    <strong>Shipped via FedEx</strong>
+                                    <p>Oct 25, 9:15 AM</p>
+                                </div>
+                            </div>
+                            <div class="timeline-item">
+                                <div class="timeline-icon">
+                                    <div class="timeline-dot dot-orange"></div>
+                                </div>
+                                <div class="timeline-content last">
+                                    <strong class="text-orange">Return Requested</strong>
+                                    <p>Oct 26, 4:20 PM</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div> -->
+
+                <!-- <button class="btn btn-dark w-100">Contact Customer Support</button> -->
+            </div>
+        </div>
+    </main>
+
+    <footer class="page-footer">
+        <!--<div class="footer-left">
+                <i class="fa-solid fa-shopping-bag text-orange"></i>
+                <span>DesignSystem E-Comm</span>
+            </div>
+            <div class="footer-links">
+                <a href="#">Privacy Policy</a>
+                <a href="#">Terms of Service</a>
+                <a href="#">Help Center</a>
+            </div>
+            <div class="footer-right">
+                &copy; 2023 Order Manager Pro. All rights reserved.
+            </div>-->
+    </footer>
+</div>
+<!-- Schedule Pickup Modal -->
+<div class="modal-overlay" id="pickupModalOverlay">
+    <div class="modal-box pickup-modal">
+        <button class="modal-close" id="closeModalBtn"><i class="fa-solid fa-xmark"></i></button>
+        <div class="modal-header-pickup">
+            <div class="modal-icon pickup-icon">
+                <i class="fa-solid fa-truck"></i>
+            </div>
+            <div>
+                <h3 class="modal-title">Schedule Return Pickup</h3>
+                <p class="modal-desc">Choose a convenient time for our courier to collect your return items. Ensure
+                    items are packaged and ready.</p>
+            </div>
+        </div>
+
+        <div class="modal-form-row">
+            <div id="dateDiv" class="form-group flex-1">
+                <label class="form-label">SELECT DATE</label>
+                <div class="select-wrapper">
+                    <!-- <select class="form-select">
+                        <option>Tuesday, Oct 31, 2023</option>
+                        <option>Wednesday, Nov 1, 2023</option>
+                        <option>Thursday, Nov 2, 2023</option>
+                    </select>
+                    <i class="fa-solid fa-chevron-down select-icon"></i> -->
+                    <input type="date" class="form-select" id="pickupDate" required>
+                </div>
+                <p style="color: red;font-size: 13px;font-weight: normal;margin-top: 2px !important;display: none;">Please Select A Date</p>
+            </div>
+            <div id="timeDiv" class="form-group flex-1">
+                <label class="form-label">SELECT TIME WINDOW</label>
+                <div class="select-wrapper">
+                    <select id="pickupWindow" class="form-select">
+                        <option value="09:00">09:00 AM-12:00 PM</option>
+                        <option value="12:00">12:00 PM-03:00 PM</option>
+                        <option value="15:00">03:00 PM-06:00 PM</option>
+                    </select>
+                    <i class="fa-solid fa-chevron-down select-icon"></i>
+                </div>
+                <p style="color: red;font-size: 13px;font-weight: normal;margin-top: 2px !important;display: none;">Please Select A Time</p>
+            </div>
+        </div>
+
+        <button onclick="confirmPickupSlot('<%= order._id %>','<%= orderItem._id %>')" class="btn btn-primary w-100 modal-submit">Confirm Pickup Slot</button>
+    </div>
+</div>
+
+<script>
+    const modalOverlay = document.getElementById('pickupModalOverlay')
+    document.addEventListener('DOMContentLoaded', () => {
+        const scheduleBtn = document.getElementById('schedulePickupBtn');
+        
+        const closeBtn = document.getElementById('closeModalBtn');
+
+        if (scheduleBtn && modalOverlay) {
+            scheduleBtn.addEventListener('click', () => {
+                modalOverlay.classList.add('active');
+            });
+        }
+
+        if (closeBtn && modalOverlay) {
+            closeBtn.addEventListener('click', () => {
+                modalOverlay.classList.remove('active');
+            });
+        }
+
+        
+
+        const dateInput = document.getElementById('pickupDate');
+        if (dateInput) {
+            const today = new Date();
+            dateInput.min = today.toISOString().split('T')[0];
+        }
+    })
+
+    function redirectOrders(){
+        window.location.href = "/admin/orderManagement"
+    }
+
+    async function confirmPickupSlot(orderId,orderItemId) {
+        try {
+
+            const pickUpTime = document.getElementById("pickupWindow").value
+            const pickUpDate  = document.getElementById("pickupDate").value
+            const dateDiv = document.getElementById("dateDiv")
+            const timeDiv = document.getElementById("timeDiv")
+            let isValid = true
+
+            if(!pickUpDate){
+                dateDiv.querySelector('input').style.border='1px solid red'
+                dateDiv.querySelector('p').style.display='block'
+                isValid = false
+            }else{
+                dateDiv.querySelector('input').style.border='1px solid gray'
+                dateDiv.querySelector('p').style.display='none'
+            }
+
+            if(!pickUpTime){
+                timeDiv.querySelector('select').style.border='1px solid red'
+                timeDiv.querySelector('p').style.display='block'
+                isValid = false
+            }else{
+                timeDiv.querySelector('select').style.border='1px solid gray'
+                timeDiv.querySelector('p').style.display='none'
+            }
+
+            if (isValid) {
+
+                const response = await fetch("/admin/orderManagement/returnRequestAccept",{
+                    method : 'post',
+                    headers : {
+                        "Content-Type" : "application/json"
+                    },
+                    body : JSON.stringify({
+                        orderId : orderId,
+                        orderItemId : orderItemId,
+                        pickUpDate,
+                        pickUpTime
+                    })
+                })
+
+                const data = await response.json()
+
+                if (data.loginRequired) {
+                    return window.location.href = '/admin/login'
+                }
+
+                if (data.success) {
+                    showToast(data.message,"success")
+                    setTimeout(()=>{window.location.reload()},500)
+                } else {
+                    showToast(data.message,"error")
+                    setTimeout(()=>{window.location.reload()},500)
+                }
+                modalOverlay.classList.remove('active')
+            }
+
+        } catch (err) {
+            console.log(err)
+        }
+    }
+
+    async function rejectReturnRequest(orderId,orderItemId) {
+        try {
+
+            const response = await fetch ("/admin/orderManagement/rejectReturnRequest",{
+                method : 'post',
+                headers : {
+                    "Content-Type" : "application/json"
+                },
+                body : JSON.stringify({
+                    orderId ,
+                    orderItemId
+                })
+            })
+
+            const data = await response.json()
+
+            if (data.loginRequired) {
+                return window.location.href = '/admin/login'
+            }
+
+            if (data.success) {
+                showToast(data.message,"success")
+                setTimeout(()=>{window.location.reload()},500)
+            } else {
+                showToast(data.message,"error")
+                setTimeout(()=>{window.location.reload()},500)
+            }
+
+        } catch (err) {
+            console.log(err)
+        }
+    }
+
+
+
+
+function showToast(message, type = "success") {
+
+    const toast = document.createElement("div");
+    toast.innerText = message;
+
+    toast.style.position = "fixed";
+    toast.style.top = "20px";
+    toast.style.right = "20px";
+    toast.style.padding = "12px 20px";
+    toast.style.borderRadius = "6px";
+    toast.style.color = "white";
+    toast.style.zIndex = "9999";
+    toast.style.fontWeight = "500";
+    toast.style.boxShadow = "0 5px 15px rgba(0,0,0,0.2)";
+    toast.style.transition = "all 0.3s ease";
+
+    if (type === "success") {
+        toast.style.backgroundColor = "#28a745";
+    } else {
+        toast.style.backgroundColor = "#dc3545";
+    }
+
+    document.body.appendChild(toast);
+
+    setTimeout(() => {
+        toast.remove();
+    }, 3000);
+}
+</script>

@@ -37,7 +37,7 @@
 <main class="address-container">
     <div class="address-header">
         <h2>Saved Addresses</h2>
-        <a href="/addAddress"><button class="btn-add-address" >+ Add New Address</button></a>
+        <button onclick="addAddress()" class="btn-add-address" >+ Add New Address</button>
     </div>
 
     <div class="address-table-container">
@@ -113,5 +113,10 @@
         
         //window.location.href = `/editAddress?from=address&id=${id}`
         window.location.href = `/editAddress?id=${id}&from=address`
+    }
+    function addAddress() {
+        
+        //window.location.href = `/editAddress?from=address&id=${id}`
+        window.location.href = `/addAddress?from=address`
     }
 </script>

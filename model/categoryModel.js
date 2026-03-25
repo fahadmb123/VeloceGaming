@@ -13,12 +13,8 @@ const categorySchema = mongoose.Schema({
         unique : true,
         lowercase : true
     },
-    /*status : {
-        type : Boolean,
-        default : true
-    },*/
     offer : {
-        type : String
+        type : Number
     },
     image : {
         type : String,
@@ -32,6 +28,6 @@ const categorySchema = mongoose.Schema({
         type : Boolean,
         default : false
     }
-},{timesstamps:true})
+},{timestamps:true})
 
 module.exports = mongoose.model("category",categorySchema)

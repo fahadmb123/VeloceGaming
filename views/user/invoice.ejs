@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+<style>
+
+body{
+font-family: Arial;
+padding:40px;
+}
+
+.header{
+display:flex;
+justify-content:space-between;
+}
+
+.title{
+font-size:28px;
+font-weight:bold;
+}
+
+table{
+width:100%;
+border-collapse:collapse;
+margin-top:30px;
+}
+
+th,td{
+padding:10px;
+border-bottom:1px solid #ddd;
+text-align:left;
+}
+
+.total{
+font-weight:bold;
+font-size:18px;
+}
+
+.summary p{
+margin:5px 0;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="header">
+<h2>VELOCE GAMING</h2>
+<div class="title">INVOICE</div>
+</div>
+
+<p>Order ID : <%= order.orderId %></p>
+<p>Date : <%= new Date(order.createdAt).toLocaleDateString() %></p>
+
+<hr>
+
+<table>
+
+<thead>
+<tr>
+<th>Product</th>
+<th>Qty</th>
+<th>Price</th>
+<th>Discount</th>
+<th>Total</th>
+
+</tr>
+</thead>
+
+<tbody>
+
+<% let subTotal = 0; %>
+
+<% order.items.forEach(item => { %>
+<tr>
+<td><%= item.productName %></td>
+<td><%= item.quantity %></td>
+
+<td>₹ <%= item.price.toLocaleString("en-IN") %></td>
+
+<td>
+₹ <%= item.couponDiscount.toLocaleString("en-IN") || 0 %>
+</td>
+
+<td>
+₹ <%= ((item.price * item.quantity) - (item.couponDiscount || 0)).toLocaleString("en-IN") %>    
+</td>
+
+
+</tr>
+
+
+
+<% }) %>
+
+</tbody>
+
+</table>
+
+<div style="margin-top:30px;text-align:right" class="summary">
+
+<p>Subtotal : ₹ <%= order.totalAmount.toLocaleString("en-IN") %></p>
+
+<p>Shipping : ₹ <%= order.shippingCharge %></p>
+
+<p>Main Discount : ₹ <%= order.discountAmount.toLocaleString("en-IN") || 0 %></p>
+
+<p class="total">
+Grand Total : ₹ 
+<%= order.finalAmount.toLocaleString("en-IN") %>
+</p>
+
+</div>
+
+<hr>
+
+<p>
+Payment Method : 
+<%= order.paymentMethod === "cod" ? 'Cash On Delivery' : order.paymentMethod %>
+</p>
+
+</body>
+</html>

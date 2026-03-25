@@ -23,14 +23,14 @@
 
             <nav class="sidebar-nav">
                 <ul>
-                    <li><a href="#"><span>DashBoard</span></a></li>
+                    <li><a href="/admin/dashboard"><span>DashBoard</span></a></li>
                     <li><a href="/admin/userManagement"><span>Users</span></a></li>
                     <li><a href="/admin/categoryManagement"><span>Category</span></a></li>
-                    <li><a href="#"><span>Order</span></a></li>
+                    <li><a href="/admin/orderManagement"><span>Order</span></a></li>
                     <li class="active"><a href="#"><span>Product</span></a></li>
-                    <li><a href="#"><span>Coupon</span></a></li>
-                    <li><a href="#"><span>Report</span></a></li>
-                    <li><a href="#"><span>Banner</span></a></li>
+                    <li><a href="/admin/couponManagement"><span>Coupon</span></a></li>
+                    <li><a href="/admin/salesManagement"><span>Report</span></a></li>
+                    <!-- <li><a href="#"><span>Banner</span></a></li> -->
                 </ul>
             </nav>
 
@@ -535,14 +535,7 @@ function loadVariants(variants) {
    };
         const gallery = newCard.querySelector('.photo-gallery');
 
-        /*variant.images.forEach(img => {
-            const box = document.createElement('div');
-            box.className = 'photo-upload-box has-image';
-            box.innerHTML = `
-                <img src="${img.url}" data-public-id="${img.public_id}" class="photo-preview">
-            `;
-            gallery.appendChild(box);
-        });*/
+        
 
 
         variant.images.forEach(img => {
@@ -626,26 +619,52 @@ let isEditing = false;
 let currentEditingBox = null;
 
 function handleNewPhoto(input) {
-    if (input.files && input.files[0]) {
-        const gallery = input.closest('.photo-gallery');
-        const photoCount = gallery.querySelectorAll('.photo-upload-box').length;
 
-        if (photoCount >= 6) {
-            alert('Maximum 6 photos allowed.');
-            input.value = '';
-            return;
-        }
+    if (!input.files || !input.files[0]) return;
 
-        isEditing = false;
-        currentPhotoBox = input.closest('.photo-add-box');
+    const file = input.files[0];
 
-        const reader = new FileReader();
-        reader.onload = function (e) {
-            openCropModal(e.target.result);
-        }
-        reader.readAsDataURL(input.files[0]);
-        input.value = '';
+    const allowedTypes = [
+        "image/jpeg",
+        "image/png",
+        "image/webp",
+        "image/jpg"
+    ];
+
+    
+    if (!allowedTypes.includes(file.type)) {
+        showToast("Only JPG, JPEG, PNG, WEBP images allowed", "error");
+        input.value = "";
+        return;
     }
+
+    
+    if (file.size > 3 * 1024 * 1024) {
+        showToast("Image must be less than 3MB", "error");
+        input.value = "";
+        return;
+    }
+
+    const gallery = input.closest('.photo-gallery');
+    const photoCount = gallery.querySelectorAll('.photo-upload-box').length;
+
+    if (photoCount >= 6) {
+        showToast("Maximum 6 photos allowed", "error");
+        input.value = '';
+        return;
+    }
+
+    isEditing = false;
+    currentPhotoBox = input.closest('.photo-add-box');
+
+    const reader = new FileReader();
+
+    reader.onload = function (e) {
+        openCropModal(e.target.result);
+    }
+
+    reader.readAsDataURL(file);
+    input.value = '';
 }
 
 function handleEditPhoto(box) {
@@ -886,6 +905,7 @@ productForm.onsubmit = async function (e) {
     for (let i = 0; i < variantCards.length; i++) {
 
         const card = variantCards[i];
+        const variantId = card.getAttribute("data-variant-id");
         const photoPreviews = card.querySelectorAll('.photo-preview');
 
         let variantValid = true;
@@ -906,7 +926,7 @@ productForm.onsubmit = async function (e) {
         
 
         if (photoPreviews.length < 3) {
-            alert(`Variant ${i + 1} must have at least 3 photos.`);
+            showToast(`Variant ${i + 1} must have at least 3 photos.`,"error");
             return;
         }
 
@@ -962,6 +982,7 @@ productForm.onsubmit = async function (e) {
         })
 
         const variantObj = {
+            _id: variantId || null,
             color: color,
             ram: ram,
             rom: rom,
@@ -1022,7 +1043,7 @@ productForm.onsubmit = async function (e) {
 
     } catch (error) {
         console.log(error);
-        alert("Server error");
+        showToast("Server error","error");
     }
 };
 

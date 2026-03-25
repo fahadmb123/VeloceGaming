@@ -15,8 +15,6 @@ function generateSlug (name) {
     .replace(/[^\w-]+/g,"")
 }
 
-
-
 const login = async (req) => {
     try {
 
@@ -45,7 +43,6 @@ const login = async (req) => {
     }
 }
 
-
 const userStatus = async (req) => {
     try {
 
@@ -63,11 +60,10 @@ const userStatus = async (req) => {
     }
 }
 
-
 const addCategory = async (req) => {
     try {
 
-        //let failMessage
+        
         const {offer,name,} = req.body
 
         const slug = await generateSlug(name)
@@ -80,7 +76,7 @@ const addCategory = async (req) => {
         }
 
         const image = await cloudinary.uploader.upload(req.file.path,{folder:"category-image"}) 
-        console.log(image)
+        
         const newCategory = new categoryModel({
             name,
             slug,
@@ -227,17 +223,18 @@ const addProduct = async (req) => {
             variants[index].imagesId.push(result.public_id)
 
         }
-        
 
 
+        let mainOffer = Math.max(productCategory.offer || 0 , offer || 0)
         for (let  i=0 ; i<variants.length ; i++){
             let obj = variants[i]
             //let offeredPrice = obj.price * (1 - offer / 100)
             let offeredPrice
-            if (!offer) {
+            
+            if (!mainOffer) {
                 offeredPrice = obj.price
             } else {
-                offeredPrice = obj.price * (1 - offer / 100)
+                offeredPrice = obj.price * (1 - mainOffer / 100)
             }
             let toAddVariant = {
                 productId : obj.productId,
@@ -258,19 +255,7 @@ const addProduct = async (req) => {
             await newVariant.save()
         }
 
-        /*let count = await variantModel.countDocuments({productId:product._id})
-        await productModel.updateOne(
-            {_id:product._id},
-            {
-                $set : {
-                    variantCount : count
-                }
-            }
-        )*/
-
-        //const newVariant = new variantModel ({variants})
-
-        //await newVariant.save()
+        
 
         return {message:"Product Added Successfully"}
     } catch (err) {
@@ -283,12 +268,12 @@ const editProduct = async (req) => {
     try {
 
         const productId = req.params.id
+
         const {
             name,
             category,
             offer,
             homepage,
-            //details,
         } = req.body
 
         const variants = JSON.parse(req.body.variants)
@@ -296,31 +281,30 @@ const editProduct = async (req) => {
         const services = JSON.parse(req.body.services)
         const details = JSON.parse(req.body.details)
 
-        
-        let isExist = await productModel.findOne({_id:productId})
+        let isExist = await productModel.findOne({ _id: productId })
 
         if (!isExist) {
-            return {failMessage : "The Product Doesn't Exist"}
+            return { failMessage: "The Product Doesn't Exist" }
         }
 
-        let nameExist = await productModel.findOne({name})
+        let nameExist = await productModel.findOne({ name })
 
         if (nameExist && nameExist.name != isExist.name) {
-            return {failMessage: "The Name With The Product Already Exist"}
+            return { failMessage: "The Name With The Product Already Exist" }
         }
 
-        let productCategory = await categoryModel.findOne({_id:category})
+        let productCategory = await categoryModel.findOne({ _id: category })
 
-        if (!productCategory){
-            return {failMessage:"Selected Category Is Not Found"}
+        if (!productCategory) {
+            return { failMessage: "Selected Category Is Not Found" }
         }
 
         let slug = await generateSlug(name)
 
         await productModel.updateOne(
-            {_id:productId},
+            { _id: productId },
             {
-                $set : {
+                $set: {
                     name,
                     slug,
                     details,
@@ -328,95 +312,103 @@ const editProduct = async (req) => {
                     highlights,
                     services,
                     homepage,
-                    categoryId : productCategory._id
+                    categoryId: productCategory._id
                 }
             }
         )
-
-        let oldVariants = await variantModel.find({ productId });
-
-        for (let variant of oldVariants) {
-            if (variant.imagesId && variant.imagesId.length > 0) {
-                for (let publicId of variant.imagesId) {
-                    await cloudinary.uploader.destroy(publicId);
-                }
-            }
-        }
-
-        await variantModel.deleteMany({productId})
 
 
         for (let i = 0; i < variants.length; i++) {
-            let variant = variants[i];
 
-            let finalImages = [];
-            let finalImagesId = [];
+            let variant = variants[i]
 
-         
+            let finalImages = []
+            let finalImagesId = []
 
             if (variant.existingImages && variant.existingImages.length > 0) {
                 for (let img of variant.existingImages) {
-                    finalImages.push(img.url);
-                    finalImagesId.push(img.public_id);
+                    finalImages.push(img.url)
+                    finalImagesId.push(img.public_id)
                 }
             }
 
-
-  
             if (req.files && req.files.length > 0) {
-                for (let file of req.files) {
-                    const field = file.fieldname;
-                    let index = field.split("_")[1];
 
+                for (let file of req.files) {
+
+                    const field = file.fieldname
+                    let index = field.split("_")[1]
 
                     if (parseInt(index) === i) {
+
                         const result = await cloudinary.uploader.upload(file.path, {
                             folder: "product-variant-images",
-                        });
+                        })
 
-                        finalImages.push(result.secure_url);
-                        finalImagesId.push(result.public_id);
+                        finalImages.push(result.secure_url)
+                        finalImagesId.push(result.public_id)
 
-        
-                        fs.unlinkSync(file.path);
+                        fs.unlinkSync(file.path)
                     }
                 }
             }
+
             let offeredPrice
-            if (!offer) {
+            let mainOffer = Math.max(productCategory.offer || 0 , offer || 0)
+            
+            if (!mainOffer) {
                 offeredPrice = variant.price
             } else {
-                offeredPrice = variant.price * (1 - offer / 100)
+                offeredPrice = variant.price * (1 - mainOffer / 100)
             }
-            await variantModel.create({
-                productId,
-                price: variant.price,
-                stock: variant.stock,
-                images: finalImages,
-                imagesId: finalImagesId,
-                status: variant.status,
-                offeredPrice : offeredPrice,
-                attributes: [
-                    { key: "ram", value: variant.ram },
-                    { key: "rom", value: variant.rom },
-                    { key: "color", value: variant.color },
-                ],
-            });
+
+            // UPDATE EXISTING VARIANT
+            if (variant._id) {
+
+                await variantModel.updateOne(
+                    { _id: variant._id },
+                    {
+                        $set: {
+                            price: variant.price,
+                            stock: variant.stock,
+                            images: finalImages,
+                            imagesId: finalImagesId,
+                            status: variant.status,
+                            offeredPrice: offeredPrice,
+                            attributes: [
+                                { key: "ram", value: variant.ram },
+                                { key: "rom", value: variant.rom },
+                                { key: "color", value: variant.color },
+                            ],
+                        }
+                    }
+                )
+
+            }
+
+            // CREATE NEW VARIANT
+            else {
+
+                await variantModel.create({
+                    productId,
+                    price: variant.price,
+                    stock: variant.stock,
+                    images: finalImages,
+                    imagesId: finalImagesId,
+                    status: variant.status,
+                    offeredPrice: offeredPrice,
+                    attributes: [
+                        { key: "ram", value: variant.ram },
+                        { key: "rom", value: variant.rom },
+                        { key: "color", value: variant.color },
+                    ],
+                })
+
+            }
+
         }
 
-        /*let count = await variantModel.countDocuments({productId:productId})
-        await productModel.updateOne(
-            {_id:productId},
-            {
-                $set : {
-                    variantCount : count
-                }
-            }
-        )
-*/
-
-        
-        return {success : true,message: "Updated"}
+        return { success: true, message: "Updated" }
 
     } catch (err) {
         console.log(err)

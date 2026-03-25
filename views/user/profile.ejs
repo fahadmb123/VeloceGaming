@@ -1,6 +1,10 @@
 <link rel="stylesheet" href="/css/user/profile.css">
 
 
+    <!-- Loading Spinner -->
+<div id="admin-spinner" class="spinner-overlay" style="display:none;">
+    <div class="spinner"></div>
+</div>
 <!-- Header -->
 <header>
     <div class="header-container">
@@ -11,7 +15,7 @@
                 <span class="sub-brand">GAMING</span>
             </div>
         </div>
-
+        
         <nav>
             <a href="/">Home</a>
             <a href="/shop">Shop</a>
@@ -19,7 +23,12 @@
 
         <div class="header-icons">
             <a href="/wishlist"><i class="fa-regular fa-heart"></i></a>
-            <a href="/cart"><i class="fa-solid fa-cart-shopping"></i></a>
+            <a style="text-decoration: none;" href="/cart" class="cart-icon-wrapper">
+                <i class="fa-solid fa-cart-shopping"></i>
+                <% if (Number(cartCount) > 0) { %>
+                    <span class="cart-badge"><%= cartCount %></span>
+                <% } %>
+               </a>
             <div class="profile-circle-small">
                 <% if (user.profileImage){ %>
                         <img src="<%= user.profileImage %>" 
@@ -61,10 +70,10 @@
 
         <ul class="sidebar-menu">
             <li class="active"><a href="#"><i class="fa-solid fa-briefcase"></i> My Profile</a></li>
-            <li><a href="#"><i class="fa-solid fa-clipboard-list"></i> My Orders</a></li>
-            <li><a href="#"><i class="fa-regular fa-heart"></i> My Wishlist</a></li>
-            <li><a href="#"><i class="fa-solid fa-ticket"></i> Coupon</a></li>
-            <li><a href="#"><i class="fa-solid fa-wallet"></i> Wallet</a></li>
+            <li><a href="/orderHistory"><i class="fa-solid fa-clipboard-list"></i> My Orders</a></li>
+            <li><a href="/wishlist"><i class="fa-regular fa-heart"></i> My Wishlist</a></li>
+            <li><a href="/coupon"><i class="fa-solid fa-ticket"></i> Coupon</a></li>
+            <li><a href="/wallet"><i class="fa-solid fa-wallet"></i> Wallet</a></li>
         </ul>
 
         <a style="text-decoration: none;" href="/logout">

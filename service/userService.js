@@ -5,6 +5,8 @@ const salt = 10
 const {OAuth2Client} = require("google-auth-library")
 const axios = require("axios")
 const cloudinary = require("../helpers/cloudinary.js")
+const { walletModel, walletTransactionModel } = require("../model/walletModel.js")
+const { loadWallet } = require("../controller/user/walletController.js")
 const client = new OAuth2Client(
     process.env.GOOGLE_CLIENT_ID,
     process.env.GOOGLE_CLIENT_SECRET,
@@ -62,7 +64,7 @@ const sendOtp = async (req,email,name) => {
 const signup = async (req) => {
     try {
 
-        const {name,email,password} = req.body
+        const {name,email,password,refferalCode} = req.body
         
         const user = await userModel.findOne({email})
         
@@ -73,6 +75,9 @@ const signup = async (req) => {
 
         let {expiryTime} = await sendOtp(req,email,name)
 
+        if (refferalCode) {
+            req.session.refferalCode = refferalCode.trim()
+        }
         req.session.otpKey = "register"
         req.session.userEmail = email.trim()
         req.session.userName = name.trim()
@@ -93,7 +98,10 @@ const otpVarification = async (req) => {
         email = req.session.userEmail
         name = req.session.userName
         password = req.session.userPassword
-
+        refferalCode = req.session.refferalCode
+        req.session.refferalCode = null
+        
+        
 
         const originalOtp = req.session.otp
         const otpExpiry = req.session.otpExpiry
@@ -114,6 +122,44 @@ const otpVarification = async (req) => {
                 password:hashPassword,
                 googleId:null
             })
+            wallet = new walletModel({
+                userId : newUser._id
+            })
+            await wallet.save()
+            let refferedUser = null
+            if (refferalCode) {
+                refferedUser = await userModel.findOne({refferalCode})
+            }
+            if (refferedUser) {
+                newUser.refferedBy = refferedUser._id
+                await walletModel.updateOne(
+                    {userId:newUser._id},
+                    {
+                        $inc : {"balance" : 50}
+                    }
+                )
+                const newUserTransaction = new walletTransactionModel({
+                    type : "credit",
+                    userId : newUser._id,
+                    amount : 50,
+                    reason : "cashback"
+                })
+                await walletModel.updateOne(
+                    {userId:refferedUser._id},
+                    {
+                        $inc : {"balance" : 100}
+                    }
+                )
+                const oldUserTransaction = new walletTransactionModel({
+                    type : "credit",
+                    userId : refferedUser._id,
+                    amount : 100,
+                    reason : "cashback"
+                })
+                await newUserTransaction.save()
+                await oldUserTransaction.save()
+            }
+
             await newUser.save()
             const swalMessage = "Account Registered Successfully"
             return {swalMessage}
@@ -174,7 +220,11 @@ const userGoogle = async (req) => {
                 password:null,
                 googleId
             })
+            wallet = new walletModel({
+                userId : user._id
+            })
             await user.save()
+            await wallet.save()
         }
         if (user.googleId === null){
             const message = "You Cannot Login through Google With Normal Acount"
