@@ -27,7 +27,9 @@
 
         if (!selectedAddress){
             return showToast("Please Add Address","error")
-        } 
+        }
+        const spinner = document.getElementById("admin-spinner");
+        spinner.style.display = "flex"
 
         let paymentMethod = paymentElement.value
         let addressId = selectedAddress.value
@@ -50,6 +52,7 @@
         if (data.loginRequired) {
             window.location.href = "/login"
         }
+        spinner.style.display = "none"
 
         if (data.razorpay){
             openRazorpay(data, paymentMethod, addressId,variantId)
@@ -84,6 +87,8 @@ function openRazorpay(data,paymentMethod,addressId,variantId){
            
             response.paymentMethod = paymentMethod
             response.addressId = addressId
+            const spinner = document.getElementById("admin-spinner");
+            spinner.style.display = "flex"
             const verify = await fetch("/verifyRazorpayPayment",{
                 method:"POST",
                 headers:{
@@ -93,7 +98,7 @@ function openRazorpay(data,paymentMethod,addressId,variantId){
             })
             
             const result = await verify.json()
-
+            spinner.style.display = "none"
             if(result.success){
                 window.location.href = `/orderSuccessPage?id=${result.orderObjectId}`
             }else{

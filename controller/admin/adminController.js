@@ -16,7 +16,6 @@ const loadLogin = async (req,res) => {
     }
 }
 
-
 const loadUserManagement = async (req,res) => {
     try {
         const swalMessage = req.session.swalMessage
@@ -437,7 +436,7 @@ const deleteVariant = async (req, res) => {
         console.log(error);
         res.json({ success: false, message: "Failed to delete variant" });
     }
-};
+}
 
 
 

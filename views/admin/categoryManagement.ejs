@@ -225,11 +225,11 @@
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
 <script>
-    const searchInput = document.getElementById('searchInput');
-    const clearSearch = document.getElementById('clearSearch');
-    const modal = document.getElementById('categoryModal');
-    const modalTitle = document.getElementById('modalTitle');
-    const catForm = document.getElementById('categoryForm');
+    const searchInput = document.getElementById('searchInput')
+    const clearSearch = document.getElementById('clearSearch')
+    const modal = document.getElementById('categoryModal')
+    const modalTitle = document.getElementById('modalTitle')
+    const catForm = document.getElementById('categoryForm')
 
     let currentMode = null;
     let currentCategoryId = null;
@@ -524,13 +524,13 @@
             console.error(error);
             showToast("Something went wrong","error");
         }
-    });
+    })
 
 
     function showToast(message, type = "success") {
 
-    const toast = document.createElement("div");
-    toast.innerText = message;
+    const toast = document.createElement("div")
+    toast.innerText = message
 
     toast.style.position = "fixed";
     toast.style.top = "20px";

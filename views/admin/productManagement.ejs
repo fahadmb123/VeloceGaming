@@ -383,7 +383,7 @@ async function openProductModal(mode, id = null) {
 
     if (mode === 'edit') {
         productModalTitle.innerText = 'Edit Product';
-        addVariantBtn.style.display = 'none';
+        addVariantBtn.style.display = 'inline-flex';
         currentEditId = id;
 
         const res = await fetch(`/admin/productManagement/${id}`);
@@ -419,11 +419,13 @@ async function openProductModal(mode, id = null) {
         productForm.reset();
 
         const container = document.getElementById('variantsContainer');
-        const firstCard = container.querySelector('.variant-card');
+        /*const firstCard = container.querySelector('.variant-card');
         container.innerHTML = '';
-        container.appendChild(firstCard);
+        container.appendChild(firstCard);*/
+        container.innerHTML = '';
 
         resetAllPhotos();
+        document.getElementById('addVariantBtn').click()
     }
 }
 
@@ -580,7 +582,7 @@ function loadVariants(variants) {
 
         container.appendChild(newCard);
         });
-        updateVariantCloseButtons(); // ✅ ADD THIS LINE HERE
+        updateVariantCloseButtons(); 
 }
 
 
@@ -761,7 +763,7 @@ function resetAllPhotos() {
 }
 
 // Add Variant
-document.getElementById('addVariantBtn').addEventListener('click', function () {
+/*document.getElementById('addVariantBtn').addEventListener('click', function () {
     const container = document.getElementById('variantsContainer');
     const firstCard = container.querySelector('.variant-card');
     const newCard = firstCard.cloneNode(true);
@@ -784,6 +786,83 @@ document.getElementById('addVariantBtn').addEventListener('click', function () {
     newCard.insertBefore(closeBtn, newCard.firstChild);
 
     container.appendChild(newCard);
+});*/
+
+document.getElementById('addVariantBtn').addEventListener('click', function () {
+
+    const container = document.getElementById('variantsContainer');
+
+    const newCard = document.createElement('div');
+    newCard.className = 'variant-card';
+
+    newCard.innerHTML = `
+        <button type="button" class="variant-close-btn">&times;</button>
+
+        <div class="form-row-3">
+            <div class="form-group color-group">
+                <label>Color</label>
+                <div style="display:flex; gap:10px;">
+                    <input type="text" placeholder="Color Name" class="variant-color-name">
+                    <input type="color" class="variant-color-hex">
+                </div>
+                <p style="display:none;color:red;">Color Required</p>
+            </div>
+
+            <div class="form-group">
+                <label>RAM</label>
+                <input type="text" placeholder="RAM">
+            </div>
+
+            <div class="form-group">
+                <label>ROM</label>
+                <input type="text" placeholder="ROM">
+            </div>
+        </div>
+
+        <div class="form-row-3">
+            <div class="form-group price-group">
+                <label>Original Price</label>
+                <input type="text" placeholder="0.00">
+                <p style="display:none;color:red;">Price Required</p>
+            </div>
+
+            <div class="form-group stock-group">
+                <label>Stock</label>
+                <input type="text" placeholder="00">
+                <p style="display:none;color:red;">Stock Required</p>
+            </div>
+
+            <div class="form-group">
+                <label>Status</label>
+                <div class="custom-select">
+                <select class="variant-status">
+                    <option value="true">Active</option>
+                    <option value="false">Inactive</option>
+                </select>
+                </div>
+            </div>
+        </div>
+
+        <label>--> The First Image Will Be The Main Image</label>
+
+        <div class="photo-gallery">
+            <div class="photo-add-box" onclick="this.querySelector('input').click()">
+                <i class="fa-solid fa-plus"></i>
+                <span>Add Photo</span>
+                <input type="file" accept="image/*" hidden onchange="handleNewPhoto(this)">
+            </div>
+        </div>
+    `;
+
+    // Close button logic
+    newCard.querySelector('.variant-close-btn').onclick = function () {
+        newCard.remove();
+        updateVariantCloseButtons();
+    };
+
+    container.appendChild(newCard);
+
+    updateVariantCloseButtons(); // IMPORTANT
 });
 
 
