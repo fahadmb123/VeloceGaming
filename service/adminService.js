@@ -172,7 +172,9 @@ const addProduct = async (req) => {
         const details = JSON.parse(req.body.details)
 
 
-        let isExist = await productModel.findOne({name})
+        let isExist = await productModel.findOne({
+            name: { $regex: `^${name}$`, $options: "i" }
+        })
 
         if (isExist) {
             return {failMessage : "The Same Name Product Already Exist"}
@@ -287,7 +289,9 @@ const editProduct = async (req) => {
             return { failMessage: "The Product Doesn't Exist" }
         }
 
-        let nameExist = await productModel.findOne({ name })
+        let nameExist = await productModel.findOne({
+            name: { $regex: `^${name}$`, $options: "i" }
+        })
 
         if (nameExist && nameExist.name != isExist.name) {
             return { failMessage: "The Name With The Product Already Exist" }
