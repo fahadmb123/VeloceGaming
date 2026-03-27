@@ -95,7 +95,7 @@ async function decQuantity(id) {
             qtyInput.value = data.item.quantity
 
             subtotalEl.innerHTML =
-                `Subtotal : <span>₹ ${data.item.quantity * price}</span>`
+                `Subtotal : <span>₹ ${(data.item.quantity * price).toLocaleString("en-IN")}</span>`
 
             document.getElementById("totalInput").innerHTML = `₹ ${data.total.toLocaleString("en-IN")}`
         } else {
