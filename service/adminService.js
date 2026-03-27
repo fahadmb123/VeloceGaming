@@ -147,26 +147,26 @@ const editCategory = async (req) => {
             { $set: object }
         );
 
-        const products = await productModel.find({categoryId:category._id})
+        const newCategory = await categoryModel.findById(id)
+        const products = await productModel.find({categoryId:newCategory._id})
 
         for (let product of products) {
 
-            const categoryOffer = category.offer || 0
+            const categoryOffer = newCategory.offer || 0
             const productOffer = product.offer || 0
 
             const finalOffer = Math.max(categoryOffer,productOffer)
 
             const variants = await variantModel.find({productId:product._id})
-
+            console.log(variants)
             
             for (let variant of variants) {
-
-                const discountPrice =
-                    variant.price - (variant.price * finalOffer / 100)
-
-                    variant.offeredPrice = Math.round(discountPrice)
-
+                
+                    const discountPrice = variant.price * (1 - finalOffer / 100)
+                    variant.offeredPrice = discountPrice
+                    
                 await variant.save()
+               
             }
         }
 
