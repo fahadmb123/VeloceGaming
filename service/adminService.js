@@ -147,6 +147,29 @@ const editCategory = async (req) => {
             { $set: object }
         );
 
+        const products = await productModel.find({categoryId:category._id})
+
+        for (let product of products) {
+
+            const categoryOffer = category.offer || 0
+            const productOffer = product.offer || 0
+
+            const finalOffer = Math.max(categoryOffer,productOffer)
+
+            const variants = await variantModel.find({productId:product._id})
+
+            
+            for (let variant of variants) {
+
+                const discountPrice =
+                    variant.price - (variant.price * finalOffer / 100)
+
+                    variant.offeredPrice = Math.round(discountPrice)
+
+                await variant.save()
+            }
+        }
+
         return { message: "Updated Successfully" };
 
     } catch (err) {
