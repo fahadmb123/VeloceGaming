@@ -351,39 +351,57 @@ const returnOrder = async (req,res) => {
 }
 
 
-const downloadInvoice = async (req,res)=>{
-    try{
+const downloadInvoice = async (req, res) => {
+    try {
+        const { orderId, itemId } = req.query;
 
-        const {orderId,itemId} = req.query
+        const order = await orderModel.findById(orderId);
 
-        const order = await orderModel.findById(orderId)
+        if (!order) {
+            return res.status(404).send("Order not found");
+        }
 
         const orderItem = order.items.find(
             item => item._id.toString() === itemId
-        )
+        );
 
-        const filePath = path.join(__dirname,"../../views/user/invoice.ejs")
+        if (!orderItem) {
+            return res.status(404).send("Item not found");
+        }
 
-        const html = await ejs.renderFile(filePath,{
+        const filePath = path.join(__dirname, "../../views/user/invoice.ejs");
+
+        const html = await ejs.renderFile(filePath, {
             order,
             orderItem
-        })
+        });
 
-        const options = {format:"A4"}
+        const options = {
+            format: "A4",
+            printBackground: true
+        };
 
-        const file = {content:html}
+        const file = { content: html };
 
-        const pdfBuffer = await html_to_pdf.generatePdf(file,options)
+        
+        const pdfBuffer = await Promise.race([
+            html_to_pdf.generatePdf(file, options),
+            new Promise((_, reject) =>
+                setTimeout(() => reject(new Error("PDF Timeout")), 15000)
+            )
+        ]);
 
-        res.setHeader("Content-Type","application/pdf")
-        res.setHeader("Content-Disposition","attachment; filename=invoice.pdf")
+        res.setHeader("Content-Type", "application/pdf");
+        res.setHeader("Content-Disposition", "attachment; filename=invoice.pdf");
 
-        res.send(pdfBuffer)
+        res.end(pdfBuffer);
 
-    }catch(err){
-        console.log(err)
+    } catch (err) {
+        console.log("PDF ERROR:", err);
+
+        res.status(500).send("Failed to generate invoice. Try again.");
     }
-}
+};
 
 
 
