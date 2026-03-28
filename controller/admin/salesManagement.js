@@ -6,47 +6,74 @@ const ExcelJS = require("exceljs")
 
 
 const buildMatchStage = (query) => {
-    let { filter, start, end, search } = query
+
+    let { filter, start, end, search } = query;
+
+    // ✅ Convert to IST (important for AWS)
+    const getISTDate = (date = new Date()) => {
+        return new Date(date.toLocaleString("en-US", { timeZone: "Asia/Kolkata" }));
+    };
+
+    const now = getISTDate();
 
     const matchStage = {
         "items.status": "delivered"
-    }
+    };
+
+    // ✅ Default filter
     if (!filter) {
-        filter = "daily"
+        filter = "daily";
     }
 
-    let startDate, endDate
+    let startDate, endDate;
 
-    const now = new Date()
-
+    // ✅ FILTER LOGIC (IST SAFE)
     if (filter === "daily") {
-        startDate = new Date()
-        startDate.setHours(0, 0, 0, 0)
-        endDate = new Date()
-    }
-    else if (filter === "weekly") {
-        startDate = new Date()
-        startDate.setDate(startDate.getDate() - 7)
-        endDate = new Date()
-    }
-    else if (filter === "yearly") {
-        startDate = new Date(new Date().getFullYear(), 0, 1)
-        endDate = new Date()
-    }
-    else if (filter === "custom") {
-        startDate = new Date(start)
-        endDate = new Date(end)
+        startDate = new Date(now);
+        startDate.setHours(0, 0, 0, 0);
+
+        endDate = new Date(now);
+        endDate.setHours(23, 59, 59, 999);
     }
 
+    else if (filter === "weekly") {
+        startDate = new Date(now);
+        startDate.setDate(startDate.getDate() - 7);
+        startDate.setHours(0, 0, 0, 0);
+
+        endDate = new Date(now);
+        endDate.setHours(23, 59, 59, 999);
+    }
+
+    else if (filter === "yearly") {
+        startDate = new Date(now.getFullYear(), 0, 1);
+        startDate.setHours(0, 0, 0, 0);
+
+        endDate = new Date(now);
+        endDate.setHours(23, 59, 59, 999);
+    }
+
+    else if (filter === "custom") {
+        if (start && end) {
+            startDate = new Date(start);
+            startDate.setHours(0, 0, 0, 0);
+
+            endDate = new Date(end);
+            endDate.setHours(23, 59, 59, 999); // ✅ VERY IMPORTANT
+        }
+    }
+
+    // ✅ Apply date filter
     if (startDate && endDate) {
         matchStage.createdAt = {
             $gte: startDate,
             $lte: endDate
-        }
+        };
     }
 
+    // ✅ SEARCH FILTER
     if (search) {
-        const inputSearch = search.toLowerCase().trim()
+        const inputSearch = search.trim();
 
         matchStage.$or = [
             {
@@ -61,11 +88,11 @@ const buildMatchStage = (query) => {
                     $options: "i"
                 }
             }
-        ]
+        ];
     }
 
-    return matchStage
-}
+    return matchStage;
+};
 
 const getOrderList = async (matchStage) => {
     const totalOrdersList = await orderModel.aggregate([
