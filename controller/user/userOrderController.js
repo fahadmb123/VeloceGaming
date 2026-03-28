@@ -2,7 +2,9 @@ const userOrderService = require("../../service/userOrderService")
 const orderModel = require("../../model/orderModel")
 const cartModel = require("../../model/cartModel")
 const {z} = require("zod")
-const html_to_pdf = require("html-pdf-node")
+//const html_to_pdf = require("html-pdf-node")
+const puppeteer = require("puppeteer");
+//const PDFDocument = require("pdfkit")
 const ejs = require("ejs")
 const path = require("path")
 const razorpay = require("../../helpers/razorpay")
@@ -351,23 +353,18 @@ const returnOrder = async (req,res) => {
 }
 
 
+
+
+
 const downloadInvoice = async (req, res) => {
     try {
         const { orderId, itemId } = req.query;
 
         const order = await orderModel.findById(orderId);
 
-        if (!order) {
-            return res.status(404).send("Order not found");
-        }
-
         const orderItem = order.items.find(
             item => item._id.toString() === itemId
         );
-
-        if (!orderItem) {
-            return res.status(404).send("Item not found");
-        }
 
         const filePath = path.join(__dirname, "../../views/user/invoice.ejs");
 
@@ -376,30 +373,35 @@ const downloadInvoice = async (req, res) => {
             orderItem
         });
 
-        const options = {
+        // ✅ Launch browser (IMPORTANT FIX FOR AWS)
+        const browser = await puppeteer.launch({
+            args: ['--no-sandbox', '--disable-setuid-sandbox']
+        });
+
+        const page = await browser.newPage();
+
+        await page.setContent(html, {
+            waitUntil: "networkidle0"
+        });
+
+        const pdfBuffer = await page.pdf({
             format: "A4",
             printBackground: true
-        };
+        });
 
-        const file = { content: html };
-
-        
-        const pdfBuffer = await Promise.race([
-            html_to_pdf.generatePdf(file, options),
-            new Promise((_, reject) =>
-                setTimeout(() => reject(new Error("PDF Timeout")), 15000)
-            )
-        ]);
+        await browser.close();
 
         res.setHeader("Content-Type", "application/pdf");
-        res.setHeader("Content-Disposition", "attachment; filename=invoice.pdf");
+        res.setHeader(
+            "Content-Disposition",
+            `attachment; filename=invoice-${order.orderId}.pdf`
+        );
 
         res.end(pdfBuffer);
 
     } catch (err) {
         console.log("PDF ERROR:", err);
-
-        res.status(500).send("Failed to generate invoice. Try again.");
+        res.status(500).send("Failed to generate invoice");
     }
 };
 
