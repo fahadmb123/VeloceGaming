@@ -69,8 +69,10 @@ const buildMatchStage = (query) => {
 
 const getOrderList = async (matchStage) => {
     const totalOrdersList = await orderModel.aggregate([
-        { $match: matchStage },
         { $unwind: "$items" },
+        { $match: {
+            ...matchStage
+        }},
         {
             $group: {
                 _id: null,
@@ -94,8 +96,10 @@ const loadSales = async (req, res, next) => {
         const matchStage = buildMatchStage(req.query)
 
         const orders = await orderModel.aggregate([
-            { $match: matchStage },
             { $unwind: "$items" },
+            { $match: {
+                ...matchStage
+            }},
             { $sort: { _id: -1 } },
             { $skip: skip },
             { $limit: limit }
@@ -136,8 +140,11 @@ const exportPDF = async (req, res) => {
     const matchStage = buildMatchStage(req.query) // ✅ FIXED
 
     const orders = await orderModel.aggregate([
-        { $match: matchStage },
-        { $unwind: "$items" }
+        { $unwind: "$items" },
+        { $match: {
+            ...matchStage
+        }},
+        {$sort : {_id : -1}}
     ])
 
     const { totalOrdersList } = await getOrderList(matchStage)
@@ -166,14 +173,14 @@ const exportPDF = async (req, res) => {
     doc.fontSize(12)
 
     doc.text(
-        `Total Orders: ${totalOrders}   |   Final Revenue: ${finalRevenue}`,
+        `Total Orders: ${totalOrders}   |   Final Revenue: ${finalRevenue.toLocaleString("en-IN")}`,
         { align: "center" }
     )
 
     doc.moveDown(0.5)
 
     doc.text(
-        `Total Discount: ${totalDiscount}   |   Total Amount: ${totalAmount}`,
+        `Total Discount: ${totalDiscount.toLocaleString("en-IN")}   |   Total Amount: ${totalAmount.toLocaleString("en-IN")}`,
         { align: "center" }
     )
 
@@ -276,6 +283,7 @@ const exportPDF = async (req, res) => {
     doc.end()
 }
 
+
 const exportExcel = async (req, res) => {
 
     const workbook = new ExcelJS.Workbook()
@@ -284,8 +292,8 @@ const exportExcel = async (req, res) => {
     const matchStage = buildMatchStage(req.query)
 
     const orders = await orderModel.aggregate([
-        { $match: matchStage },
         { $unwind: "$items" },
+        { $match: matchStage },
         { $sort: { _id: -1 } }
     ])
 
@@ -305,12 +313,12 @@ const exportExcel = async (req, res) => {
     
     worksheet.mergeCells('A2:J2')
     worksheet.getCell('A2').value =
-        `Total Orders: ${totalOrders} | Final Revenue: ₹ ${finalRevenue}`
+        `Total Orders: ${totalOrders} | Final Revenue: ₹ ${finalRevenue.toLocaleString("en-IN")}`
     worksheet.getCell('A2').alignment = { horizontal: 'center' }
 
     worksheet.mergeCells('A3:J3')
     worksheet.getCell('A3').value =
-        `Total Discount: ₹ ${totalDiscount} | Total Amount: ₹ ${totalAmount}`
+        `Total Discount: ₹ ${totalDiscount.toLocaleString("en-IN")} | Total Amount: ₹ ${totalAmount.toLocaleString("en-IN")}`
     worksheet.getCell('A3').alignment = { horizontal: 'center' }
 
     
@@ -318,21 +326,34 @@ const exportExcel = async (req, res) => {
     worksheet.addRow([])
 
     
-    worksheet.columns = [
-        { header: "Order ID", key: "orderId", width: 25 },
-        { header: "Date", key: "date", width: 20 },
-        { header: "Customer", key: "customer", width: 20 },
-        { header: "Discount", key: "discount", width: 15 },
-        { header: "Coupon Code", key: "couponCode", width: 20 },
-        { header: "Status", key: "status", width: 15 },
-        { header: "Payment Method", key: "paymentMethod", width: 20 },
-        { header: "Payment Status", key: "paymentStatus", width: 20 },
-        { header: "Order Amount", key: "orderAmount", width: 15 },
-        { header: "Final Amount", key: "finalAmount", width: 15 }
-    ]
+    const headerRow = worksheet.addRow([
+        "Order ID",
+        "Date",
+        "Customer",
+        "Discount",
+        "Coupon Code",
+        "Status",
+        "Payment Method",
+        "Payment Status",
+        "Order Amount",
+        "Final Amount"
+    ])
+
+    headerRow.font = { bold: true }
 
     
-    worksheet.getRow(5).font = { bold: true }
+    worksheet.columns = [
+        { key: "orderId", width: 25 },
+        { key: "date", width: 20 },
+        { key: "customer", width: 20 },
+        { key: "discount", width: 15 },
+        { key: "couponCode", width: 20 },
+        { key: "status", width: 15 },
+        { key: "paymentMethod", width: 20 },
+        { key: "paymentStatus", width: 20 },
+        { key: "orderAmount", width: 15 },
+        { key: "finalAmount", width: 15 }
+    ]
 
     
     const formattedData = orders.map(order => ({
@@ -343,14 +364,14 @@ const exportExcel = async (req, res) => {
             day: "numeric"
         }),
         customer: order.shippingAddress?.fullName || "-",
-        orderAmount: `₹ ${order.items?.total.toLocaleString("en-IN") || 0}`,
+        orderAmount: `₹ ${order.items?.total?.toLocaleString("en-IN") || 0}`,
         discount:
             order.items?.couponDiscount === 0
                 ? "Not Applied"
-                : `-₹ ${order.items?.couponDiscount.toLocaleString("en-IN") || 0}`,
+                : `-₹ ${order.items?.couponDiscount?.toLocaleString("en-IN") || 0}`,
         couponCode: order.couponCode || "No Coupon Code",
         status: order.items?.status || "No Status",
-        finalAmount: `₹ ${order.items?.finalAmount.toLocaleString("en-IN") || 0}`,
+        finalAmount: `₹ ${order.items?.finalAmount?.toLocaleString("en-IN") || 0}`,
         paymentMethod:
             order.paymentMethod === "cod"
                 ? "Cash On Delivery"
@@ -360,6 +381,16 @@ const exportExcel = async (req, res) => {
 
     formattedData.forEach(row => {
         worksheet.addRow(row)
+    })
+
+    
+    headerRow.eachCell(cell => {
+        cell.border = {
+            top: { style: 'thin' },
+            bottom: { style: 'thin' },
+            left: { style: 'thin' },
+            right: { style: 'thin' }
+        }
     })
 
     

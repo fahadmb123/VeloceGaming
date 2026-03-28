@@ -30,10 +30,10 @@
                     <!-- <li><a href="#"><span>Banner</span></a></li> -->
                 </ul>
             </nav>
-
+            <a href="/admin/logout" style="text-decoration: none;">
             <div class="sidebar-footer">
                 <button class="btn-logout">Log out</button>
-            </div>
+            </div></a>
         </aside>
 
         <!-- Main Content -->
@@ -270,6 +270,14 @@
 
             startDate.max = today
             endDate.max = today
+            startDate.addEventListener("change", () => {
+                const selectedStartDate = startDate.value
+
+                if (selectedStartDate) {
+                
+                    endDate.min = selectedStartDate
+                }
+            })
 
             filterSelect.addEventListener("change",function (){
                 const value = this.value
