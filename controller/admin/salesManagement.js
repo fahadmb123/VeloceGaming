@@ -69,8 +69,10 @@ const buildMatchStage = (query) => {
 
 const getOrderList = async (matchStage) => {
     const totalOrdersList = await orderModel.aggregate([
-        { $match: matchStage },
         { $unwind: "$items" },
+        { $match: {
+            ...matchStage
+        }},
         {
             $group: {
                 _id: null,
@@ -94,8 +96,10 @@ const loadSales = async (req, res, next) => {
         const matchStage = buildMatchStage(req.query)
 
         const orders = await orderModel.aggregate([
-            { $match: matchStage },
             { $unwind: "$items" },
+            { $match: {
+                ...matchStage
+            }},
             { $sort: { _id: -1 } },
             { $skip: skip },
             { $limit: limit }
@@ -136,8 +140,11 @@ const exportPDF = async (req, res) => {
     const matchStage = buildMatchStage(req.query) // ✅ FIXED
 
     const orders = await orderModel.aggregate([
-        { $match: matchStage },
-        { $unwind: "$items" }
+        { $unwind: "$items" },
+        { $match: {
+            ...matchStage
+        }},
+        {sort : {_id : -1}}
     ])
 
     const { totalOrdersList } = await getOrderList(matchStage)
@@ -276,6 +283,7 @@ const exportPDF = async (req, res) => {
     doc.end()
 }
 
+
 const exportExcel = async (req, res) => {
 
     const workbook = new ExcelJS.Workbook()
@@ -284,8 +292,10 @@ const exportExcel = async (req, res) => {
     const matchStage = buildMatchStage(req.query)
 
     const orders = await orderModel.aggregate([
-        { $match: matchStage },
         { $unwind: "$items" },
+        { $match: {
+            ...matchStage
+        }},
         { $sort: { _id: -1 } }
     ])
 
