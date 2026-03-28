@@ -9,7 +9,7 @@ const buildMatchStage = (query) => {
 
     let { filter, start, end, search } = query;
 
-    // ✅ Convert to IST (important for AWS)
+    
     const getISTDate = (date = new Date()) => {
         return new Date(date.toLocaleString("en-US", { timeZone: "Asia/Kolkata" }));
     };
@@ -20,14 +20,14 @@ const buildMatchStage = (query) => {
         "items.status": "delivered"
     };
 
-    // ✅ Default filter
+    
     if (!filter) {
         filter = "daily";
     }
 
     let startDate, endDate;
 
-    // ✅ FILTER LOGIC (IST SAFE)
+    
     if (filter === "daily") {
         startDate = new Date(now);
         startDate.setHours(0, 0, 0, 0);
@@ -63,7 +63,7 @@ const buildMatchStage = (query) => {
         }
     }
 
-    // ✅ Apply date filter
+    
     if (startDate && endDate) {
         matchStage.createdAt = {
             $gte: startDate,
@@ -71,7 +71,7 @@ const buildMatchStage = (query) => {
         };
     }
 
-    // ✅ SEARCH FILTER
+    
     if (search) {
         const inputSearch = search.trim();
 
