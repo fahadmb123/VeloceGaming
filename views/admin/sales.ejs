@@ -270,6 +270,14 @@
 
             startDate.max = today
             endDate.max = today
+            startDate.addEventListener("change", () => {
+                const selectedStartDate = startDate.value
+
+                if (selectedStartDate) {
+                
+                    endDate.min = selectedStartDate
+                }
+            })
 
             filterSelect.addEventListener("change",function (){
                 const value = this.value
