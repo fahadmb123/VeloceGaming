@@ -313,12 +313,12 @@ const exportExcel = async (req, res) => {
     
     worksheet.mergeCells('A2:J2')
     worksheet.getCell('A2').value =
-        `Total Orders: ${totalOrders} | Final Revenue: ₹ ${finalRevenue}`
+        `Total Orders: ${totalOrders} | Final Revenue: ₹ ${finalRevenue.toLocaleString("en-IN")}`
     worksheet.getCell('A2').alignment = { horizontal: 'center' }
 
     worksheet.mergeCells('A3:J3')
     worksheet.getCell('A3').value =
-        `Total Discount: ₹ ${totalDiscount} | Total Amount: ₹ ${totalAmount}`
+        `Total Discount: ₹ ${totalDiscount.toLocaleString("en-IN")} | Total Amount: ₹ ${totalAmount.toLocaleString("en-IN")}`
     worksheet.getCell('A3').alignment = { horizontal: 'center' }
 
     
