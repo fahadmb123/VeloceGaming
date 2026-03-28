@@ -373,7 +373,7 @@ const downloadInvoice = async (req, res) => {
             orderItem
         });
 
-        // ✅ Launch browser (IMPORTANT FIX FOR AWS)
+        
         const browser = await puppeteer.launch({
             args: ['--no-sandbox', '--disable-setuid-sandbox']
         });
