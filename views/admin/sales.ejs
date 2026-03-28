@@ -254,9 +254,9 @@
         })
 
         clearSearch.addEventListener("click", () => {
-            searchInput.value = "";
+            reportSearchInput.value = "";
             clearSearch.style.display = "none";
-            searchInput.focus();
+            reportSearchInput.focus();
             window.location.href = "/admin/salesManagement?filter=<%= filter %>"
         })
 
@@ -265,8 +265,11 @@
             const today = new Date().toLocaleDateString('en-CA')
             const filterSelect = document.getElementById("dateFilterSelect")
             const customBox = document.getElementById("customDateFilter")
-            const startDate = document.getElementById("startDate").max = today
-            const endDate = document.getElementById("endDate").max = today
+            const startDate = document.getElementById("startDate")
+            const endDate = document.getElementById("endDate")
+
+            startDate.max = today
+            endDate.max = today
 
             filterSelect.addEventListener("change",function (){
                 const value = this.value
@@ -291,11 +294,29 @@
            
         })
 
-    document.getElementById("exportPdfBtn").addEventListener("click",()=>{
-        window.location.href = '/admin/exportToPdf'
+    const filter = "<%= filter %>"
+    const search = "<%= search %>"
+    const start = "<%= startTo %>"
+    const end = "<%= endTo %>"
+
+    document.getElementById("exportPdfBtn").addEventListener("click", () => {
+        let url = `/admin/exportToPdf?filter=${filter}&search=${search}`
+
+        if (filter === "custom") {
+            url += `&start=${start}&end=${end}`
+        }
+
+        window.location.href = url
     })
-    document.getElementById("exportExcelBtn").addEventListener("click",()=>{
-        window.location.href = '/admin/exportExcel'
+
+    document.getElementById("exportExcelBtn").addEventListener("click", () => {
+        let url = `/admin/exportExcel?filter=${filter}&search=${search}`
+
+        if (filter === "custom") {
+            url += `&start=${start}&end=${end}`
+        }
+
+        window.location.href = url
     })
     </script>
 </body>
