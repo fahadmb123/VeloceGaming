@@ -2,203 +2,213 @@ const userModel = require("../../model/userModel")
 const orderModel = require("../../model/orderModel")
 
 
-const loadDashboard = async (req,res,next) => {
+const loadDashboard = async (req, res, next) => {
     try {
 
-        let {filter,chartFilter} = req.query
-        if (!chartFilter) {
-            chartFilter = "today"
-        }
-        let startDate
-        let endDate
+        let { filter, chartFilter } = req.query;
 
-        const matchStage = {
-            "items.status": "delivered"
-        }
+        if (!filter) filter = "today";
+        if (!chartFilter) chartFilter = "today";
+
+        
+        const getISTDate = (date = new Date()) => {
+            return new Date(date.toLocaleString("en-US", { timeZone: "Asia/Kolkata" }));
+        };
+
+        const now = getISTDate();
+
+        let startDate, endDate;
 
         
         if (filter === "today") {
-            const now = new Date();
-
             startDate = new Date(now);
-            startDate.setHours(0, 0, 0, 0)
-            endDate = new Date()
+            startDate.setHours(0, 0, 0, 0);
+
+            endDate = new Date(now);
+            endDate.setHours(23, 59, 59, 999);
         }
+
         else if (filter === "week") {
-            const now = new Date();
-
             startDate = new Date(now);
-            startDate.setDate(now.getDate() - 7);
+            startDate.setDate(startDate.getDate() - 7);
+            startDate.setHours(0, 0, 0, 0);
 
-            endDate = new Date();
+            endDate = new Date(now);
+            endDate.setHours(23, 59, 59, 999);
         }
+
         else if (filter === "month") {
-            const now = new Date();
-
             startDate = new Date(now.getFullYear(), now.getMonth(), 1);
-            endDate = new Date();
-        }
-        else if (filter === "year") {
-            const now = new Date();
+            startDate.setHours(0, 0, 0, 0);
 
-            startDate = new Date(now.getFullYear(), 0, 1);
-            endDate = new Date();
+            endDate = new Date(now);
+            endDate.setHours(23, 59, 59, 999);
         }
+
+        else if (filter === "year") {
+            startDate = new Date(now.getFullYear(), 0, 1);
+            startDate.setHours(0, 0, 0, 0);
+
+            endDate = new Date(now);
+            endDate.setHours(23, 59, 59, 999);
+        }
+
+        
+        const matchStage = {
+            "items.status": "delivered"
+        };
 
         if (startDate && endDate) {
-            
             matchStage.createdAt = {
-                $gte: new Date(startDate),
-                $lte: new Date(endDate)
-            }
+                $gte: startDate,
+                $lte: endDate
+            };
         }
 
+        
         const list = await orderModel.aggregate([
-            { $match : matchStage},
-            { $unwind : "$items" },
-            { 
-                $group : {
-                    _id : null,
-                    totalOrders : { $sum : 1 },
-                    totalRevenue : { $sum : "$items.finalAmount" }
-                }
-            }
-        ])
-        
-        const totalOrders = list[0]?.totalOrders || 0
-        const totalRevenue = list[0]?.totalRevenue || 0
-
-        const activeUsers = await userModel.countDocuments({status : true})
-        const top = await orderModel.aggregate([
-            { $match: matchStage },
             { $unwind: "$items" },
-            {$facet : {
-                topSellingProduct : [
-                    {
-                        $group: {
-                            _id: "$items.variantId",
-                            totalSold: { $sum: "$items.quantity" },
-            
-                            productName: { $first: "$items.productName" },
-                            productImage: { $first: "$items.productImage" }
-                        }
-                    },
-                    { $sort: { totalSold: -1 } },
-                    { $limit: 5 },
-        
-                    {
-                        $lookup: {
-                            from: "variants",
-                            localField: "_id",
-                            foreignField: "_id",
-                            as: "variant"
-                        }
-                    },
-                    { $unwind: "$variant" },
-
-                    {
-                        $lookup: {
-                            from: "products",
-                            localField: "variant.productId",
-                            foreignField: "_id",
-                            as: "product"
-                        }
-                    },
-                    { $unwind: "$product" },
-
-                    {
-                        $lookup: {
-                            from: "categories",
-                            localField: "product.categoryId",
-                            foreignField: "_id",
-                            as: "category"
-                        }
-                    },
-                    { $unwind: "$category" },
-
-                    {
-                        $project: {
-                            totalSold: 1,
-                            productName: 1,
-                            productImage: 1,
-                            categoryName: "$category.name"
-                        }
-                    }
-                ],
-                topSellingCategory : [
-                    {
-                        $lookup: {
-                            from: "variants",
-                            localField: "items.variantId",
-                            foreignField: "_id",
-                            as: "variant"
-                        }
-                    },
-                    { $unwind: "$variant" },
-
-                    {
-                        $lookup: {
-                            from: "products",
-                            localField: "variant.productId",
-                            foreignField: "_id",
-                            as: "product"
-                        }
-                    },
-                    { $unwind: "$product" },
-
-                    {
-                        $lookup: {
-                            from: "categories",
-                            localField: "product.categoryId",
-                            foreignField: "_id",
-                            as: "category"
-                        }
-                    },
-                    { $unwind: "$category" },
-
-                    {
-                        $group: {
-                            _id: "$category.name",
-                            totalSold: { $sum: "$items.quantity" }
-                        }
-                    },
-                    { $sort: { totalSold: -1 } },
-                    { $limit: 5 },
-                ]
-            }}
-        ])
-
-        const result = top[0]
-        const topSellingProduct = result.topSellingProduct
-        const topSellingCategory = result.topSellingCategory
-
-        
-        let chartStage = {
-                _id : {$hour : "$createdAt"}
-            }
-        let chartMatchStage
-        if (chartFilter === "today") {
-            
-            const now = new Date();
-
-            const startOfDayIST = new Date(
-                now.toLocaleString("en-US", { timeZone: "Asia/Kolkata" })
-            )
-            startOfDayIST.setHours(0, 0, 0, 0)
-
-            const endOfDayIST = new Date(
-            now.toLocaleString("en-US", { timeZone: "Asia/Kolkata" })
-            )
-            endOfDayIST.setHours(23, 59, 59, 999)
-            
-
-            chartMatchStage = {
-                "items.status": "delivered",
-                createdAt: {
-                    $gte: startOfDayIST,
-                    $lte: endOfDayIST
+            { $match: matchStage },
+            {
+                $group: {
+                    _id: null,
+                    totalOrders: { $sum: 1 },
+                    totalRevenue: { $sum: "$items.finalAmount" }
                 }
             }
+        ]);
+
+        const totalOrders = list[0]?.totalOrders || 0;
+        const totalRevenue = list[0]?.totalRevenue || 0;
+
+        
+        const activeUsers = await userModel.countDocuments({ status: true });
+
+        
+        const top = await orderModel.aggregate([
+            { $unwind: "$items" },
+            { $match: matchStage },
+            {
+                $facet: {
+
+                    
+                    topSellingProduct: [
+                        {
+                            $group: {
+                                _id: "$items.variantId",
+                                totalSold: { $sum: "$items.quantity" },
+                                productName: { $first: "$items.productName" },
+                                productImage: { $first: "$items.productImage" }
+                            }
+                        },
+                        { $sort: { totalSold: -1 } },
+                        { $limit: 5 },
+
+                        {
+                            $lookup: {
+                                from: "variants",
+                                localField: "_id",
+                                foreignField: "_id",
+                                as: "variant"
+                            }
+                        },
+                        { $unwind: "$variant" },
+
+                        {
+                            $lookup: {
+                                from: "products",
+                                localField: "variant.productId",
+                                foreignField: "_id",
+                                as: "product"
+                            }
+                        },
+                        { $unwind: "$product" },
+
+                        {
+                            $lookup: {
+                                from: "categories",
+                                localField: "product.categoryId",
+                                foreignField: "_id",
+                                as: "category"
+                            }
+                        },
+                        { $unwind: "$category" },
+
+                        {
+                            $project: {
+                                totalSold: 1,
+                                productName: 1,
+                                productImage: 1,
+                                categoryName: "$category.name"
+                            }
+                        }
+                    ],
+
+                    
+                    topSellingCategory: [
+                        {
+                            $lookup: {
+                                from: "variants",
+                                localField: "items.variantId",
+                                foreignField: "_id",
+                                as: "variant"
+                            }
+                        },
+                        { $unwind: "$variant" },
+
+                        {
+                            $lookup: {
+                                from: "products",
+                                localField: "variant.productId",
+                                foreignField: "_id",
+                                as: "product"
+                            }
+                        },
+                        { $unwind: "$product" },
+
+                        {
+                            $lookup: {
+                                from: "categories",
+                                localField: "product.categoryId",
+                                foreignField: "_id",
+                                as: "category"
+                            }
+                        },
+                        { $unwind: "$category" },
+
+                        {
+                            $group: {
+                                _id: "$category.name",
+                                totalSold: { $sum: "$items.quantity" }
+                            }
+                        },
+                        { $sort: { totalSold: -1 } },
+                        { $limit: 5 }
+                    ]
+                }
+            }
+        ]);
+
+        const result = top[0] || {};
+        const topSellingProduct = result.topSellingProduct || [];
+        const topSellingCategory = result.topSellingCategory || [];
+
+        
+        const chartMatch = {
+            "items.status": "delivered"
+        };
+
+        if (startDate && endDate) {
+            chartMatch.createdAt = {
+                $gte: startDate,
+                $lte: endDate
+            };
+        }
+
+        
+        let chartStage;
+
+        if (chartFilter === "today") {
             chartStage = {
                 _id: {
                     $hour: {
@@ -206,55 +216,55 @@ const loadDashboard = async (req,res,next) => {
                         timezone: "Asia/Kolkata"
                     }
                 }
-            }
+            };
         }
         else if (chartFilter === "week") {
             chartStage = {
-                _id : { $dateToString: { format: "%Y-%m-%d", date: "$createdAt" }}
-            }
+                _id: {
+                    $dateToString: {
+                        format: "%Y-%m-%d",
+                        date: "$createdAt",
+                        timezone: "Asia/Kolkata"
+                    }
+                }
+            };
         }
         else if (chartFilter === "month") {
             chartStage = {
-                _id : {$dayOfMonth: "$createdAt"}
-            }
+                _id: {
+                    $dayOfMonth: {
+                        date: "$createdAt",
+                        timezone: "Asia/Kolkata"
+                    }
+                }
+            };
         }
         else if (chartFilter === "year") {
             chartStage = {
-                _id : { $month: "$createdAt" }
-            }
-        }
-
-        let revenue
-
-        if (chartFilter === "today") {
-            revenue = await orderModel.aggregate([
-            { $match : chartMatchStage},
-            {$unwind : "$items"},
-            {
-                $group : {
-                    ...chartStage,
-                    totalRevenue : { $sum : "$items.finalAmount"}
+                _id: {
+                    $month: {
+                        date: "$createdAt",
+                        timezone: "Asia/Kolkata"
+                    }
                 }
-            },
-            { $sort : {_id : 1}}
-           ])
-        } else {
-
-        revenue = await orderModel.aggregate([
-            { $match : { "items.status" : "delivered"}},
-            {$unwind : "$items"},
-            {
-                $group : {
-                    ...chartStage,
-                    totalRevenue : { $sum : "$items.finalAmount"}
-                }
-            },
-            { $sort : {_id : 1}}
-        ])
+            };
         }
 
         
-        return res.render ("admin/dashboard",{
+        const revenue = await orderModel.aggregate([
+            { $unwind: "$items" },
+            { $match: chartMatch },
+            {
+                $group: {
+                    ...chartStage,
+                    totalRevenue: { $sum: "$items.finalAmount" }
+                }
+            },
+            { $sort: { _id: 1 } }
+        ]);
+
+        
+        return res.render("admin/dashboard", {
             topSellingCategory,
             topSellingProduct,
             totalOrders,
@@ -263,12 +273,12 @@ const loadDashboard = async (req,res,next) => {
             filter,
             revenue,
             chartFilter
-        })
+        });
+
     } catch (err) {
-        next(err)
+        next(err);
     }
 }
-
 
 
 
