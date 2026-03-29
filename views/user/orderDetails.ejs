@@ -22,13 +22,7 @@
             <a href="/">Home</a>
             <a href="/shop">Shop</a>
         </nav>
-        <!-- <div class="search-bar">
-            <input type="text" id="desktopSearchInput" placeholder="What are you looking for?">
-            <div class="search-icons">
-                <i class="fa-solid fa-circle-xmark clear-search" id="clearDesktopSearchBtn"></i>
-                <i class="fa-solid fa-magnifying-glass" id="searchIconDesktop"></i>
-            </div>
-        </div> -->
+        
         <div class="search-bar">
             <input type="text" placeholder="What are you looking for?">
             <i class="fa-solid fa-magnifying-glass"></i>
@@ -136,11 +130,7 @@
                 </div>
             </div>
         </div>
-        <!-- <div class="status-alert">
-            <i class="fa-solid fa-circle-info"></i>
-            <p>Your package is currently in transit between the Chicago distribution hub and the local delivery
-                facility.</p>
-        </div> -->
+       
     </div>
 
     
@@ -169,27 +159,11 @@
                             <span class="item-qty">Qty: <%= orderItem.quantity %></span>
                             <span class="item-price" style="float: right;">₹ <%= orderItem.price.toLocaleString("en-IN") %></span>
                         </div>
-                        <!-- <p style="color: var(--primary-color); font-size: 0.85rem; font-weight: 600; margin-top: 10px;">
-                            Free Apple Music (3 mo)</p> -->
+                        
                     </div>
                 </div>
                 
-                <!-- <div class="item-meta">
-                    <div class="meta-box">
-                        <div class="meta-icon"><i class="fa-solid fa-box"></i></div>
-                        <div class="meta-text">
-                            <label>Shipping Carrier</label>
-                            <p>UPS Express Saver</p>
-                        </div>
-                    </div>
-                    <div class="meta-box">
-                        <div class="meta-icon"><i class="fa-solid fa-calendar"></i></div>
-                        <div class="meta-text">
-                            <label>Estimated Delivery</label>
-                            <p>Saturday, Oct 28, 2023</p>
-                        </div>
-                    </div>
-                </div> -->
+                
             </div>
 
             <div class="info-columns">
@@ -478,10 +452,7 @@
 
                     const formData = new FormData()
 
-                    //formData.append("orderId",orderId)
-                    //formData.append("orderItemId",orderItemId)
-                    //formData.append("reason",reason)
-                    //formData.append("description",description)
+                    
                     console.log("ID "+orderId+" itemID "+orderItemId+" reason "+reason+" description "+description)
                     const response = await fetch(url,{
                         method : 'post',
