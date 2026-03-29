@@ -207,8 +207,28 @@ const loadDashboard = async (req, res, next) => {
 
         
         let chartStage;
-
+        let chartMatchStage
         if (chartFilter === "today") {
+            const now = new Date();
+
+            const startOfDayIST = new Date(
+                now.toLocaleString("en-US", { timeZone: "Asia/Kolkata" })
+            )
+            startOfDayIST.setHours(0, 0, 0, 0)
+
+            const endOfDayIST = new Date(
+            now.toLocaleString("en-US", { timeZone: "Asia/Kolkata" })
+            )
+            endOfDayIST.setHours(23, 59, 59, 999)
+            
+
+            chartMatchStage = {
+                "items.status": "delivered",
+                createdAt: {
+                    $gte: startOfDayIST,
+                    $lte: endOfDayIST
+                }
+            }
             chartStage = {
                 _id: {
                     $hour: {
@@ -249,19 +269,32 @@ const loadDashboard = async (req, res, next) => {
                 }
             };
         }
-
-        
-        const revenue = await orderModel.aggregate([
-            { $unwind: "$items" },
-            { $match: chartMatch },
-            {
-                $group: {
-                    ...chartStage,
-                    totalRevenue: { $sum: "$items.finalAmount" }
-                }
-            },
-            { $sort: { _id: 1 } }
-        ]);
+        let revenue
+        if (chartFilter === "today") {
+            revenue = await orderModel.aggregate([
+                { $unwind: "$items" },
+                { $match: chartMatchStage },
+                {
+                    $group: {
+                        ...chartStage,
+                        totalRevenue: { $sum: "$items.finalAmount" }
+                    }
+                },
+                { $sort: { _id: 1 } }
+            ])
+        } else {
+            revenue = await orderModel.aggregate([
+                { $unwind: "$items" },
+                { $match:  { "items.status" : "delivered"} },
+                {
+                    $group: {
+                        ...chartStage,
+                        totalRevenue: { $sum: "$items.finalAmount" }
+                    }
+                },
+                { $sort: { _id: 1 } }
+            ])
+        }
 
         
         return res.render("admin/dashboard", {
