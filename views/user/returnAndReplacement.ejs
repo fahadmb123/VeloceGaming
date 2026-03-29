@@ -1,0 +1,104 @@
+<link rel="stylesheet" href="/css/user/returnAndReplacement.css">
+<!-- Header -->
+<header>
+    <div class="header-container">
+        <div class="logo">
+            <div class="logo-icon"><i class="fa-solid fa-check"></i></div>
+            <div class="logo-text">
+                <span class="brand">VELOCE</span>
+                <span class="sub-brand">GAMING</span>
+            </div>
+        </div>
+        <nav>
+            <a href="/">Home</a>
+            <a href="/shop" class="active">Shop</a>
+            <% if (user) { %>
+                <a style="display: none;" href="/login">Log In</a>
+            <% } else { %>
+                <a href="/login">Log In</a>
+            <% } %>  
+        </nav>
+        <div class="header-icons">
+            <div class="user-menu">
+                <% if (user) { %>
+                    <a style="text-decoration: none;" href="/profile">
+                        <div class="profile-circle">
+                        <% if (user.profileImage){ %>
+                        <img src="<%= user.profileImage %>" 
+                           style="width:100%; height:100%; object-fit:cover; border-radius:50%;">
+                    <% }  else { %>
+                    <%= user.name.charAt(0).toUpperCase() %> 
+                    <% } %> 
+                    </div>
+                </a>
+                <% } else { %>
+                    <div style="display: none;" class="profile-circle"></div>
+                <% } %>
+            </div>
+        </div>
+    </div>
+</header>
+
+<main class="container">
+    <h1 class="page-title">Return and Replacement Policy</h1>
+
+    <div class="policy-card">
+        <section class="policy-section">
+            <h2>Returns & Replacements</h2>
+            <p>We want to make sure you are happy with your purchase. Please read our policy below regarding returns and
+                damaged items.</p>
+        </section>
+
+        <section class="policy-section">
+            <h3>1. Return :</h3>
+            <p>You have [7] days from the date of delivery to return an item. To be eligible for a return, your item
+                must be:</p>
+            <ul>
+                <li>In the same condition that you received it;</li>
+                <li>In the original packaging;</li>
+                <li>Accompanied by the receipt or proof of purchase.</li>
+            </ul>
+        </section>
+
+        <section class="policy-section">
+            <h3>2. Replacement Policy</h3>
+            <p>We replace items if they are defective, damaged, or incorrect upon arrival. If you need to exchange an
+                item for the same product:</p>
+            <ul>
+                <li>Notify us within [7] days of receipt;</li>
+                <li>Provide a photo or video of the damage/defect;</li>
+                <li>Once approved, we will ship a replacement at no additional cost to you.</li>
+            </ul>
+        </section>
+
+        <div class="highlight-request-box">
+            <h4>How to Start a Request</h4>
+            <p>To start a return or replacement, please contact our support team at <span class="text-red">[Insert Email
+                    Address]</span> with your order number.</p>
+            <p class="note"><strong>Note:</strong> Items sent back to us without first requesting a return will not be
+                accepted.</p>
+        </div>
+
+        <section class="policy-section">
+            <h3>Additional Information</h3>
+            <ul>
+                <li>Refunds will be processed within [10-15] business days of receiving your return</li>
+                <li>Shipping costs are non-refundable unless the return is due to our error</li>
+                <li>We reserve the right to refuse returns of items not meeting our policy requirements</li>
+                <li>Customized or personalized items cannot be returned unless defective</li>
+            </ul>
+        </section>
+
+        <hr class="divider">
+
+        <section class="policy-section contact-section">
+            <h3>Questions?</h3>
+            <p>If you have any questions about our return and replacement policy, please don't hesitate to contact us at
+            </p>
+            <p class="contact-links">
+                <a href="mailto:support@veloce.com" class="text-red font-bold">support@veloce.com</a> or call <a
+                    href="tel:+15551234567" class="text-red font-bold">+1 (555) 123-4567</a>
+            </p>
+        </section>
+    </div>
+</main>

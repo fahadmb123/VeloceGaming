@@ -128,9 +128,7 @@
             <h1> <%= variant.productId.name %> </h1>
 
             <div class="price-rating-row">
-                <!-- <div class="rating-badge-large">
-                    4.6 <i class="fa-solid fa-star"></i>
-                </div> -->
+                
                 <div class="product-price">
                     <span class="current-price">₹ <%= variant.offeredPrice.toLocaleString("en-IN") %></span>
                     <% if (variant.productId.offer != 0 || variant.productId.categoryId.offer != 0){ %>
@@ -224,7 +222,7 @@
                     <i class="fa-solid fa-rotate-left"></i>
                     <div class="info-text">
                         <h4>Return Delivery</h4>
-                        <p>Free 7-Days Delivery Returns: <a href="#">Details</a></p>
+                        <p>Free 7-Days Delivery Returns: <a href="/returnAndReplacement">Details</a></p>
                     </div>
                 </div>
             </div>
@@ -260,11 +258,7 @@
                             
                         </div>
                         <span class="discount">-<%= variant.productId.offer %>% OFF</span><br>
-                        <!-- <div class="card-bottom">
-                            <div class="card-rating">
-                                4.8 <i class="fa-solid fa-star"></i>
-                            </div>
-                        </div> -->
+                        
                     </div>
                 </a>
                 <% })
@@ -272,44 +266,7 @@
             </div>
         </section>
 
-    <!-- <section class="product-reviews">
-        <div class="reviews-header">
-            <h3>Customer Reviews</h3>
-        </div>
-
-        <div class="reviews-grid">
-            
-            <div class="review-card">
-                <div class="review-top">
-                    <div class="user-info">
-                        <div class="user-avatar">JD</div>
-                        <div>
-                            <h4>John Doe</h4>
-                            <span class="rating-badge small">5.0 <i class="fa-solid fa-star"></i></span>
-                        </div>
-                    </div>
-                    <span class="review-date">Feb 15, 2024</span>
-                </div>
-                <p class="review-text">Best controller I've ever used. The haptic feedback is a game changer!</p>
-            </div>
-
-            
-            <div class="review-card">
-                <div class="review-top">
-                    <div class="user-info">
-                        <div class="user-avatar">AS</div>
-                        <div>
-                            <h4>Alice Smith</h4>
-                            <span class="rating-badge small">4.0 <i class="fa-solid fa-star"></i></span>
-                        </div>
-                    </div>
-                    <span class="review-date">Jan 28, 2024</span>
-                </div>
-                <p class="review-text">Overall great, but the battery life could be a bit better. Still worth it
-                    though.</p>
-            </div>
-        </div>
-    </section> -->
+    
     
 </main>
 

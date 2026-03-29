@@ -7,7 +7,15 @@ const cartModel = require("../../model/cartModel.js")
 
 
 
+const loadReturnAndReplacement = async (req,res,next) => {
+    try {
 
+        return res.render("user/returnAndReplacement")
+
+    } catch (err) {
+        next(err)
+    }
+}
 
 const loadShop = async (req, res) => {
     try {
@@ -707,5 +715,6 @@ module.exports = {
     cartInc,
     cartDec,
     cartRemove,
-    allToCart
+    allToCart,
+    loadReturnAndReplacement
 }
