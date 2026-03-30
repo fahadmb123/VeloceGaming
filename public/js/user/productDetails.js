@@ -143,6 +143,7 @@ async function toggleWishlist(variantId,button) {
 
 
 
+let cartCountLogo = document.getElementById("cartCountLogo")
 async function addToCart (id) {
     try {
 
@@ -157,7 +158,10 @@ async function addToCart (id) {
         }
 
         if (data.success) {
-            return showToast(data.message,"success")
+            showToast(data.message,"success")
+            //cartCountLogo.innerText = data.cartCount.toString()
+            setTimeout(()=>{window.location.reload()},500)
+            return
         }else {
             return showToast(data.message,"error")
         }

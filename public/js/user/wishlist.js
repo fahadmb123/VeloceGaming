@@ -82,6 +82,8 @@ async function addToCart (id) {
                 card.remove()
             }
             showToast(data.message,"success")
+            
+            setTimeout(()=>{window.location.reload()},500)
         }else {
             showToast(data.message,"error")
         }
@@ -142,6 +144,8 @@ async function moveAllToBag() {
                 container.innerHTML = "<h1>Products Not Found </h1>"
             }
             showToast(data.message,"success")
+            
+            setTimeout(()=>{window.location.reload()},500)
         }else {
             showToast(data.message,"error")
         }

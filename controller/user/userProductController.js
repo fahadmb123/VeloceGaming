@@ -548,10 +548,15 @@ const addToCart = async (req,res) => {
                 message : failMessage
             })
         }
-
+        let cartCount = 0
+        if (req.session.user){
+            const cart = await cartModel.findOne({userId:req.session.user._id})
+            cartCount = cart?.items.length
+        }
         return res.json({
             success : true,
-            message
+            message,
+            cartCount
         })
     } catch (err) {
         console.log(err)
@@ -683,10 +688,15 @@ const allToCart = async (req,res) => {
                 message : failMessage
             })
         }
-
+        let cartCount = 0
+        if (req.session.user){
+            const cart = await cartModel.findOne({userId:req.session.user._id})
+            cartCount = cart?.items.length
+        }
         return res.json({
             success : true,
-            message : message
+            message : message,
+            cartCount
         })
     } catch (err) {
         console.log(err)
