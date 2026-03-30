@@ -30,7 +30,7 @@ router.get("/login",isLoggedOut,userController.loadLogin)
 
 router.get("/signup",isLoggedOut,userController.loadSignup)
 
-
+router.get("/returnAndReplacement",userProductController.loadReturnAndReplacement)
 
 router.get("/",userController.loadHome )
 
