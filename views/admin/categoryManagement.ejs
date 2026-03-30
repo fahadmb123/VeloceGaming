@@ -395,7 +395,7 @@
 
 
     async function deleteCategory(id,status) {
-        if (confirm("Are You Sure ?")) {
+        
             
             const response = await fetch (`/admin/categoryManagement/categoryStatus/${id}?status=${status}`,{
                 method: "PATCH"
@@ -409,14 +409,14 @@
             }else {
                 showToast(data.message,"error")
             }
-        }
+        
     }
 
     function activateCategory(id) {
-        if (confirm("Are You Sure You Want To Activate This Category?")) {
+        
             window.location.href =
                 `/admin/categoryManagement/categoryStatus/${id}?status=true`;
-        }
+        
     }
 
     

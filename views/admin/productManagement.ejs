@@ -507,7 +507,7 @@ function loadVariants(variants) {
     
     if (currentEditId && variantId) {
 
-        if (!confirm("Delete this variant?")) return;
+        
 
         try {
             const response = await fetch(
@@ -1143,7 +1143,7 @@ function dataURLtoFile(dataurl, filename) {
 }
 
 async function deleteProduct(id,status) {
-    if (confirm("Are you sure ?")) {
+    
         
         const response = await fetch (`/admin/productManagement/productStatus/${id}?status=${status}`,{
                 method: "PATCH"
@@ -1157,7 +1157,7 @@ async function deleteProduct(id,status) {
             }else {
                 showToast(data.message,"error")
             }
-    }
+    
 }
 
 
