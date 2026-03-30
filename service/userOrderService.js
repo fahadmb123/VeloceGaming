@@ -408,6 +408,14 @@ const cancelOrder = async (req) => {
         const orderItem = items.find( item => {
             return item._id.toString() === orderItemId.toString()
         })
+
+        const coupon = await couponModel.findOne({code:order.couponCode})
+        
+        let cancelCondition = order.subtotal - orderItem.price
+        let cancellable = cancelCondition >= coupon.minPurchase
+        if (!cancellable){
+            return {failMessage : `You Can't Cancel Becouse Of Coupon Min Is ${coupon.minPurchase}`}
+        }
     
         if (orderItem.status !== 'placed') {
             return {placedRequired : true}
@@ -472,6 +480,13 @@ const returnOrder = async (req) => {
         const orderItem = items.find( item => {
             return item._id.toString() === orderItemId.toString()
         })
+        const coupon = await couponModel.findOne({code:order.couponCode})
+        
+        let returnCondition = order.subtotal - orderItem.price
+        let returnable = returnCondition >= coupon.minPurchase
+        if (!returnable){
+            return {failMessage : `You Can't Return Becouse Of Coupon Min Is ${coupon.minPurchase}`}
+        }
 
         if (!orderItem.status === 'delivered') {
             return {failMessage : "Request Is Not Available For This Status"}
