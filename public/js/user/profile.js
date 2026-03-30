@@ -253,7 +253,7 @@ function togglePassword(inputId, el) {
        const removeBtn = document.getElementById('removeProfilePhoto');
         if (removeBtn) {
             removeBtn.addEventListener('click', async () => {
-                if (confirm('Are you sure you want to remove your profile photo?')) {
+                
                     const response = await fetch("/profile-remove",{
                         method : "post"
                     })
@@ -265,7 +265,7 @@ function togglePassword(inputId, el) {
                         showToast(data.message)
                         window.location.reload();
                     }
-                }
+                
             });
         }
 

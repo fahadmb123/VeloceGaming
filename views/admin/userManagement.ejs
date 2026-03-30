@@ -213,14 +213,14 @@
         }
 
         function blockUser(id) {
-            if (confirm("Are You Sure You Want To Block That User")) {
+            
                 window.location.href = `/admin/userManagement/userStatus/${id}?status=false`;
-            }
+            
         }
 
         function activateUser(id) {
-            if (confirm("Are You Sure You Want To Activate That User")) {
+           
                 window.location.href = `/admin/userManagement/userStatus/${id}?status=true`;
-            }
+            
         }
     </script>
