@@ -158,9 +158,7 @@
                 </div>
                 <div class="product-details">
                     <h3><%= variant.productId.name %></h3>
-                    <!-- <div class="product-rating">
-                        <span class="rating-badge">4.6 <i class="fa-solid fa-star"></i></span>
-                    </div> -->
+                    
                     <p class="product-color">
                         <% variant.attributes.forEach ( (attr,index) => { %>
                             <% if (attr.value) { %>
@@ -395,8 +393,7 @@ document.getElementById("searchBtn").addEventListener("click", function () {
 });
 document.getElementById("clearDesktopSearchBtn").addEventListener("click", function () {
 
-    //const desktopValue = document.getElementById("desktopSearchInput").value.trim();
-    //const mobileValue = document.getElementById("shopSearchInput").value.trim();
+    
 
     currentSearch = ''
 
@@ -481,6 +478,12 @@ if (variant.stock <= 5) {
     }
 
 }
+let offer
+if (variant.productId.offer != 0 || variant.productId.categoryId.offer != 0){ 
+
+    offer = Math.max(variant.productId.offer , variant.productId.categoryId.offer ) 
+    
+} 
 
     container.innerHTML += `
         <a style="text-decoration: none;" href="/product/${variant._id}">
@@ -516,7 +519,7 @@ if (variant.stock <= 5) {
 
                         ${
                             variant.productId.offer != 0
-                            ? `<span class="discount">-${variant.productId.offer}% OFF</span>`
+                            ? `<span class="discount">-${offer}% OFF</span>`
                             : ""
                         }
 
