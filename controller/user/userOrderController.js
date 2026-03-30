@@ -287,7 +287,7 @@ const cancelOrder = async (req,res) => {
             return {loginRequired : true}
         }
 
-        const {validateBody,placedRequired,message} = await userOrderService.cancelOrder(req)
+        const {validateBody,placedRequired,message,failMessage} = await userOrderService.cancelOrder(req)
 
 
         if (validateBody) {
@@ -300,6 +300,12 @@ const cancelOrder = async (req,res) => {
             return res.json({
                 success : false,
                 message : "You Cannot Cancel The Order"
+            })
+        }
+        if (failMessage) {
+            return res.json({
+                success : false,
+                message : failMessage
             })
         }
         if (message) {
