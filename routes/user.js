@@ -83,6 +83,8 @@ router.post("/wishlist/remove/:id",isLogged,userProductController.wishlistRemove
 router.post("/cart/remove/:id",isLogged,userProductController.cartRemove)
 
 
+router.post("/validatePincode",isLogged,userController.validatePincode)
+
 router.post("/checkRefferal",isLoggedOut,userController.checkRefferal)
 
 router.post("/signup",userController.signup)

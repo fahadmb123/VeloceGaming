@@ -6,7 +6,6 @@ const orderModel = require("../../model/orderModel")
 
 
 
-
 const loadCheckout = async (req,res) => {
 try {
 

@@ -97,7 +97,12 @@
                                 </span>
                             </td>
                             <td class="category-name"><%= category.name %></td>
-                            <td class="offer-value"><%= category.offer %>%</td>
+                            <td class="offer-value"><% if (Number(category.offer) <= 0) { %>
+                                    No Offer
+                                <% } else { %>
+                                    <%= category.offer%>%
+                                <% } %>
+                                </td>
                             <td class="product-count"><%= category.productCount %></td>
                             <td class="text-right">
                                 <div class="actions-column">
@@ -199,7 +204,7 @@
             <div id="offerDiv" class="form-group">
                 <label>Offer (%)</label>
                 <input type="text" id="catOffer" placeholder="Enter offer">
-                <p style="color: red;font-size: 13px;font-weight: normal;margin-top: 2px !important;display: none;">Offer Requierd</p>
+                <p style="color: red;font-size: 13px;font-weight: normal;margin-top: 2px !important;display: none;">Incorrect Offer</p>
             </div>
             <div id="imageDiv" class="form-group">
                 <label>Category Image</label>
@@ -447,15 +452,16 @@
 
         
         if (offer) {
-            if (isNaN(offer)) {
-            offerDiv.querySelector('input').style.border = '1px solid red';
-            offerDiv.querySelector('p').style.display = 'block';
-            isValid = false;
+            if (isNaN(offer) || offer > 100 || offer < 0) {
+                offerDiv.querySelector('input').style.border = '1px solid red';
+                offerDiv.querySelector('p').style.display = 'block';
+                isValid = false;
             } else {
-            offerDiv.querySelector('input').style.border = '1px solid gray';
-            offerDiv.querySelector('p').style.display = 'none';
+                offerDiv.querySelector('input').style.border = '1px solid gray';
+                offerDiv.querySelector('p').style.display = 'none'; 
             }
         }
+        
         
         if (currentMode === "add" && imageInput.files.length === 0) {
             imageDiv.querySelector('p').style.display = 'block';

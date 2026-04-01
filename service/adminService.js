@@ -158,7 +158,7 @@ const editCategory = async (req) => {
             const finalOffer = Math.max(categoryOffer,productOffer)
 
             const variants = await variantModel.find({productId:product._id})
-            console.log(variants)
+            
             
             for (let variant of variants) {
                 
@@ -271,7 +271,7 @@ const addProduct = async (req) => {
                 offeredPrice : offeredPrice,
                 attributes : [
                     {key : "ram" , value : obj.ram},
-                    {key : "rom" , value : obj.rom},
+                    {key : "storage" , value : obj.storage},
                     {key : "color" , value : obj.color}
                 ]
             }
@@ -404,7 +404,7 @@ const editProduct = async (req) => {
                             offeredPrice: offeredPrice,
                             attributes: [
                                 { key: "ram", value: variant.ram },
-                                { key: "rom", value: variant.rom },
+                                { key: "storage", value: variant.storage },
                                 { key: "color", value: variant.color },
                             ],
                         }
@@ -426,7 +426,7 @@ const editProduct = async (req) => {
                     offeredPrice: offeredPrice,
                     attributes: [
                         { key: "ram", value: variant.ram },
-                        { key: "rom", value: variant.rom },
+                        { key: "storage", value: variant.storage },
                         { key: "color", value: variant.color },
                     ],
                 })

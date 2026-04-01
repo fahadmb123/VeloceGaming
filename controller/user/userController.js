@@ -446,6 +446,25 @@ const editAddress = async (req,res) => {
     }
 }
 
+const validatePincode = async (req,res,next) => {
+    try {
+        const {message,success} = await userService.validatePincode(req)
+
+        if (message) {
+            return res.json({
+                success : false,
+                message
+            })
+        }
+        if (success) {
+            return res.json({
+                success : true
+            })
+        }
+    } catch (err) {
+        next(err)
+    }
+}
 
 const uploadProfile = async (req,res) => {
     try {
@@ -527,5 +546,6 @@ module.exports = {
     logout,
     uploadProfile,
     removeProfile,
-    checkRefferal
+    checkRefferal,
+    validatePincode
 }
