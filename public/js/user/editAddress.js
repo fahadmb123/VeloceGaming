@@ -5,11 +5,12 @@ let messageElement = document.getElementById("swalMessage");
     }
 
 
-    document.getElementById("registerForm").addEventListener("submit", function (event) {
-
-
+    document.getElementById("registerForm").addEventListener("submit",async function (event) {
+        
         
         event.preventDefault()
+
+        
 
         let name = document.getElementById("name").value.trim()
         let phone = document.getElementById("phone").value.trim()
@@ -102,7 +103,33 @@ let messageElement = document.getElementById("swalMessage");
             cityDiv.querySelector('p').style.display='none'
         }
 
+        
+        if (isValid){
+            const spinner = document.getElementById("admin-spinner");
+            spinner.style.display = "flex"
+            const response = await fetch("/validatePincode",{
+                method : "post",
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    state,
+                    city,
+                    pincode
+                })
+            })
+
+            const data = await response.json()
+            spinner.style.display = "none"
+            if (!data.success) {
+                isValid = false
+                return showToast(data.message,"error")
+            }
+        }
+        
+        
         if (isValid) {
+            
             event.target.submit()
         }
     })
@@ -113,3 +140,33 @@ let messageElement = document.getElementById("swalMessage");
             window.location.reload();
         }
     });
+
+
+function showToast(message, type = "success") {
+
+    const toast = document.createElement("div");
+    toast.innerText = message;
+
+    toast.style.position = "fixed";
+    toast.style.top = "20px";
+    toast.style.right = "20px";
+    toast.style.padding = "12px 20px";
+    toast.style.borderRadius = "6px";
+    toast.style.color = "white";
+    toast.style.zIndex = "9999";
+    toast.style.fontWeight = "500";
+    toast.style.boxShadow = "0 5px 15px rgba(0,0,0,0.2)";
+    toast.style.transition = "all 0.3s ease";
+
+    if (type === "success") {
+        toast.style.backgroundColor = "#28a745";
+    } else {
+        toast.style.backgroundColor = "#dc3545";
+    }
+
+    document.body.appendChild(toast);
+
+    setTimeout(() => {
+        toast.remove();
+    }, 3000);
+}

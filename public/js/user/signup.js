@@ -39,6 +39,19 @@ function togglePassword(inputId, el) {
         }
 
         if(!password){
+            passwordDiv.querySelector('p').innerText = "Password Required"
+            passwordDiv.querySelector('input').style.border='1px solid red'
+            passwordDiv.querySelector('p').style.display='block'
+            isValid = false
+        }
+        else if(!/^(?=.*[A-Za-z])(?=.*\d)(?=.*[!@#$%^&*()[\]{};:'",.<>/?\\|_+\-=]).{6,20}$/.test(password)){
+            passwordDiv.querySelector('p').innerText = "Password must include letter, number and special character"
+            passwordDiv.querySelector('input').style.border='1px solid red'
+            passwordDiv.querySelector('p').style.display='block'
+            isValid = false
+        }
+        else if(password.length < 6){
+            passwordDiv.querySelector('p').innerText = "Password Must At Least 6 Charecters"
             passwordDiv.querySelector('input').style.border='1px solid red'
             passwordDiv.querySelector('p').style.display='block'
             isValid = false
@@ -48,11 +61,26 @@ function togglePassword(inputId, el) {
         }
 
         if(!name ){
+            nameDiv.querySelector('p').innerText = "Name is Required"
             nameDiv.querySelector('input').style.border='1px solid red'
             nameDiv.querySelector('p').style.display='block'
             isValid = false
         }
         else if (name.length <= 3){
+            nameDiv.querySelector('p').innerText = "Name must be at least 3 letters"
+            nameDiv.querySelector('input').style.border='1px solid red'
+            nameDiv.querySelector('p').style.display='block'
+            isValid = false
+        }
+        
+        else if (!/^[A-Za-z\s]+$/.test(name)){
+            nameDiv.querySelector('p').innerText = "Only letters allowed"
+            nameDiv.querySelector('input').style.border='1px solid red'
+            nameDiv.querySelector('p').style.display='block'
+            isValid = false
+        }
+        else if (/\s{2,}/.test(name)){
+            nameDiv.querySelector('p').innerText = "Too Many Spaces Contains"
             nameDiv.querySelector('input').style.border='1px solid red'
             nameDiv.querySelector('p').style.display='block'
             isValid = false
@@ -69,6 +97,13 @@ function togglePassword(inputId, el) {
         }else{
             confirmPasswordDiv.querySelector('input').style.border='1px solid gray'
             confirmPasswordDiv.querySelector('p').style.display='none'
+        }
+
+        if (isValid) {
+            if (confirmPassword != password) {
+                showToast("Password Not Matching","error")
+                isValid = false
+            }
         }
 
         if (refferalCode) {

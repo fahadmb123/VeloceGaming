@@ -34,6 +34,7 @@
         let paymentMethod = paymentElement.value
         let addressId = selectedAddress.value
 
+
         let url = variantId ? `/placeOrder?variantId=${variantId}&quantity=1` : "/placeOrder"
 
         const response = await fetch (url,{

@@ -104,7 +104,11 @@
                                 <td class="category-name"><%= product.categoryId.name %></td>
                                 <td class="product-name"><%= product.name %></td>
 
-                                <td class="offer-value"><%= product.offer %>%</td>
+                                <td class="offer-value"><% if (Number(product.offer) <= 0) { %>
+                                    No Offer
+                                <% } else { %>
+                                    <%= product.offer%>%
+                                <% } %></td>
                                 <td class= "stock-value" ><%= product.variantCount %></td>
                                 <td class="text-right">
                                     <div class="actions-column">
@@ -263,8 +267,8 @@
                                     <input type="text" placeholder="RAM" class="variant-input">
                                 </div>
                                 <div class="form-group">
-                                    <label>ROM</label>
-                                    <input type="text" placeholder="ROM" class="variant-input">
+                                    <label>Storage</label>
+                                    <input type="text" placeholder="Storage" class="variant-input">
                                 </div>
                             </div>
                             <div class="form-row-3">
@@ -420,9 +424,7 @@ async function openProductModal(mode, id = null) {
         productForm.reset();
 
         const container = document.getElementById('variantsContainer');
-        /*const firstCard = container.querySelector('.variant-card');
-        container.innerHTML = '';
-        container.appendChild(firstCard);*/
+        
         container.innerHTML = '';
 
         resetAllPhotos();
@@ -469,8 +471,8 @@ function loadVariants(variants) {
                     <input type="text" placeholder="RAM" value="${variant.ram || ''}">
                 </div>
                 <div class="form-group">
-                    <label>ROM</label>
-                    <input type="text" placeholder="ROM" value="${variant.rom || ''}">
+                    <label>Storage</label>
+                    <input type="text" placeholder="Storage" value="${variant.storage || ''}">
                 </div>
             </div>
 
@@ -763,31 +765,6 @@ function resetAllPhotos() {
     });
 }
 
-// Add Variant
-/*document.getElementById('addVariantBtn').addEventListener('click', function () {
-    const container = document.getElementById('variantsContainer');
-    const firstCard = container.querySelector('.variant-card');
-    const newCard = firstCard.cloneNode(true);
-
-    newCard.querySelectorAll('input[type="text"]').forEach(inp => inp.value = '');
-    newCard.querySelectorAll('select').forEach(sel => sel.selectedIndex = 0);
-
-    const gallery = newCard.querySelector('.photo-gallery');
-    gallery.querySelectorAll('.photo-upload-box').forEach(box => box.remove());
-    gallery.querySelector('.photo-add-box').style.display = 'flex';
-
-    const closeBtn = document.createElement('button');
-    closeBtn.type = 'button';
-    closeBtn.className = 'variant-close-btn';
-    closeBtn.innerHTML = '&times;';
-    closeBtn.onclick = function () {
-        newCard.remove();
-    };
-    newCard.style.position = 'relative';
-    newCard.insertBefore(closeBtn, newCard.firstChild);
-
-    container.appendChild(newCard);
-});*/
 
 document.getElementById('addVariantBtn').addEventListener('click', function () {
 
@@ -815,8 +792,8 @@ document.getElementById('addVariantBtn').addEventListener('click', function () {
             </div>
 
             <div class="form-group">
-                <label>ROM</label>
-                <input type="text" placeholder="ROM">
+                <label>Storage</label>
+                <input type="text" placeholder="Storage">
             </div>
         </div>
 
@@ -998,7 +975,7 @@ productForm.onsubmit = async function (e) {
         let colorHex = card.querySelector('.variant-color-hex').value;
         
         let ram = card.querySelector('input[placeholder="RAM"]').value
-        let rom = card.querySelector('input[placeholder="ROM"]').value
+        let storage = card.querySelector('input[placeholder="Storage"]').value
         let price = card.querySelector('input[placeholder="0.00"]').value
         let stock = card.querySelector('input[placeholder="00"]').value
         let status =  card.querySelector('.variant-status').value
@@ -1065,7 +1042,7 @@ productForm.onsubmit = async function (e) {
             _id: variantId || null,
             color: color,
             ram: ram,
-            rom: rom,
+            storage: storage,
             price: price,
             stock: stock,
             status: status,

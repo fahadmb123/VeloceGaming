@@ -205,7 +205,7 @@ const productManagement = async (req,res) => {
                 colorName:parsedColor.name,
                 colorHex : parsedColor.hex,
                 ram: v.attributes.find(a => a.key === "ram")?.value || "",
-                rom: v.attributes.find(a => a.key === "rom")?.value || "",
+                storage: v.attributes.find(a => a.key === "storage")?.value || "",
                 images
             };
         });
