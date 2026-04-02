@@ -23,10 +23,13 @@ const loadCoupon = async (req,res) => {
             status : true,
             code : {$nin : usedCouponCode}
         })
-        let cartCount = 0
+         let cartCount = 0
         if (req.session.user){
             const cart = await cartModel.findOne({userId:req.session.user._id})
-            cartCount = cart?.items.length
+            cartCount = cart?.items.reduce((acc,curr)=>{
+                acc += curr.quantity
+                return acc
+            },0)
         }
         return res.render("user/coupon",{
             coupons,

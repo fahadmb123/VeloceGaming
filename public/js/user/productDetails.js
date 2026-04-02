@@ -143,7 +143,7 @@ async function toggleWishlist(variantId,button) {
 
 
 
-let cartCountLogo = document.getElementById("cartCountLogo")
+
 async function addToCart (id) {
     try {
 
@@ -156,11 +156,16 @@ async function addToCart (id) {
         if (data.loginRequired) {
             return window.location.href = "/login"
         }
+        
+        const cartElement = document.getElementById("cartCountLogo");
+        if (cartElement) {
+            cartElement.style.display = "flex"
+            cartElement.innerText = data.cartCount.toString();
+        }
 
         if (data.success) {
             showToast(data.message,"success")
-            //cartCountLogo.innerText = data.cartCount.toString()
-            setTimeout(()=>{window.location.reload()},500)
+            
             return
         }else {
             return showToast(data.message,"error")
