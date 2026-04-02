@@ -132,6 +132,25 @@ const placeOrder = async (req) => {
         if (!paymentMethod) {
             return {failMessage : "Please Choose A Payment Method"}
         }
+
+        const usedCouponCode = await orderModel.distinct("couponCode", {
+            userId: req.session.user._id,
+            couponCode: { $ne: null }
+        })
+
+        let couponExist = null
+        if (coupon) {
+            couponExist = await couponModel.findOne({
+                $expr: {
+                    $gt: ["$maxUsage", "$usedCount"]
+                },
+                status : true,
+                code : {$nin : usedCouponCode}
+            })
+        }
+        if (!couponExist) {
+            return {failMessage : "Coupon Not Available"}
+        }
         
 
         if (variantId) {
