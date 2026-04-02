@@ -58,6 +58,7 @@ try {
         subtotal = quantity * Number(variant.offeredPrice)
 
         let total = subtotal + shipping
+        let searchCouponTotal = total
         let discount = 0
         if (coupon) {
             if (coupon.type === "percentage") {
@@ -73,7 +74,7 @@ try {
 
         
         const coupons = await couponModel.find({
-            minPurchase : {$lte : total },
+            minPurchase : {$lte : searchCouponTotal },
             expiryDate : {$gte : new Date()},
             $expr: {
                 $gt: ["$maxUsage", "$usedCount"]
@@ -84,7 +85,10 @@ try {
         let cartCount = 0
         if (req.session.user){
             const cart = await cartModel.findOne({userId:req.session.user._id})
-            cartCount = cart?.items.length
+            cartCount = cart?.items.reduce((acc,curr)=>{
+                acc += curr.quantity
+                return acc
+            },0)
         }
         return res.render ("user/checkout",{
             variant,
@@ -148,7 +152,7 @@ try {
         }
 
         let total = subtotal + shipping
-
+        let searchCouponTotal = total
         let discount = 0
         if (coupon) {
             if (coupon.type === "percentage") {
@@ -163,7 +167,7 @@ try {
         total = total - discount
 
         const coupons = await couponModel.find({
-            minPurchase : {$lte : total },
+            minPurchase : {$lte : searchCouponTotal },
             expiryDate : {$gte : new Date()},
             $expr: {
                 $gt: ["$maxUsage", "$usedCount"]
@@ -172,10 +176,13 @@ try {
             code : {$nin : usedCouponCode}
         })
 
-        let cartCount = 0
+         let cartCount = 0
         if (req.session.user){
             const cart = await cartModel.findOne({userId:req.session.user._id})
-            cartCount = cart?.items.length
+            cartCount = cart?.items.reduce((acc,curr)=>{
+                acc += curr.quantity
+                return acc
+            },0)
         }
         return res.render ("user/checkout",{
             cart,
@@ -202,7 +209,10 @@ const loadPaymentFailure = async (req,res) => {
         let cartCount = 0
         if (req.session.user){
             const cart = await cartModel.findOne({userId:req.session.user._id})
-            cartCount = cart?.items.length
+            cartCount = cart?.items.reduce((acc,curr)=>{
+                acc += curr.quantity
+                return acc
+            },0)
         }
         return res.render("user/paymentFailure",{
             variantId,

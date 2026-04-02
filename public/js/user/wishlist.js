@@ -72,8 +72,15 @@ async function addToCart (id) {
 
         const data = await response.json()
 
+
         if (data.loginRequired) {
             window.location.href = "/login"
+        }
+
+        const cartElement = document.getElementById("cartCountLogo");
+        if (cartElement) {
+            cartElement.style.display = "flex"
+            cartElement.innerText = data.cartCount.toString();
         }
 
         if (data.success) {
@@ -82,8 +89,6 @@ async function addToCart (id) {
                 card.remove()
             }
             showToast(data.message,"success")
-            
-            setTimeout(()=>{window.location.reload()},500)
         }else {
             showToast(data.message,"error")
         }
@@ -138,14 +143,18 @@ async function moveAllToBag() {
             return window.location.href = "/login"
         }
 
+        const cartElement = document.getElementById("cartCountLogo");
+        if (cartElement) {
+            cartElement.style.display = "flex"
+            cartElement.innerText = data.cartCount.toString();
+        }
+
         if (data.success) {
             const container = document.querySelector(".wishlist-container")
             if (container) {
                 container.innerHTML = "<h1>Products Not Found </h1>"
             }
             showToast(data.message,"success")
-            
-            setTimeout(()=>{window.location.reload()},500)
         }else {
             showToast(data.message,"error")
         }

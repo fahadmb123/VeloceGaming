@@ -31,8 +31,12 @@ const loadShop = async (req, res) => {
             wishlistVariantIds = wishlistItems.map(item =>
                 item.variantId.toString()
             )
+            
             const cart = await cartModel.findOne({userId:req.session.user._id})
-            cartCount = cart?.items.length
+            cartCount = cart?.items.reduce((acc,curr)=>{
+                acc += curr.quantity
+                return acc
+            },0)
         }
 
         const categories = await categoryModel.find();
@@ -205,7 +209,7 @@ const loadShop = async (req, res) => {
     } catch (err) {
         console.log(err);
     }
-};
+}
 
 const loadProduct = async (req,res) => {
     try {
@@ -285,19 +289,46 @@ const loadProduct = async (req,res) => {
         if (req.session.user) {
             wishlistVariant = await wishlistModel.findOne({userId:req.session.user._id,variantId:variant._id})
         }
-
-        const relatedProducts = await variantModel.find()
-            .populate({
-                path: "productId",
-                match: { categoryId: variant.productId.categoryId },
-                populate: {
-                    path: "categoryId"
+        
+        const relatedProducts = await variantModel.aggregate([
+            {
+                $lookup: {
+                    from: "products",       
+                    localField: "productId",
+                    foreignField: "_id",
+                    as: "productId"
                 }
-            })
+            },
+            {
+                $unwind: "$productId"
+            },
+            {
+                $lookup : {
+                    from: "categories",       
+                    localField: "productId.categoryId",
+                    foreignField: "_id",
+                    as: "categoryId"
+                }
+            },
+            {
+                $unwind: "$categoryId"
+            },
+            {
+                $match: {
+                    "productId.categoryId": variant.productId.categoryId._id
+                }
+            }
+        ])
+        
+        
+
         let cartCount = 0
         if (req.session.user){
             const cart = await cartModel.findOne({userId:req.session.user._id})
-            cartCount = cart?.items.length
+            cartCount = cart?.items.reduce((acc,curr)=>{
+                acc += curr.quantity
+                return acc
+            },0)
         }
         return res.render("user/productDetails",{
             variant,
@@ -352,7 +383,10 @@ const loadWishlist = async (req,res) => {
         let cartCount = 0
         if (req.session.user){
             const cart = await cartModel.findOne({userId:req.session.user._id})
-            cartCount = cart?.items.length
+            cartCount = cart?.items.reduce((acc,curr)=>{
+                acc += curr.quantity
+                return acc
+            },0)
         }
 
         return res.render ("user/wishlist",{
@@ -537,7 +571,14 @@ const addToCart = async (req,res) => {
     try {
 
         const {loginRequired,message,valid,failMessage} = await userProductService.addToCart(req)
-
+        let cartCount = 0
+        if (req.session.user){
+            const cart = await cartModel.findOne({userId:req.session.user._id})
+            cartCount = cart?.items.reduce((acc,curr)=>{
+                acc += curr.quantity
+                return acc
+            },0)
+        }
         
         if (loginRequired) {
             return res.json({loginRequired : true})
@@ -545,14 +586,11 @@ const addToCart = async (req,res) => {
         if (failMessage) {
             return res.json({
                 success : false,
-                message : failMessage
+                message : failMessage,
+                cartCount
             })
         }
-        let cartCount = 0
-        if (req.session.user){
-            const cart = await cartModel.findOne({userId:req.session.user._id})
-            cartCount = cart?.items.length
-        }
+        
         return res.json({
             success : true,
             message,
@@ -678,6 +716,15 @@ const allToCart = async (req,res) => {
 
         const {loginRequired,failMessage,message} = await userProductService.allToCart(req)
 
+        let cartCount = 0
+        if (req.session.user){
+            const cart = await cartModel.findOne({userId:req.session.user._id})
+            cartCount = cart?.items.reduce((acc,curr)=>{
+                acc += curr.quantity
+                return acc
+            },0)
+        }
+
         if (loginRequired) {
             return res.json({loginRequired:true})
         }
@@ -685,14 +732,11 @@ const allToCart = async (req,res) => {
         if (failMessage){
             return res.json({
                 success : false,
-                message : failMessage
+                message : failMessage,
+                cartCount
             })
         }
-        let cartCount = 0
-        if (req.session.user){
-            const cart = await cartModel.findOne({userId:req.session.user._id})
-            cartCount = cart?.items.length
-        }
+        
         return res.json({
             success : true,
             message : message,

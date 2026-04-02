@@ -23,8 +23,10 @@
             <a href="/wishlist"><i class="fa-solid fa-heart"></i></a>
             <a style="text-decoration: none;" href="/cart" class="cart-icon-wrapper">
                 <i class="fa-solid fa-cart-shopping"></i>
-                <% if (Number(cartCount) > 0) { %>
-                    <span id="cartCountLogo" class="cart-badge"><%= cartCount %></span>
+                <% if (cartCount === 0) { %>
+                        <span id="cartCountLogo" style="display: none;" class="cart-badge"><%= cartCount %></span>
+                <% } else { %>
+                        <span id="cartCountLogo" class="cart-badge"><%= cartCount %></span>
                 <% } %>
                </a>
             <a href="/profile">
@@ -70,9 +72,10 @@
                         <h3><%= item.variantId.productId.name %></h3>
                         <div class="price-info">
                             <span class="current-price">₹ <%= item.variantId.offeredPrice.toLocaleString("en-IN") %></span>
-                            <% if (item.variantId.productId.offer != 0){ %>
+                            <% if (item.variantId.productId.offer != 0 || item.variantId.productId.categoryId.offer != 0){ %>
                             <span class="discount">
-                            -<%= item.variantId.productId.offer %>% OFF
+                            <% let offer = Math.max(item.variantId.productId.offer , item.variantId.productId.categoryId.offer ) %>
+                            -<%= offer %>% OFF
                             </span>
                             <% } %>
                         </div>

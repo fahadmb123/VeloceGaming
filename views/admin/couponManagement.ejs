@@ -400,6 +400,7 @@
                 }
 
                 if(!discountValue || discountValue < 0){
+                    discountValueDiv.querySelector('p').innerText = "Discount Value Required"
                     discountValueDiv.querySelector('input').style.border='1px solid red'
                     discountValueDiv.querySelector('p').style.display='block'
                     isValid = false
@@ -447,6 +448,13 @@
                                 return;
                             }
 
+                        }
+                    } else {
+                        if (discountValue >= minPurchase) {
+                            discountValueDiv.querySelector('p').innerText = "Discount Value Should Be Lower Than Min Purchase"
+                            discountValueDiv.querySelector('input').style.border='1px solid red'
+                            discountValueDiv.querySelector('p').style.display='block'
+                            isValid = false
                         }
                     }
                 }
