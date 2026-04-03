@@ -89,11 +89,7 @@
 
             <div class="form-group full-width">
                 <label>Address Type</label>
-                <!--<select id="type" name="type" class="address-type-select" >
-                    <option value="'<%= address.type %>'" disabled selected><%= address.type %></option>
-                    <option value="Home">Home</option>
-                    <option value="Work">Work</option>
-                </select> -->
+                
                 <select name="type" id="type" class="address-type-select">
                     <option value="Home"
                         <%= address && address.addressType === "Home" ? "selected" : "" %>>
