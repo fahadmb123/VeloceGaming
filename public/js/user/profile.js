@@ -284,13 +284,14 @@ function togglePassword(inputId, el) {
        const removeBtn = document.getElementById('removeProfilePhoto');
         if (removeBtn) {
             removeBtn.addEventListener('click', async () => {
-                
+                const spinner = document.getElementById("admin-spinner");
+                spinner.style.display = "flex"
                     const response = await fetch("/profile-remove",{
                         method : "post"
                     })
 
                     const data = await response.json()
-
+                    spinner.style.display = "none"
                     if (data.success){
                         
                         showToast(data.message)
