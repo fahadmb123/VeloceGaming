@@ -147,10 +147,11 @@ const placeOrder = async (req) => {
                 status : true,
                 code : {$nin : usedCouponCode}
             })
+            if (!couponExist) {
+                return {failMessage : "Coupon Not Available"}
+            }
         }
-        if (!couponExist) {
-            return {failMessage : "Coupon Not Available"}
-        }
+        
         
 
         if (variantId) {
