@@ -6,10 +6,7 @@
             <div class="logo-icon"><i class="fa-solid fa-shopping-bag"></i></div>
             <h1 class="nav-title">Order Details</h1>
         </div>
-        <!-- <div class="nav-right">
-                <button class="icon-btn"><i class="fa-solid fa-magnifying-glass"></i></button>
-                <button class="icon-btn"><i class="fa-solid fa-ellipsis-vertical"></i></button>
-            </div> -->
+        
     </header>
 
     <main class="main-content">
@@ -17,8 +14,7 @@
             <div class="order-info-left">
                 <div class="order-title-row">
                     <h2 class="order-id"><%= order.orderId %></h2>
-                    <!-- <span class="badge badge-paid"><span class="badge-lbl">PAYMENT:</span> Paid</span>
-                        <span class="badge badge-progress"><span class="badge-lbl">ORDER:</span> In Progress</span> -->
+                   
                 </div>
                  <p class="order-date">Placed on 
                     <%= new Date(order.createdAt).toLocaleDateString("en-US",{
@@ -121,9 +117,7 @@
                     
                         <div class="item">
                             <div class="item-img-box">
-                                <!-- <div class="item-img img-red">
-                                    <i class="fa-solid fa-shoe-prints"></i>
-                                </div> -->
+                                
                                 <img src="<%= orderItem.productImage %>" style="width:100%; height:100%; object-fit:cover; ;">
                             </div>
                             <div class="item-details">
@@ -262,59 +256,13 @@
                     </div>
                 </div>
 
-                <!-- <div class="card timeline-card">
-                        <h3 class="timeline-title">ORDER TIMELINE</h3>
-                        <div class="timeline">
-                            <div class="timeline-item">
-                                <div class="timeline-icon">
-                                    <div class="timeline-dot dot-green"></div>
-                                    <div class="timeline-line bg-green"></div>
-                                </div>
-                                <div class="timeline-content">
-                                    <strong>Payment Confirmed</strong>
-                                    <p>Oct 24, 2:48 PM</p>
-                                </div>
-                            </div>
-                            <div class="timeline-item">
-                                <div class="timeline-icon">
-                                    <div class="timeline-dot dot-green"></div>
-                                    <div class="timeline-line bg-gray"></div>
-                                </div>
-                                <div class="timeline-content">
-                                    <strong>Shipped via FedEx</strong>
-                                    <p>Oct 25, 9:15 AM</p>
-                                </div>
-                            </div>
-                            <div class="timeline-item">
-                                <div class="timeline-icon">
-                                    <div class="timeline-dot dot-orange"></div>
-                                </div>
-                                <div class="timeline-content last">
-                                    <strong class="text-orange">Return Requested</strong>
-                                    <p>Oct 26, 4:20 PM</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div> -->
-
-                <!-- <button class="btn btn-dark w-100">Contact Customer Support</button> -->
+               
             </div>
         </div>
     </main>
 
     <footer class="page-footer">
-        <!--<div class="footer-left">
-                <i class="fa-solid fa-shopping-bag text-orange"></i>
-                <span>DesignSystem E-Comm</span>
-            </div>
-            <div class="footer-links">
-                <a href="#">Privacy Policy</a>
-                <a href="#">Terms of Service</a>
-                <a href="#">Help Center</a>
-            </div>
-            <div class="footer-right">
-                &copy; 2023 Order Manager Pro. All rights reserved.
-            </div>-->
+        
     </footer>
 </div>
 <!-- Schedule Pickup Modal -->
@@ -336,12 +284,7 @@
             <div id="dateDiv" class="form-group flex-1">
                 <label class="form-label">SELECT DATE</label>
                 <div class="select-wrapper">
-                    <!-- <select class="form-select">
-                        <option>Tuesday, Oct 31, 2023</option>
-                        <option>Wednesday, Nov 1, 2023</option>
-                        <option>Thursday, Nov 2, 2023</option>
-                    </select>
-                    <i class="fa-solid fa-chevron-down select-icon"></i> -->
+                    
                     <input type="date" class="form-select" id="pickupDate" required>
                 </div>
                 <p style="color: red;font-size: 13px;font-weight: normal;margin-top: 2px !important;display: none;">Please Select A Date</p>
@@ -364,163 +307,5 @@
     </div>
 </div>
 
-<script>
-    const modalOverlay = document.getElementById('pickupModalOverlay')
-    document.addEventListener('DOMContentLoaded', () => {
-        const scheduleBtn = document.getElementById('schedulePickupBtn');
-        
-        const closeBtn = document.getElementById('closeModalBtn');
-
-        if (scheduleBtn && modalOverlay) {
-            scheduleBtn.addEventListener('click', () => {
-                modalOverlay.classList.add('active');
-            });
-        }
-
-        if (closeBtn && modalOverlay) {
-            closeBtn.addEventListener('click', () => {
-                modalOverlay.classList.remove('active');
-            });
-        }
-
-        
-
-        const dateInput = document.getElementById('pickupDate');
-        if (dateInput) {
-            const today = new Date();
-            dateInput.min = today.toISOString().split('T')[0];
-        }
-    })
-
-    function redirectOrders(){
-        window.location.href = "/admin/orderManagement"
-    }
-
-    async function confirmPickupSlot(orderId,orderItemId) {
-        try {
-
-            const pickUpTime = document.getElementById("pickupWindow").value
-            const pickUpDate  = document.getElementById("pickupDate").value
-            const dateDiv = document.getElementById("dateDiv")
-            const timeDiv = document.getElementById("timeDiv")
-            let isValid = true
-
-            if(!pickUpDate){
-                dateDiv.querySelector('input').style.border='1px solid red'
-                dateDiv.querySelector('p').style.display='block'
-                isValid = false
-            }else{
-                dateDiv.querySelector('input').style.border='1px solid gray'
-                dateDiv.querySelector('p').style.display='none'
-            }
-
-            if(!pickUpTime){
-                timeDiv.querySelector('select').style.border='1px solid red'
-                timeDiv.querySelector('p').style.display='block'
-                isValid = false
-            }else{
-                timeDiv.querySelector('select').style.border='1px solid gray'
-                timeDiv.querySelector('p').style.display='none'
-            }
-
-            if (isValid) {
-
-                const response = await fetch("/admin/orderManagement/returnRequestAccept",{
-                    method : 'post',
-                    headers : {
-                        "Content-Type" : "application/json"
-                    },
-                    body : JSON.stringify({
-                        orderId : orderId,
-                        orderItemId : orderItemId,
-                        pickUpDate,
-                        pickUpTime
-                    })
-                })
-
-                const data = await response.json()
-
-                if (data.loginRequired) {
-                    return window.location.href = '/admin/login'
-                }
-
-                if (data.success) {
-                    showToast(data.message,"success")
-                    setTimeout(()=>{window.location.reload()},500)
-                } else {
-                    showToast(data.message,"error")
-                    setTimeout(()=>{window.location.reload()},500)
-                }
-                modalOverlay.classList.remove('active')
-            }
-
-        } catch (err) {
-            console.log(err)
-        }
-    }
-
-    async function rejectReturnRequest(orderId,orderItemId) {
-        try {
-
-            const response = await fetch ("/admin/orderManagement/rejectReturnRequest",{
-                method : 'post',
-                headers : {
-                    "Content-Type" : "application/json"
-                },
-                body : JSON.stringify({
-                    orderId ,
-                    orderItemId
-                })
-            })
-
-            const data = await response.json()
-
-            if (data.loginRequired) {
-                return window.location.href = '/admin/login'
-            }
-
-            if (data.success) {
-                showToast(data.message,"success")
-                setTimeout(()=>{window.location.reload()},500)
-            } else {
-                showToast(data.message,"error")
-                setTimeout(()=>{window.location.reload()},500)
-            }
-
-        } catch (err) {
-            console.log(err)
-        }
-    }
-
-
-
-
-function showToast(message, type = "success") {
-
-    const toast = document.createElement("div");
-    toast.innerText = message;
-
-    toast.style.position = "fixed";
-    toast.style.top = "20px";
-    toast.style.right = "20px";
-    toast.style.padding = "12px 20px";
-    toast.style.borderRadius = "6px";
-    toast.style.color = "white";
-    toast.style.zIndex = "9999";
-    toast.style.fontWeight = "500";
-    toast.style.boxShadow = "0 5px 15px rgba(0,0,0,0.2)";
-    toast.style.transition = "all 0.3s ease";
-
-    if (type === "success") {
-        toast.style.backgroundColor = "#28a745";
-    } else {
-        toast.style.backgroundColor = "#dc3545";
-    }
-
-    document.body.appendChild(toast);
-
-    setTimeout(() => {
-        toast.remove();
-    }, 3000);
-}
+<script src="/js/admin/orderDetails.js">
 </script>
