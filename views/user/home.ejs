@@ -107,16 +107,6 @@
             </div>
     </section>
 
-    <!-- Hero Section -->
-    <!-- <section class="hero">
-        
-        <img src="/images/banner-1.png" alt="Hero Banner" class="hero-bg">
-        <div class="hero-content">
-            <h1>Quality You Can Feel</h1>
-            <p>Explore our premium selection of top-rated products at prices you'll love</p>
-        </div>
-        <a href="/shop"><button class="btn-shop-now">Shop Now</button></a>
-    </section> -->
 
     <!-- Products Section -->
     <section class="section products">
@@ -144,9 +134,24 @@
             </a>
                 <div class="product-info">
                     <h3><%= variant.productId.name %></h3>
+                    <% if (variant.stock <= 5) {  %>
+                        <span class="out-of-stock-badge">
+                    <% if (variant.stock == 0) { %>
+                        Out of Stock
+                    <% } else { %>
+                        <%= variant.stock %> Left
+                    <% } %>
+                    </span>
+                <% } %>
                     <div class="price">
                         <span class="current-price">₹ <%= variant.offeredPrice.toLocaleString("en-IN") %></span>
-                        <span class="discount">-<%= variant.productId.offer %>% OFF</span>
+                        
+                        <% if (variant.productId.offer != 0 || variant.productId.categoryId.offer != 0){ %>
+                            <span class="discount">
+                            <% let offer = Math.max(variant.productId.offer , variant.productId.categoryId.offer ) %>
+                            -<%= offer %>% OFF
+                            </span>
+                        <% } %>
                     </div>
                     <span class="old-price">₹ <%= variant.price.toLocaleString("en-IN") %></span>
                 </div>

@@ -15,10 +15,33 @@ const client = new OAuth2Client(
 
 
 
+const validatePincode = async (req) => {
+
+    const {state,city,pincode} = req.body
+
+    const response = await axios.get(`https://api.postalpincode.in/pincode/${pincode}`)
+
+    if ((response.data[0].Status !== "Success")){
+        const message = "Invalid Pincode"
+        return {message}
+    }
+
+
+    const postOffice = response.data[0].PostOffice
+
+    const isMatch = postOffice.some((obj) => {
+        return obj.State.toLowerCase() === state.toLowerCase() && obj.District.toLowerCase() === city.toLowerCase()
+    })
 
 
 
+    if (!isMatch) {
+        const message = "The Post Code Is Not Match With City And State"
+        return {message}
+    }
 
+    return {success:true}
+}
 
 
 const generateOtp = async () => {
@@ -641,5 +664,6 @@ module.exports = {
     deleteAddress,
     editAddress,
     uploadProfile,
-    removeProfile
+    removeProfile,
+    validatePincode
 }

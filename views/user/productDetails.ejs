@@ -53,9 +53,11 @@
                 <a href="/wishlist"><i class="fa-regular fa-heart"></i></a>
                 <a style="text-decoration: none;" href="/cart" class="cart-icon-wrapper">
                 <i class="fa-solid fa-cart-shopping"></i>
-                <% if (Number(cartCount) > 0) { %>
-                    <span id="cartCountLogo" class="cart-badge"><%= cartCount %></span>
-                <% } %>
+                    <% if (cartCount === 0) { %>
+                        <span id="cartCountLogo" style="display: none;" class="cart-badge"><%= cartCount %></span>
+                    <% } else { %>
+                        <span id="cartCountLogo" class="cart-badge"><%= cartCount %></span>
+                    <% } %>
                </a>
             <% } %>
             <div class="user-menu">
@@ -236,7 +238,7 @@
             <div class="products-grid">
                 <!-- Product 1 -->
                  <% if (relatedProducts) { 
-                    relatedVariants.forEach((variant,index)=>{ %>
+                    relatedProducts.forEach((variant,index)=>{ %>
                 <a href="/product/<%= variant._id %>" class="product-card out-of-stock">
                     <div class="card-image">
                         <img  src="<%= variant.images[0] %>" alt="Related Product 1">
@@ -257,7 +259,12 @@
                             <span class="card-old-price">₹ <%= variant.price.toLocaleString("en-IN") %></span>
                             
                         </div>
-                        <span class="discount">-<%= variant.productId.offer %>% OFF</span><br>
+                        <% if (variant.productId.offer != 0 || variant.categoryId.offer != 0){ %>
+                            <span class="discount">
+                            <% let offer = Math.max(variant.productId.offer , variant.categoryId.offer ) %>
+                            -<%= offer %>% OFF
+                            </span>
+                        <% } %><br>
                         
                     </div>
                 </a>

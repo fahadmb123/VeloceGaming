@@ -57,11 +57,26 @@ function togglePassword(inputId, el) {
         
 
         if(!name ){
+            nameDiv.querySelector('p').innerText = "Name is Required"
             nameDiv.querySelector('input').style.border='1px solid red'
             nameDiv.querySelector('p').style.display='block'
             isValid = false
         }
         else if (name.length <= 3){
+            nameDiv.querySelector('p').innerText = "Name must be at least 3 letters"
+            nameDiv.querySelector('input').style.border='1px solid red'
+            nameDiv.querySelector('p').style.display='block'
+            isValid = false
+        }
+        
+        else if (!/^[A-Za-z\s]+$/.test(name)){
+            nameDiv.querySelector('p').innerText = "Only letters allowed"
+            nameDiv.querySelector('input').style.border='1px solid red'
+            nameDiv.querySelector('p').style.display='block'
+            isValid = false
+        }
+        else if (/\s{2,}/.test(name)){
+            nameDiv.querySelector('p').innerText = "Too Many Spaces Contains"
             nameDiv.querySelector('input').style.border='1px solid red'
             nameDiv.querySelector('p').style.display='block'
             isValid = false
@@ -74,6 +89,19 @@ function togglePassword(inputId, el) {
 
         if (currentPassword) {
             if(!newPassword){
+                newPasswordDiv.querySelector('p').innerText = "Password Required"
+                newPasswordDiv.querySelector('input').style.border='1px solid red'
+                newPasswordDiv.querySelector('p').style.display='block'
+                isValid = false
+            }
+            else if(!/^(?=.*[A-Za-z])(?=.*\d)(?=.*[!@#$%^&*()[\]{};:'",.<>/?\\|_+\-=]).{6,20}$/.test(newPassword)){
+                newPasswordDiv.querySelector('p').innerText = "Password must include letter, number and special character"
+                newPasswordDiv.querySelector('input').style.border='1px solid red'
+                newPasswordDiv.querySelector('p').style.display='block'
+                isValid = false
+            }
+            else if(newPassword.length < 6){
+                newPasswordDiv.querySelector('p').innerText = "Password Must At Least 6 Charecters"
                 newPasswordDiv.querySelector('input').style.border='1px solid red'
                 newPasswordDiv.querySelector('p').style.display='block'
                 isValid = false
@@ -105,6 +133,9 @@ function togglePassword(inputId, el) {
             isValid = false
            }
         }
+
+
+        
         
 
         if (isValid) {
@@ -253,13 +284,14 @@ function togglePassword(inputId, el) {
        const removeBtn = document.getElementById('removeProfilePhoto');
         if (removeBtn) {
             removeBtn.addEventListener('click', async () => {
-                
+                const spinner = document.getElementById("admin-spinner");
+                spinner.style.display = "flex"
                     const response = await fetch("/profile-remove",{
                         method : "post"
                     })
 
                     const data = await response.json()
-
+                    spinner.style.display = "none"
                     if (data.success){
                         
                         showToast(data.message)

@@ -24,10 +24,13 @@ const loadOrderSuccessPage = async (req,res) => {
 
         const order = await orderModel.findOne({_id:orderObjectId})
         let cartCount = 0
-        if (req.session.user){
-            const cart = await cartModel.findOne({userId:req.session.user._id})
-            cartCount = cart?.items.length
-        }
+                if (req.session.user){
+                    const cart = await cartModel.findOne({userId:req.session.user._id})
+                    cartCount = cart?.items.reduce((acc,curr)=>{
+                        acc += curr.quantity
+                        return acc
+                    },0)
+                }
         return res.render("user/orderSuccessPage",{
             order,
             cartCount
@@ -71,10 +74,13 @@ const loadOrderDetails = async (req,res) => {
             return item._id.toString() === id.toString()
         })
         let cartCount = 0
-                if (req.session.user){
-                    const cart = await cartModel.findOne({userId:req.session.user._id})
-                    cartCount = cart?.items.length
-                }
+        if (req.session.user){
+            const cart = await cartModel.findOne({userId:req.session.user._id})
+            cartCount = cart?.items.reduce((acc,curr)=>{
+                acc += curr.quantity
+                return acc
+            },0)
+        }
         return res.render("user/orderDetails",{
             order,
             orderItem,
@@ -161,10 +167,13 @@ const loadOrderHistory = async (req,res) => {
 
         let paginatedItems = orderItems.slice(skip, skip + limit)
         let cartCount = 0
-                if (req.session.user){
-                    const cart = await cartModel.findOne({userId:req.session.user._id})
-                    cartCount = cart?.items.length
-                }
+        if (req.session.user){
+            const cart = await cartModel.findOne({userId:req.session.user._id})
+            cartCount = cart?.items.reduce((acc,curr)=>{
+                acc += curr.quantity
+                return acc
+            },0)
+        }
         return res.render("user/orderHistory",{
             orders:paginatedItems,
             totalPages,

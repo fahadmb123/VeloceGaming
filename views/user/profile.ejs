@@ -70,6 +70,7 @@
 
         <ul class="sidebar-menu">
             <li class="active"><a href="#"><i class="fa-solid fa-briefcase"></i> My Profile</a></li>
+            <li><a href="/address"><i class="fa-solid fa-address-book"></i> Manage Address</a></li>
             <li><a href="/orderHistory"><i class="fa-solid fa-clipboard-list"></i> My Orders</a></li>
             <li><a href="/wishlist"><i class="fa-regular fa-heart"></i> My Wishlist</a></li>
             <li><a href="/coupon"><i class="fa-solid fa-ticket"></i> Coupon</a></li>
@@ -143,9 +144,7 @@
             </div>
         </div>
 
-        <div class="address-section">
-            <a href="/address"><button class="btn-show-address">Show Saved Address</button></a>
-        </div>
+        
     </section>
     <% if (typeof swalMessage !== "undefined" && swalMessage) { %>
     <span id="swalMessage" style="display:none;">

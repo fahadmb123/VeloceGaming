@@ -103,7 +103,10 @@ const loadHome = async (req,res) => {
         let cartCount = 0
         if (req.session.user){
             const cart = await cartModel.findOne({userId:req.session.user._id})
-            cartCount = cart?.items.length
+            cartCount = cart?.items.reduce((acc,curr)=>{
+                acc += curr.quantity
+                return acc
+            },0)
         }
         res.render("user/home",{
             swalMessage,
@@ -125,7 +128,10 @@ const loadProfile = async (req,res) => {
         let cartCount = 0
         if (req.session.user){
             const cart = await cartModel.findOne({userId:req.session.user._id})
-            cartCount = cart?.items.length
+            cartCount = cart?.items.reduce((acc,curr)=>{
+                acc += curr.quantity
+                return acc
+            },0)
         }
         res.render("user/profile",{swalMessage,cartCount})
     } catch (err) {
@@ -181,8 +187,7 @@ const loadEditAddress = async (req,res) => {
 
         const address = user.address.id(id)
 
-        //const swalMessage = req.session.swalMessage
-        //req.session.swalMessage = null
+        
         const message = req.session.message
         req.session.message = null
 
@@ -446,6 +451,25 @@ const editAddress = async (req,res) => {
     }
 }
 
+const validatePincode = async (req,res,next) => {
+    try {
+        const {message,success} = await userService.validatePincode(req)
+
+        if (message) {
+            return res.json({
+                success : false,
+                message
+            })
+        }
+        if (success) {
+            return res.json({
+                success : true
+            })
+        }
+    } catch (err) {
+        next(err)
+    }
+}
 
 const uploadProfile = async (req,res) => {
     try {
@@ -527,5 +551,6 @@ module.exports = {
     logout,
     uploadProfile,
     removeProfile,
-    checkRefferal
+    checkRefferal,
+    validatePincode
 }
