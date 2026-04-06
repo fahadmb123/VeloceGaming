@@ -187,7 +187,7 @@ document.addEventListener("DOMContentLoaded", () => {
           }
         }
       } else {
-        if (discountValue >= minPurchase) {
+        if (discountValue < minPurchase) {
           discountValueDiv.querySelector("p").innerText =
             "Discount Value Should Be Lower Than Min Purchase";
           discountValueDiv.querySelector("input").style.border =
