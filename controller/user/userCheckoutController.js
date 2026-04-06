@@ -3,6 +3,7 @@ const { variantModel } = require("../../model/productModel")
 const userModel = require("../../model/userModel")
 const couponModel = require("../../model/couponModel")
 const orderModel = require("../../model/orderModel")
+const {walletModel} = require("../../model/walletModel")
 
 
 
@@ -25,6 +26,7 @@ try {
         couponCode: { $ne: null }
     })
 
+    const wallet = await walletModel.findOne({userId:req.session.user._id})
 
     if (variantId && quantity) {
 
@@ -101,7 +103,8 @@ try {
             coupons,
             discount,
             coupon,
-            cartCount
+            cartCount,
+            walletBalance : wallet.balance
         })
 
     } else {
@@ -194,7 +197,8 @@ try {
             coupons,
             discount,
             coupon,
-            cartCount
+            cartCount,
+            walletBalance : wallet.balance
         })
     }
 } catch (err) {
