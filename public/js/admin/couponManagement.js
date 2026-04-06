@@ -135,7 +135,7 @@ document.addEventListener("DOMContentLoaded", () => {
       discountTypeDiv.querySelector("p").style.display = "none";
     }
 
-    if (!discountValue || discountValue < 0) {
+    if (!discountValue || Number(discountValue) < 0) {
       discountValueDiv.querySelector("p").innerText = "Discount Value Required";
       discountValueDiv.querySelector("input").style.border = "1px solid red";
       discountValueDiv.querySelector("p").style.display = "block";
@@ -161,7 +161,7 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     }
 
-    if (!minPurchase || minPurchase < 0) {
+    if (!minPurchase || Number(minPurchase) < 0) {
       minPurchaseDiv.querySelector("input").style.border = "1px solid red";
       minPurchaseDiv.querySelector("p").style.display = "block";
       isValid = false;
@@ -187,7 +187,7 @@ document.addEventListener("DOMContentLoaded", () => {
           }
         }
       } else {
-        if (discountValue < minPurchase) {
+        if (Number(discountValue) >= Number(minPurchase)) {
           discountValueDiv.querySelector("p").innerText =
             "Discount Value Should Be Lower Than Min Purchase";
           discountValueDiv.querySelector("input").style.border =
@@ -207,7 +207,7 @@ document.addEventListener("DOMContentLoaded", () => {
       expDateDiv.querySelector("p").style.display = "none";
     }
 
-    if (!maxUsage || maxUsage < 0) {
+    if (!maxUsage || Number(maxUsage) < 0) {
       maxUsageDiv.querySelector("input").style.border = "1px solid red";
       maxUsageDiv.querySelector("p").style.display = "block";
       isValid = false;
