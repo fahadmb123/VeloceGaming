@@ -65,6 +65,7 @@ margin:5px 0;
 <th>Price</th>
 <th>Discount</th>
 <th>Total</th>
+<th>Status</th>
 
 </tr>
 </thead>
@@ -86,6 +87,9 @@ margin:5px 0;
 
 <td>
 ₹ <%= ((item.price * item.quantity) - (item.couponDiscount || 0)).toLocaleString("en-IN") %>    
+</td>
+<td>
+<%= item.status %>    
 </td>
 
 
