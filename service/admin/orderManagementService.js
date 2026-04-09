@@ -143,7 +143,7 @@ const returnRequestAccept = async (req) => {
         await variantModel.updateOne(
             {_id:orderItem.variantId},
             {
-                $inc : {"stock":1}
+                $inc : {"stock":Number(orderItem.quantity)}
             }
         )
 

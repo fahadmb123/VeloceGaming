@@ -453,11 +453,19 @@ const loadCart = async (req,res) => {
                 },0)
                 
             }
-           
-        
+        let variantQuantityAvailable = false
+        if (cart && cart.items){
+            for (let item of cart.items) {
+                const variant = await variantModel.findOne({_id:item.variantId})
+                if (item.quantity > variant.stock && variant.stock !== 0) {
+                    variantQuantityAvailable = true
+                }
+            }
+        } 
         return res.render ("user/cart",{
             cartItems,
-            total
+            total,
+            variantQuantityAvailable
         })
     } catch (err) {
         console.log(err)
