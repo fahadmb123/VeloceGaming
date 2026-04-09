@@ -29,13 +29,13 @@ const addCoupon = async (req) => {
         if (isExist) {
             return {failMessage : "Coupon Code Already Exist"}
         }
-
+        let maxDiscountValue = discountType === "flat" ? null : maxDiscount
         const newCoupon = new couponModel({
             code :couponCode,
             type : discountType,
             discountValue,
             minPurchase,
-            maxDiscount,
+            maxDiscount:maxDiscountValue,
             expiryDate : expDate,
             maxUsage
         })
@@ -85,6 +85,7 @@ const editCoupon = async (req) => {
             isEdited = false
         }
 
+        let maxDiscountValue = discountType === "flat" ? null : maxDiscount
         await couponModel.updateOne(
             {_id:couponId},
             {
@@ -93,7 +94,7 @@ const editCoupon = async (req) => {
                     type : discountType,
                     discountValue,
                     minPurchase,
-                    maxDiscount : maxDiscount ?? null,
+                    maxDiscount : maxDiscountValue ?? null,
                     expiryDate : expDate,
                     maxUsage
                 }

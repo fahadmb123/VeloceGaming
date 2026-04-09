@@ -431,11 +431,7 @@ const cancelOrder = async (req) => {
 
         const coupon = await couponModel.findOne({code:order.couponCode})
         
-        /*let cancelCondition = order.subtotal - orderItem.price
-        let cancellable = cancelCondition >= coupon.minPurchase
-        if (!cancellable){
-            return {failMessage : `You Can't Cancel Becouse Of Coupon Min Is ${coupon.minPurchase}`}
-        }*/
+        
     
         if (orderItem.status !== 'placed') {
             return {placedRequired : true}
@@ -473,7 +469,7 @@ const cancelOrder = async (req) => {
         await variantModel.updateOne(
             {_id:orderItem.variantId},
             {
-                $inc : {"stock":1}
+                $inc : {"stock":Number(orderItem.quantity)}
             }
         )
 

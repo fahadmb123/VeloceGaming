@@ -55,6 +55,16 @@ document.addEventListener("DOMContentLoaded", () => {
     couponForm.reset();
     modal.classList.add("show");
     currentMode = "add";
+
+   
+    const typeElement = document.getElementById("discountType");
+    const maxDiscountDiv = document.getElementById("maxDiscountDiv");
+
+    if (typeElement.value === "flat") {
+        maxDiscountDiv.style.display = "none";
+    } else {
+        maxDiscountDiv.style.display = "block";
+    }
   });
 
   // Open for Edit
@@ -64,7 +74,16 @@ document.addEventListener("DOMContentLoaded", () => {
     modalTitle.textContent = "Edit Coupon Details";
     submitBtn.textContent = "Save";
 
-    // Simple demo: populate one field from the row
+    const typeElement = document.getElementById("discountType");
+    const maxDiscountDiv = document.getElementById("maxDiscountDiv");
+
+    if (coupon?.type === "flat") {
+        maxDiscountDiv.style.display = "none";
+    } else {
+        maxDiscountDiv.style.display = "block";
+    }
+
+    
     const today = new Date().toLocaleDateString("en-CA", {
       timeZone: "Asia/Kolkata",
     });
@@ -296,6 +315,30 @@ async function couponStatus(couponId, status) {
     return;
   }
 }
+
+document.addEventListener("DOMContentLoaded", function () {
+
+    const typeElement = document.getElementById("discountType");
+    const maxDiscountDiv = document.getElementById("maxDiscountDiv");
+
+    if (!typeElement || !maxDiscountDiv) return;
+
+    function toggleMaxDiscount() {
+        const type = typeElement.value.trim();
+
+        if (type === "flat") {
+            maxDiscountDiv.style.display = "none";
+        } else {
+            maxDiscountDiv.style.display = "block";
+        }
+    }
+
+    // Run initially
+    toggleMaxDiscount();
+
+    // Run when dropdown changes
+    typeElement.addEventListener("change", toggleMaxDiscount);
+});
 
 function showToast(message, type = "success") {
   const toast = document.createElement("div");

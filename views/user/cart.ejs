@@ -151,13 +151,18 @@ if (cartItems) {
                     <span id="totalInput" class="total-price">₹ <%= total.toLocaleString("en-IN") %></span>
                 </div>
             </div>
-            <!-- <a href="/checkout"><button  class="btn-checkout">Process to checkout</button></a> -->
-            <% if (!outOfStock) { %>
+            
+            <% if (!outOfStock && !variantQuantityAvailable) { %>
                 <a href="/checkout">
                     <button class="btn-checkout">Proceed to checkout</button>
                 </a>
             <% } else { %>
-                <button class="btn-checkout" disabled>Out of Stock</button>
+                <% if (variantQuantityAvailable) { %>
+                    <button class="btn-checkout" disabled>Some Product Doesn't Have That Much Quantity</button>
+                <% } else { %>
+                    <button class="btn-checkout" disabled>Out of Stock</button>
+                <% } %>
+                
             <% } %>
         </aside>
     </div>
